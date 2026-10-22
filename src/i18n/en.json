@@ -1,0 +1,435 @@
+{
+  "app": {
+    "name": "Mitanin Care",
+    "loading": "Loading",
+    "screenNotBuilt": "Screen not built yet"
+  },
+  "common": {
+    "back": "Back",
+    "next": "Next",
+    "save": "Save",
+    "cancel": "Cancel",
+    "online": "Online",
+    "offline": "Offline",
+    "empty": "Nothing here yet"
+  },
+  "screens": {
+    "Alerts": {
+      "title": "Alerts",
+      "groups": {
+        "today": "Today",
+        "earlier": "Earlier"
+      },
+      "empty": "No alerts. Good work today.",
+      "demo": "Demo state",
+      "views": {
+        "alerts": "With alerts",
+        "empty": "Empty"
+      }
+    },
+    "CaseTimeline": {
+      "caseNo": "Case MS-1042",
+      "patient": "Ramesh, 6, Kotra",
+      "status": "Referral in progress",
+      "tabs": {
+        "timeline": "Timeline",
+        "details": "Details",
+        "photos": "Photos"
+      },
+      "steps": [
+        "Screened",
+        "Consult sent",
+        "Doctor replied",
+        "Referral created",
+        "Reminder sent",
+        "Reached facility",
+        "Outcome"
+      ],
+      "by": [
+        "Sunita, Mitanin",
+        "Sunita, Mitanin",
+        "Dr. Rao",
+        "Sunita, Mitanin",
+        "Sunita, Mitanin",
+        "To be confirmed by Sunita",
+        "To be recorded by Sunita"
+      ],
+      "inProgress": "In progress",
+      "notYet": "Not yet",
+      "detailRows": [
+        [
+          "Patient",
+          "Ramesh, 6"
+        ],
+        [
+          "Village",
+          "Kotra"
+        ],
+        [
+          "Mitanin",
+          "Sunita"
+        ],
+        [
+          "Doctor",
+          "Dr. Rao"
+        ],
+        [
+          "Test",
+          "Positive"
+        ],
+        [
+          "Priority",
+          "High"
+        ],
+        [
+          "Referred to",
+          "District hospital"
+        ]
+      ],
+      "photoTitle": "Rapid test photo",
+      "photoMeta": "24 Jan, 10:38, taken by Sunita",
+      "reads": [
+        "Mitanin read: Positive",
+        "Doctor read: Agree"
+      ],
+      "photoAlt": "Photo of the rapid test cassette"
+    },
+    "ConsultStatus": {
+      "patient": "Ramesh, 6, Kotra",
+      "caseNo": "Case MS-1042",
+      "demo": "Demo state",
+      "variants": {
+        "waiting": "Waiting",
+        "replied": "Replied"
+      },
+      "steps": [
+        "Sent",
+        "Doctor received",
+        "Doctor replied"
+      ],
+      "pending": "Waiting",
+      "expected": "Reply expected within 4 hours",
+      "left": "2 h 45 min left",
+      "repliedIn": "Replied in 1 h 38 min",
+      "waitingPill": "Waiting for doctor",
+      "from": "Dr. Rao",
+      "advice": "The child has fever and a positive test. Please refer to the district hospital today and keep giving fluids on the way.",
+      "decision": "Refer to district hospital",
+      "create": "Create referral",
+      "ringLabel": "Reply timer"
+    },
+    "DoctorInbox": {
+      "greeting": "Namaste, Dr. Rao",
+      "synced": "Synced",
+      "offline": "Offline",
+      "title": "Cases waiting",
+      "filters": {
+        "all": "All",
+        "over2h": "Waiting over 2 hours",
+        "photos": "Test photos"
+      },
+      "filterLabel": "Filter cases",
+      "empty": "No cases match this filter.",
+      "noPhoto": "No photo",
+      "photoAlt": "Test photo",
+      "hourUnit": "h",
+      "minuteUnit": "min"
+    },
+    "DoctorReview": {
+      "caseNo": "Case MS-1042",
+      "patient": "Ramesh, 6, Kotra",
+      "photoAlt": "Test photo of the rapid test cassette",
+      "pinch": "Pinch to zoom",
+      "reset": "Reset zoom",
+      "mitaninRead": "Mitanin read: Positive",
+      "myRead": "My read",
+      "reads": {
+        "agree": "Agree",
+        "disagree": "Disagree"
+      },
+      "recorded": "Reading agreement is recorded for quality",
+      "symptomsTitle": "Symptoms",
+      "symptoms": [
+        "Fever for more than 2 days",
+        "Very weak or sleepy"
+      ],
+      "advice": "Advice",
+      "advicePlaceholder": "Write advice for the Mitanin",
+      "chips": [
+        "Refer to district hospital today",
+        "Treat in the village, review in 24 hours",
+        "Repeat the test"
+      ],
+      "chipsLabel": "Quick replies",
+      "decisionTitle": "Decision",
+      "decisions": {
+        "local": "Treat locally",
+        "refer": "Refer"
+      },
+      "send": "Send reply",
+      "sent": "Reply sent"
+    },
+    "MitaninHome": {
+      "greeting": "Namaste, Sunita",
+      "synced": "Synced",
+      "offline": "Offline",
+      "search": "Search patients",
+      "prioTitle": "Today's priorities",
+      "prioSub": "Needs attention first",
+      "visitsTitle": "Your visits",
+      "visitsSub": "Next patients",
+      "newScreening": "New screening",
+      "priorities": [
+        "Overdue referral",
+        "Follow-ups due",
+        "Awaiting doctor"
+      ],
+      "visits": [
+        {
+          "name": "Radha Yadav",
+          "village": "Kodar",
+          "task": "Fever follow-up, day 3",
+          "status": "Due today",
+          "late": false
+        },
+        {
+          "name": "Meena Bai",
+          "village": "Amora",
+          "task": "Referral check",
+          "status": "Overdue",
+          "late": true
+        }
+      ]
+    },
+    "Profile": {
+      "title": "Profile",
+      "name": "Sunita",
+      "role": "Mitanin",
+      "language": "Language",
+      "english": "English",
+      "hindi": "हिन्दी",
+      "sync": "Connection status",
+      "online": "Online",
+      "offline": "Offline",
+      "changeRole": "Change role"
+    },
+    "ReferralTracker": {
+      "title": "Referral",
+      "rows": [
+        "Patient",
+        "Refer to",
+        "Owner",
+        "Due"
+      ],
+      "values": [
+        "Ramesh, 6, Kotra",
+        "District hospital",
+        "Sunita",
+        "Within 24 hours"
+      ],
+      "done": "Done",
+      "steps": [
+        "Created",
+        "Reminder sent",
+        "Reached facility",
+        "Outcome recorded"
+      ],
+      "trackerLabel": "Referral progress",
+      "actions": [
+        "Send reminder to family",
+        "Mark reached facility",
+        "Record outcome"
+      ],
+      "sheetTitle": "Record outcome",
+      "outcomes": {
+        "completed": "Completed",
+        "rescheduled": "Rescheduled",
+        "escalated": "Escalated",
+        "unresolved": "Unresolved"
+      },
+      "note": "Note",
+      "notePlaceholder": "Add a note (optional)",
+      "save": "Save outcome",
+      "cancel": "Cancel",
+      "hourUnit": "h",
+      "minuteUnit": "min",
+      "dueWithin": "Within 24 hours",
+      "leftSuffix": "left"
+    },
+    "RoleSelect": {
+      "title": "Choose your role",
+      "footer": "Demo version. All data is fictional.",
+      "roles": {
+        "mitanin": {
+          "name": "Mitanin",
+          "desc": "Screen patients and log home visits"
+        },
+        "doctor": {
+          "name": "Doctor",
+          "desc": "Review cases and reply to referrals"
+        },
+        "supervisor": {
+          "name": "Supervisor",
+          "desc": "Follow village cases and alerts"
+        }
+      },
+      "brandLine1": "Mitanin",
+      "brandLine2": "Signal"
+    },
+    "ScreeningResult": {
+      "steps": [
+        "Patient",
+        "Symptoms",
+        "Test",
+        "Result"
+      ],
+      "stepOf": "Step 4 of 4",
+      "patient": "Ramesh, 6, Kotra",
+      "facts": [
+        "Fever for more than 2 days",
+        "Test: Positive"
+      ],
+      "priority": "PRIORITY: HIGH",
+      "why": "Why: fever over 2 days and positive test",
+      "actionLabel": "Suggested action",
+      "action": "Ask a doctor, then refer",
+      "rule": "Guideline rule, not a diagnosis",
+      "ask": "Ask doctor",
+      "save": "Save and decide later",
+      "toast": "Saved on this phone. Will send when signal returns."
+    },
+    "ScreeningSymptoms": {
+      "steps": [
+        "Patient",
+        "Symptoms",
+        "Test",
+        "Result"
+      ],
+      "stepOf": "Step 2 of 4",
+      "patient": "Ramesh, 6, Kotra",
+      "title": "Symptoms",
+      "sub": "Tap each sign you see",
+      "tag": "Illustrative checklist",
+      "listen": "Read aloud",
+      "back": "Back",
+      "next": "Next",
+      "items": [
+        "Fever for more than 2 days",
+        "Unable to drink or feed",
+        "Convulsions",
+        "Very weak or sleepy",
+        "Pale palms"
+      ]
+    },
+    "States": {
+      "offlineTitle": "You are offline",
+      "offlineBody": "Your changes stay on this device and can sync when connection returns.",
+      "syncingTitle": "Syncing your data",
+      "syncingBody": "Keep this screen open while updates are sent.",
+      "emptyTitle": "Nothing here yet",
+      "emptyBody": "New items will appear here when available."
+    },
+    "SupervisorDashboard": {
+      "title": "Anita, District supervisor",
+      "ringTitle": "Loop Closure Rate",
+      "demo": "Demo",
+      "stats": [
+        "Overdue",
+        "Due soon",
+        "Awaiting doctor"
+      ],
+      "allVillages": "All villages",
+      "allMitanins": "All Mitanins",
+      "villageLabel": "Filter by village",
+      "mitaninLabel": "Filter by Mitanin",
+      "listTitle": "Needs action first",
+      "mitaninPrefix": "Mitanin",
+      "status": {
+        "overdue": "Overdue",
+        "soon": "Due soon",
+        "awaiting": "Awaiting doctor"
+      },
+      "actions": [
+        "Call",
+        "Remind",
+        "Escalate"
+      ],
+      "empty": "No cases match these filters.",
+      "toasts": [
+        "Calling {who}",
+        "Reminder sent to {who}",
+        "Escalated: {name}"
+      ]
+    },
+    "TestPhoto": {
+      "steps": [
+        "Patient",
+        "Symptoms",
+        "Test",
+        "Result"
+      ],
+      "stepOf": "Step 3 of 4",
+      "place": "Place the test inside the frame",
+      "demo": "Camera not available. Showing a demo view.",
+      "chips": [
+        "Sharp",
+        "Good light",
+        "Control line visible"
+      ],
+      "capture": "Take photo",
+      "retake": "Retake",
+      "choose": "Choose the result",
+      "results": {
+        "positive": "Positive",
+        "negative": "Negative",
+        "invalid": "Invalid"
+      },
+      "note": "A doctor can check this photo",
+      "repeat": "Repeat the test",
+      "next": "Next",
+      "photoAlt": "Photo of the test cassette"
+    },
+    "Visits": {
+      "weekday": "Wed",
+      "month": "Jan 2026",
+      "today": "Today",
+      "letters": [
+        "S",
+        "M",
+        "T",
+        "W",
+        "T",
+        "F",
+        "S"
+      ],
+      "byTime": "By time",
+      "byPriority": "By priority",
+      "sortLabel": "Sort visits",
+      "empty": "No visits planned for this day.",
+      "types": {
+        "screening": "Screening",
+        "followup": "Follow-up",
+        "referral": "Referral check"
+      },
+      "status": {
+        "overdue": "Overdue",
+        "due": "Due today",
+        "scheduled": "Scheduled",
+        "done": "Done"
+      },
+      "visitSingular": "visit",
+      "visitPlural": "visits"
+    }
+  },
+  "navigation": {
+    "main": "Main navigation",
+    "home": "Home",
+    "visits": "Visits",
+    "alerts": "Alerts",
+    "profile": "Profile",
+    "cases": "Cases",
+    "inbox": "Inbox",
+    "replied": "Replied",
+    "overview": "Overview"
+  }
+}

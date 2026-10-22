@@ -1,0 +1,156 @@
+{
+  "doctorInbox": [
+    {
+      "id": "c1",
+      "name": {
+        "en": "Ramesh, 6",
+        "hi": "रमेश, 6"
+      },
+      "village": {
+        "en": "Kotra",
+        "hi": "कोतरा"
+      },
+      "symptoms": {
+        "en": "Fever over 2 days, test positive",
+        "hi": "2 दिन से ज़्यादा बुखार, जाँच पॉज़िटिव"
+      },
+      "waitingMin": 190,
+      "photo": true,
+      "patientId": "p1"
+    },
+    {
+      "id": "c2",
+      "name": {
+        "en": "Anita Markam, 3",
+        "hi": "अनीता मरकाम, 3"
+      },
+      "village": {
+        "en": "Amora",
+        "hi": "अमोरा"
+      },
+      "symptoms": {
+        "en": "Unable to feed, very sleepy",
+        "hi": "दूध नहीं पी रही, बहुत सुस्त"
+      },
+      "waitingMin": 140,
+      "photo": true,
+      "patientId": "p4"
+    },
+    {
+      "id": "c3",
+      "name": {
+        "en": "Kishan Netam, 45",
+        "hi": "किशन नेताम, 45"
+      },
+      "village": {
+        "en": "Pachri",
+        "hi": "पचरी"
+      },
+      "symptoms": {
+        "en": "Cough for 2 weeks, night fever",
+        "hi": "2 हफ़्ते से खाँसी, रात को बुखार"
+      },
+      "waitingMin": 75,
+      "photo": false,
+      "patientId": "p5"
+    },
+    {
+      "id": "c4",
+      "name": {
+        "en": "Pooja Sahu, 8",
+        "hi": "पूजा साहू, 8"
+      },
+      "village": {
+        "en": "Kodar",
+        "hi": "कोड़ार"
+      },
+      "symptoms": {
+        "en": "Pale palms, weak",
+        "hi": "हथेलियाँ पीली, कमज़ोर"
+      },
+      "waitingMin": 40,
+      "photo": true,
+      "patientId": "p6"
+    },
+    {
+      "id": "c5",
+      "name": {
+        "en": "Bhagat Rai, 60",
+        "hi": "भगत राय, 60"
+      },
+      "village": {
+        "en": "Amora",
+        "hi": "अमोरा"
+      },
+      "symptoms": {
+        "en": "Fever for 3 days",
+        "hi": "3 दिन से बुखार"
+      },
+      "waitingMin": 15,
+      "photo": false,
+      "patientId": "p7"
+    }
+  ],
+  "supervisorRows": [
+    {
+      "id": "r1",
+      "name": {
+        "en": "Ramesh, 6",
+        "hi": "रमेश, 6"
+      },
+      "village": "Kotra",
+      "mitanin": "Sunita",
+      "reason": {
+        "en": "Referral not confirmed, 2 days",
+        "hi": "रेफ़रल की पुष्टि नहीं, 2 दिन"
+      },
+      "status": "overdue",
+      "patientId": "p1"
+    },
+    {
+      "id": "r2",
+      "name": {
+        "en": "Pooja Sahu, 8",
+        "hi": "पूजा साहू, 8"
+      },
+      "village": "Kodar",
+      "mitanin": "Sunita",
+      "reason": {
+        "en": "Reached facility not confirmed, 1 day",
+        "hi": "अस्पताल पहुँचने की पुष्टि नहीं, 1 दिन"
+      },
+      "status": "overdue",
+      "patientId": "p6"
+    },
+    {
+      "id": "r3",
+      "name": {
+        "en": "Anita Markam, 3",
+        "hi": "अनीता मरकाम, 3"
+      },
+      "village": "Amora",
+      "mitanin": "Rekha",
+      "reason": {
+        "en": "Doctor reply pending, 5 hours",
+        "hi": "डॉक्टर का जवाब बाकी, 5 घंटे"
+      },
+      "status": "awaiting",
+      "patientId": "p4"
+    },
+    {
+      "id": "r4",
+      "name": {
+        "en": "Budhram Sahu, 52",
+        "hi": "बुधराम साहू, 52"
+      },
+      "village": "Pachri",
+      "mitanin": "Geeta",
+      "reason": {
+        "en": "Follow-up due tomorrow",
+        "hi": "फ़ॉलो-अप कल देय"
+      },
+      "status": "soon",
+      "patientId": "p13"
+    }
+  ]
+}

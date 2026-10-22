@@ -1,0 +1,265 @@
+import { useState } from 'react';
+import type { ScreenProps } from '../App';
+import enLocale from '../i18n/en.json';
+import hiLocale from '../i18n/hi.json';
+import { dataService } from '../services';
+
+type Variant = 'waiting' | 'replied';
+
+const COPY = { en: enLocale.screens.ConsultStatus, hi: hiLocale.screens.ConsultStatus } as const;
+
+const TIMES = dataService.getTimeline().consultStatus;
+
+const R = 40;
+const C = 2 * Math.PI * R;
+
+function Ring({ done, fraction, label }: { done: boolean; fraction: number; label: string }) {
+  return (
+    <svg width="104" height="104" viewBox="0 0 104 104" role="img" aria-label={label}>
+      <circle cx="52" cy="52" r={R} fill="none" stroke="var(--ms-green-100)" strokeWidth="10" />
+      <circle
+        cx="52"
+        cy="52"
+        r={R}
+        fill="none"
+        stroke={done ? 'var(--ms-green-500)' : 'var(--ms-orange)'}
+        strokeWidth="10"
+        strokeLinecap="round"
+        strokeDasharray={C}
+        strokeDashoffset={C * (1 - fraction)}
+        transform="rotate(-90 52 52)"
+      />
+      {done ? (
+        <path d="m38 53 10 10 19-21" fill="none" stroke="var(--ms-green-500)" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
+      ) : (
+        <g fill="none" stroke="var(--ms-ink)" strokeWidth="4" strokeLinecap="round">
+          <circle cx="52" cy="52" r="15" />
+          <path d="M52 43v9l6 4" />
+        </g>
+      )}
+    </svg>
+  );
+}
+
+export default function ConsultStatus({ lang, onNavigate }: ScreenProps) {
+  const t = COPY[lang];
+  const [variant, setVariant] = useState<Variant>('waiting');
+  const replied = variant === 'replied';
+  const doneCount = replied ? 3 : 2;
+
+  return (
+    <div>
+      <header
+        style={{
+          background: 'var(--ms-green-700)',
+          color: '#fff',
+          borderRadius: '0 0 32px 32px',
+          padding: 'calc(22px + env(safe-area-inset-top, 0px)) 20px 26px',
+        }}
+      >
+        <p style={{ margin: 0, fontSize: 13.5, fontWeight: 700, opacity: 0.85 }}>{t.caseNo}</p>
+        <h1 style={{ margin: '4px 0 0', fontSize: 28, fontWeight: 800, lineHeight: 1.15 }}>{dataService.getPatientSummary('p1', lang)}</h1>
+      </header>
+
+      <section style={{ padding: '18px 20px 0' }}>
+        <div role="group" aria-label={t.demo} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--ms-muted)' }}>{t.demo}</span>
+          <div style={{ display: 'flex', padding: 3, borderRadius: 999, background: 'var(--ms-green-100)' }}>
+            {(['waiting', 'replied'] as const).map((key) => {
+              const on = variant === key;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  aria-pressed={on}
+                  onClick={() => setVariant(key)}
+                  style={{
+                    border: 0,
+                    cursor: 'pointer',
+                    padding: '6px 14px',
+                    borderRadius: 999,
+                    fontSize: 12.5,
+                    fontWeight: 800,
+                    background: on ? 'var(--ms-surface)' : 'transparent',
+                    color: on ? 'var(--ms-green-900)' : 'var(--ms-green-700)',
+                  }}
+                >
+                  {t.variants[key]}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div
+          style={{
+            marginTop: 14,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 16,
+            padding: 16,
+            borderRadius: 24,
+            background: 'var(--ms-surface)',
+            boxShadow: '0 4px 16px rgba(31, 77, 56, 0.07)',
+          }}
+        >
+          <Ring done={replied} fraction={replied ? 1 : 1.25 / 4} label={t.ringLabel} />
+          <div style={{ minWidth: 0 }}>
+            <p style={{ margin: 0, fontSize: 16.5, fontWeight: 800, lineHeight: 1.3 }}>{t.expected}</p>
+            <p style={{ margin: '4px 0 0', fontSize: 14, fontWeight: 700, color: replied ? 'var(--ms-green-700)' : 'var(--ms-muted)' }}>
+              {replied ? t.repliedIn : t.left}
+            </p>
+            {!replied && (
+              <span
+                style={{
+                  display: 'inline-block',
+                  marginTop: 10,
+                  padding: '4px 12px',
+                  borderRadius: 999,
+                  fontSize: 12.5,
+                  fontWeight: 800,
+                  background: '#eceeed',
+                  color: '#6b7770',
+                }}
+              >
+                {t.waitingPill}
+              </span>
+            )}
+          </div>
+        </div>
+
+        <ol style={{ listStyle: 'none', margin: '20px 4px 0', padding: 0 }}>
+          {t.steps.map((label, i) => {
+            const done = i < doneCount;
+            const last = i === t.steps.length - 1;
+            return (
+              <li key={label} style={{ display: 'flex', gap: 14 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  <span
+                    aria-hidden
+                    style={{
+                      flex: '0 0 32px',
+                      height: 32,
+                      borderRadius: '50%',
+                      display: 'grid',
+                      placeItems: 'center',
+                      background: done ? 'var(--ms-green-500)' : 'var(--ms-surface)',
+                      border: done ? 0 : '2.5px dashed #b9c4bd',
+                      color: '#fff',
+                    }}
+                  >
+                    {done && (
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="m5 12.5 4.5 4.5L19 7.5" />
+                      </svg>
+                    )}
+                  </span>
+                  {!last && (
+                    <span
+                      aria-hidden
+                      style={{
+                        flex: 1,
+                        width: 3,
+                        minHeight: 26,
+                        margin: '4px 0',
+                        borderRadius: 2,
+                        background: i + 1 < doneCount ? 'var(--ms-green-500)' : '#d6ddd8',
+                      }}
+                    />
+                  )}
+                </div>
+                <div style={{ paddingBottom: last ? 0 : 14, paddingTop: 4 }}>
+                  <p style={{ margin: 0, fontSize: 16.5, fontWeight: 800, color: done ? 'var(--ms-ink)' : 'var(--ms-muted)' }}>
+                    {label}
+                  </p>
+                  <p style={{ margin: '2px 0 0', fontSize: 13.5, color: 'var(--ms-muted)' }}>
+                    {done ? TIMES[i] : t.pending}
+                  </p>
+                </div>
+              </li>
+            );
+          })}
+        </ol>
+
+        {replied && (
+          <article
+            style={{
+              marginTop: 20,
+              padding: 18,
+              borderRadius: 24,
+              background: 'var(--ms-green-500)',
+              color: '#fff',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span
+                aria-hidden
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: '50%',
+                  display: 'grid',
+                  placeItems: 'center',
+                  background: 'var(--ms-green-700)',
+                }}
+              >
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M6 3v6a4 4 0 0 0 8 0V3" />
+                  <path d="M10 13v2a5 5 0 0 0 10 0v-1.5" />
+                  <circle cx="20" cy="12" r="2" />
+                </svg>
+              </span>
+              <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>{t.from}</h2>
+            </div>
+            <p style={{ margin: '12px 0 0', fontSize: 15.5, lineHeight: 1.45, fontWeight: 600 }}>{t.advice}</p>
+            <span
+              style={{
+                display: 'inline-block',
+                marginTop: 14,
+                padding: '6px 14px',
+                borderRadius: 999,
+                fontSize: 14,
+                fontWeight: 800,
+                background: '#fff',
+                color: 'var(--ms-green-900)',
+              }}
+            >
+              {t.decision}
+            </span>
+          </article>
+        )}
+      </section>
+
+      {replied && (
+        <div
+          style={{
+            position: 'sticky',
+            bottom: 'calc(96px + env(safe-area-inset-bottom, 0px))',
+            marginTop: 18,
+            padding: '14px 20px 6px',
+            background: 'linear-gradient(to top, var(--ms-bg) 70%, rgba(246,248,245,0))',
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => onNavigate('/mitanin/referral')}
+            style={{
+              width: '100%',
+              height: 62,
+              border: 0,
+              borderRadius: 22,
+              cursor: 'pointer',
+              fontSize: 19,
+              fontWeight: 800,
+              background: 'var(--ms-orange)',
+              color: '#fff',
+              boxShadow: '0 10px 22px rgba(240, 121, 75, 0.35)',
+            }}
+          >
+            {t.create}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}

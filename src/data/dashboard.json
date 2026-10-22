@@ -1,0 +1,39 @@
+{
+  "priorityCards": [
+    {
+      "count": 1,
+      "bg": "var(--ms-orange)",
+      "blob": "#f7b08f",
+      "route": "/referral"
+    },
+    {
+      "count": 2,
+      "bg": "var(--ms-violet)",
+      "blob": "#3d43b8",
+      "route": "/visits"
+    },
+    {
+      "count": 1,
+      "bg": "var(--ms-green-500)",
+      "blob": "#2d6a4f",
+      "route": "/consult"
+    }
+  ],
+  "stats": [
+    {
+      "bg": "var(--ms-orange)",
+      "blob": "#f7b08f",
+      "n": 3
+    },
+    {
+      "bg": "var(--ms-violet)",
+      "blob": "#3d43b8",
+      "n": 5
+    },
+    {
+      "bg": "var(--ms-green-500)",
+      "blob": "#2d6a4f",
+      "n": 2
+    }
+  ]
+}

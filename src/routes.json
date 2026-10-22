@@ -1,0 +1,125 @@
+[
+  {
+    "screen": "RoleSelect.tsx",
+    "component": "RoleSelect",
+    "route": "/role",
+    "data": []
+  },
+  {
+    "screen": "MitaninHome.tsx",
+    "component": "MitaninHome",
+    "route": "/mitanin/home",
+    "data": [
+      "patients",
+      "visits",
+      "alerts",
+      "dashboard"
+    ]
+  },
+  {
+    "screen": "Visits.tsx",
+    "component": "Visits",
+    "route": "/mitanin/visits",
+    "data": [
+      "visits",
+      "patients"
+    ]
+  },
+  {
+    "screen": "ScreeningSymptoms.tsx",
+    "component": "ScreeningSymptoms",
+    "route": "/mitanin/screening/symptoms",
+    "data": [
+      "patients"
+    ]
+  },
+  {
+    "screen": "TestPhoto.tsx",
+    "component": "TestPhoto",
+    "route": "/mitanin/screening/test",
+    "data": [
+      "patients"
+    ]
+  },
+  {
+    "screen": "ScreeningResult.tsx",
+    "component": "ScreeningResult",
+    "route": "/mitanin/screening/result",
+    "data": [
+      "cases",
+      "patients"
+    ]
+  },
+  {
+    "screen": "ConsultStatus.tsx",
+    "component": "ConsultStatus",
+    "route": "/mitanin/consult",
+    "data": [
+      "cases",
+      "patients",
+      "timeline"
+    ]
+  },
+  {
+    "screen": "ReferralTracker.tsx",
+    "component": "ReferralTracker",
+    "route": "/mitanin/referral",
+    "data": [
+      "referrals",
+      "patients"
+    ]
+  },
+  {
+    "screen": "DoctorInbox.tsx",
+    "component": "DoctorInbox",
+    "route": "/doctor/inbox",
+    "data": [
+      "cases",
+      "patients"
+    ]
+  },
+  {
+    "screen": "DoctorReview.tsx",
+    "component": "DoctorReview",
+    "route": "/doctor/review",
+    "data": [
+      "cases",
+      "patients"
+    ]
+  },
+  {
+    "screen": "SupervisorDashboard.tsx",
+    "component": "SupervisorDashboard",
+    "route": "/supervisor/overview",
+    "data": [
+      "cases",
+      "patients",
+      "dashboard",
+      "directory"
+    ]
+  },
+  {
+    "screen": "CaseTimeline.tsx",
+    "component": "CaseTimeline",
+    "route": "/case",
+    "data": [
+      "cases",
+      "patients",
+      "timeline"
+    ]
+  },
+  {
+    "screen": "Alerts.tsx",
+    "component": "Alerts",
+    "route": "/alerts",
+    "data": [
+      "alerts"
+    ]
+  },
+  {
+    "screen": "Profile.tsx",
+    "component": "Profile",
+    "route": "/profile",
+    "data": []
+  }
+]

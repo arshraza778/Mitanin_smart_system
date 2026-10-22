@@ -1,0 +1,78 @@
+:root {
+  /* Required Mitanin Signal palette. Legacy aliases below resolve to these exact values. */
+  --ms-forest: #2B6B52;
+  --ms-green: #6BAF7D;
+  --ms-mint: #EAF4EC;
+  --ms-orange: #EE7B4D;
+  --ms-blue: #7B8CF5;
+  --ms-ink: #1F2933;
+  --ms-muted: #6B7785;
+  --ms-card: #FFFFFF;
+  --ms-danger: #D64545;
+  --ms-warn: #E8A33D;
+  --ms-ok: #2E9E5B;
+
+  --ms-green-900: var(--ms-forest);
+  --ms-green-700: var(--ms-forest);
+  --ms-green-500: var(--ms-green);
+  --ms-green-100: var(--ms-mint);
+  --ms-orange-100: #FCE8E0;
+  --ms-orange-700: #B84C27;
+  --ms-violet: var(--ms-blue);
+  --ms-violet-100: #EEF0FF;
+  --ms-violet-700: #4A56C7;
+  --ms-surface: var(--ms-card);
+  --ms-border: #D6E0D8;
+  --ms-bg: #F5F6F3;
+  --ms-font: 'Nunito', 'Noto Sans Devanagari', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --ms-space-1: 4px;
+  --ms-space-2: 8px;
+  --ms-space-3: 12px;
+  --ms-space-4: 16px;
+  --ms-space-5: 20px;
+  --ms-space-6: 24px;
+  --ms-radius-sm: 10px;
+  --ms-radius-md: 16px;
+  --ms-radius-lg: 24px;
+  --ms-shadow-card: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { min-width: 320px; background: var(--ms-bg); }
+body { margin: 0; background: var(--ms-bg); font-family: var(--ms-font); color: var(--ms-ink); }
+button, input, textarea, select { font: inherit; }
+button { cursor: pointer; }
+button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+  outline: 2px solid var(--ms-orange); outline-offset: 2px;
+}
+img, svg { max-width: 100%; }
+#root { width: 100%; min-height: 100dvh; }
+.ms-app-shell { width: 100%; max-width: 430px; min-height: 100dvh; margin-inline: auto; position: relative; background: var(--ms-bg); overflow-x: clip; }
+.ms-screen-content { min-width: 0; width: 100%; }
+.ms-screen-content > * { min-width: 0; }
+
+/* Narrow phone checks: reduce horizontal gutters and avoid accidental overflow. */
+@media (max-width: 390px) {
+  .ms-app-shell { max-width: 100%; }
+  .ms-screen-content { overflow-wrap: anywhere; }
+  .ms-screen-content button { max-width: 100%; }
+}
+@media (max-width: 360px) {
+  .ms-screen-content h1 { font-size: clamp(21px, 6vw, 28px) !important; }
+  .ms-screen-content h2 { font-size: clamp(18px, 5.2vw, 23px) !important; }
+  .ms-screen-content { letter-spacing: -0.01em; }
+}
+
+
+/* Shared safe-area, tap target and mobile overflow safeguards. */
+.ms-screen-content { padding-bottom: 24px; }
+.ms-screen-content button, .ms-screen-content a, .ms-screen-content input, .ms-screen-content select, .ms-screen-content textarea { max-width: 100%; }
+.ms-screen-content button { min-height: 44px; }
+@media (max-width: 390px) {
+  .ms-screen-content { overflow-x: clip; }
+  .ms-screen-content [style*="grid-template-columns"] { grid-template-columns: minmax(0, 1fr) !important; }
+}
+@media (max-width: 360px) {
+  .ms-screen-content { font-size: 14px; }
+  .ms-screen-content button { overflow-wrap: anywhere; }
+}
