@@ -3,6 +3,7 @@ import type { ScreenProps } from '../App';
 import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
 import { useViewMode } from '../ViewModeContext';
+import { useCaseStore, type SyncItem } from '../store/CaseStore';
 
 const COPY = { en: enLocale.screens.Profile, hi: hiLocale.screens.Profile } as const;
 
@@ -70,24 +71,34 @@ export default function Profile({
   const isHindi = lang === 'hi';
   const t = COPY[lang];
   const { mode, setMode } = useViewMode();
+  const { syncNow, resetDemoData, waitingSyncCount, state } = useCaseStore();
   const [syncingState, setSyncingState] = useState(false);
+  const [resetToast, setResetToast] = useState(false);
+  const common = (isHindi ? hiLocale : enLocale).common;
 
   const handleSyncNow = () => {
     setSyncingState(true);
+    syncNow();
     setTimeout(() => {
       setSyncingState(false);
-    }, 850);
+    }, 600);
+  };
+
+  const handleResetDemo = () => {
+    resetDemoData();
+    setResetToast(true);
+    setTimeout(() => setResetToast(false), 2400);
   };
 
   const pageTitle = isHindi ? 'प्रोफ़ाइल एवं डिवाइस सिंक' : 'Profile & Device Sync';
   const pageSubtitle = isHindi ? 'प्रोफ़ाइल एवं डिवाइस सिंक सेटिंग्स' : 'Profile & Device Sync settings';
-  const allSyncedText = isHindi ? 'सब सिंक है' : 'All synced';
-  const pendingText = isHindi ? '4 लंबित' : '4 pending';
+  const allSyncedText = isHindi ? 'सब सिंक है (सिम्युलेटेड)' : 'All synced (Simulated)';
+  const pendingText = isHindi ? `${waitingSyncCount || 4} लंबित (सिम्युलेटेड)` : `${waitingSyncCount || 4} pending (Simulated)`;
   const activeText = isHindi ? 'सक्रिय' : 'Active';
   const subCenterText = isHindi ? 'कोटरा उप-केंद्र' : 'Kotra Sub-Center';
   const connectedText = isHindi ? 'सर्वर से जुड़ा है' : 'Connected to server';
   const offlineStorageText = isHindi ? 'स्थानीय संग्रहण सक्रिय' : 'Local storage active';
-  const syncQueueTitle = isHindi ? 'सिंक कतार' : 'Sync Queue';
+  const syncQueueTitle = isHindi ? 'सिंक कतार (सिम्युलेटेड सिंक)' : 'Sync Queue (Simulated sync)';
   const localStorageLabel = isHindi ? 'स्थानीय संग्रहण:' : 'Local storage:';
   const autoSyncLabel = isHindi ? 'ऑटो-सिंक:' : 'Auto-sync:';
   const syncedBadgeText = isHindi ? 'सिंक हुआ' : 'Synced';
@@ -416,8 +427,64 @@ export default function Profile({
         </span>
         <span aria-hidden="true" style={{ fontSize: 16, color: 'var(--ms-muted)' }}>→</span>
       </button>
+
+      {/* Reset Demo Data Button */}
+      <button
+        type="button"
+        onClick={handleResetDemo}
+        style={{
+          width: '100%',
+          minHeight: 46,
+          padding: '10px 16px',
+          borderRadius: 16,
+          border: '1.5px solid #FFCCBC',
+          background: '#FBE9E7',
+          color: 'var(--ms-orange-700)',
+          fontSize: 13.5,
+          fontWeight: 800,
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 8,
+          transition: 'all 0.15s ease',
+        }}
+      >
+        <span>{common.resetDemoData}</span>
+      </button>
+
+      {resetToast && (
+        <div
+          role="status"
+          style={{
+            padding: '10px 14px',
+            borderRadius: 12,
+            background: 'var(--ms-mint)',
+            color: 'var(--ms-forest)',
+            fontSize: 13,
+            fontWeight: 700,
+            textAlign: 'center',
+          }}
+        >
+          ✓ {common.demoDataResetToast}
+        </div>
+      )}
     </section>
   );
+
+  const queueItems = state.syncQueue.length > 0
+    ? state.syncQueue.map((sq: SyncItem) => ({
+        id: sq.id,
+        typeEn: sq.actionType.replace('_', ' '),
+        typeHi: sq.actionType,
+        nameEn: sq.description.en,
+        nameHi: sq.description.hi,
+        recordId: 'MS-1042',
+        timeEn: sq.status === 'sent' ? 'Sent just now' : 'Waiting to send',
+        timeHi: sq.status === 'sent' ? 'अभी भेजा गया' : 'भेजने की प्रतीक्षा में',
+        isQueued: sq.status === 'waiting_to_send',
+      }))
+    : SYNC_ITEMS.map((item: SyncRecord) => ({ ...item, isQueued: !online }));
 
   // Shared Sync Queue Card Component
   const renderSyncCard = () => (
@@ -463,17 +530,17 @@ export default function Profile({
             borderRadius: 999,
             fontSize: 12,
             fontWeight: 800,
-            background: online ? 'var(--ms-green-100)' : 'var(--ms-orange-100)',
-            color: online ? 'var(--ms-forest)' : 'var(--ms-orange-700)',
+            background: online && waitingSyncCount === 0 ? 'var(--ms-green-100)' : 'var(--ms-orange-100)',
+            color: online && waitingSyncCount === 0 ? 'var(--ms-forest)' : 'var(--ms-orange-700)',
           }}
         >
-          {online ? allSyncedText : pendingText}
+          {online && waitingSyncCount === 0 ? allSyncedText : pendingText}
         </span>
       </div>
 
       {/* Sync Queue List */}
       <div style={{ display: 'flex', flexDirection: 'column' }}>
-        {SYNC_ITEMS.map((item, idx) => (
+        {queueItems.map((item, idx) => (
           <div
             key={item.id}
             style={{
@@ -482,13 +549,13 @@ export default function Profile({
               justifyContent: 'space-between',
               gap: 12,
               padding: '12px 0',
-              borderBottom: idx === SYNC_ITEMS.length - 1 ? 'none' : '1px solid var(--ms-border)',
+              borderBottom: idx === queueItems.length - 1 ? 'none' : '1px solid var(--ms-border)',
             }}
           >
             <div style={{ minWidth: 0, flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                 <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--ms-ink)', lineHeight: 1.3 }}>
-                  {isHindi ? `${item.typeHi}: ${item.nameHi}` : `${item.typeEn}: ${item.nameEn}`}
+                  {isHindi ? (item.nameHi || `${item.typeHi}: ${item.nameHi}`) : (item.nameEn || `${item.typeEn}: ${item.nameEn}`)}
                 </span>
                 <span
                   style={{
@@ -516,11 +583,11 @@ export default function Profile({
                 borderRadius: 999,
                 fontSize: 12,
                 fontWeight: 800,
-                background: online ? 'var(--ms-green-100)' : 'var(--ms-orange-100)',
-                color: online ? 'var(--ms-forest)' : 'var(--ms-orange-700)',
+                background: !item.isQueued ? 'var(--ms-green-100)' : 'var(--ms-orange-100)',
+                color: !item.isQueued ? 'var(--ms-forest)' : 'var(--ms-orange-700)',
               }}
             >
-              {online ? syncedBadgeText : queuedBadgeText}
+              {!item.isQueued ? syncedBadgeText : queuedBadgeText}
             </span>
           </div>
         ))}

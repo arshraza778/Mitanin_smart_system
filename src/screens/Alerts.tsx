@@ -3,6 +3,7 @@ import type { ScreenProps } from '../App';
 import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
 import { dataService } from '../services';
+import { useCaseStore } from '../store/CaseStore';
 
 type Kind = 'overdue' | 'replied' | 'followup';
 type View = 'alerts' | 'empty';
@@ -108,9 +109,12 @@ function EmptyIllustration() {
 
 export default function Alerts({ lang, onNavigate }: ScreenProps) {
   const t = COPY[lang];
+  const { state, getPatientSummary, currentScreening } = useCaseStore();
+  const patientId = currentScreening?.patientId || 'p1';
+  const alertsList = state.alerts.length ? state.alerts : ALERTS;
   const [view, setView] = useState<View>('alerts');
-  const [selectedAlertId, setSelectedAlertId] = useState<string | null>(ALERTS[0]?.id ?? null);
-  const items = view === 'alerts' ? ALERTS : [];
+  const [selectedAlertId, setSelectedAlertId] = useState<string | null>(alertsList[0]?.id ?? null);
+  const items = view === 'alerts' ? alertsList : [];
 
   const selectedAlert = items.find((a) => a.id === selectedAlertId) || items[0] || null;
 
@@ -590,7 +594,7 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
                       {lang === 'hi' ? 'संबंधित मरीज़' : 'Associated Patient'}
                     </span>
                     <p style={{ margin: '4px 0 0', fontSize: 15, fontWeight: 800, color: COLORS.green }}>
-                      {dataService.getPatientSummary('p1', lang)}
+                      {getPatientSummary(patientId, lang)}
                     </p>
                   </div>
 

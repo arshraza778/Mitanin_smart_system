@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { ScreenProps } from '../App';
 import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
 import { dataService } from '../services';
+import { useCaseStore } from '../store/CaseStore';
 
 type Variant = 'waiting' | 'replied';
 
@@ -41,9 +42,47 @@ function Ring({ done, fraction, label }: { done: boolean; fraction: number; labe
   );
 }
 
-export default function ConsultStatus({ lang, onNavigate }: ScreenProps) {
+export default function ConsultStatus({ lang, online = true, onNavigate }: ScreenProps) {
   const t = COPY[lang];
-  const [variant, setVariant] = useState<Variant>('waiting');
+  const { getCaseByPatientId, requestConsult, doctorReply, createReferral, currentScreening, getPatientSummary } = useCaseStore();
+  const patientId = currentScreening?.patientId || 'p1';
+  const caseId = patientId === 'p1' ? 'c1' : `c-${patientId}`;
+  const caseRecord = getCaseByPatientId(patientId);
+
+  const isRepliedInStore =
+    caseRecord?.state === 'CONSULT_REPLIED' ||
+    caseRecord?.state === 'REFERRAL_CREATED' ||
+    caseRecord?.state === 'REMINDER_SENT' ||
+    caseRecord?.state === 'REACHED_FACILITY' ||
+    caseRecord?.state === 'OUTCOME_RECORDED';
+
+  const [variant, setVariant] = useState<Variant>(() => (isRepliedInStore ? 'replied' : 'waiting'));
+
+  useEffect(() => {
+    if (isRepliedInStore) {
+      setVariant('replied');
+    }
+  }, [isRepliedInStore]);
+
+  const handleVariantChange = (key: Variant) => {
+    setVariant(key);
+    if (key === 'replied') {
+      doctorReply(caseId, t.advice, t.decision, 'positive', online);
+    } else {
+      requestConsult(caseId, patientId, online);
+    }
+  };
+
+  const handleAskDoctor = () => {
+    requestConsult(caseId, patientId, online);
+    setVariant('waiting');
+  };
+
+  const handleCreateReferral = () => {
+    createReferral(caseId, patientId, { en: 'District hospital', hi: 'ज़िला अस्पताल' }, 24, online);
+    onNavigate('/mitanin/referral');
+  };
+
   const replied = variant === 'replied';
   const doneCount = replied ? 3 : 2;
 
@@ -115,7 +154,7 @@ export default function ConsultStatus({ lang, onNavigate }: ScreenProps) {
           }}
         >
           <p style={{ margin: 0, fontSize: 13.5, fontWeight: 700, opacity: 0.85 }}>{t.caseNo}</p>
-          <h1 style={{ margin: '4px 0 0', fontSize: 28, fontWeight: 800, lineHeight: 1.15 }}>{dataService.getPatientSummary('p1', lang)}</h1>
+          <h1 style={{ margin: '4px 0 0', fontSize: 28, fontWeight: 800, lineHeight: 1.15 }}>{getPatientSummary(patientId, lang)}</h1>
         </header>
 
         <section style={{ padding: '18px 20px 0' }}>
@@ -129,7 +168,7 @@ export default function ConsultStatus({ lang, onNavigate }: ScreenProps) {
                     key={key}
                     type="button"
                     aria-pressed={on}
-                    onClick={() => setVariant(key)}
+                    onClick={() => handleVariantChange(key)}
                     style={{
                       border: 0,
                       cursor: 'pointer',
@@ -248,7 +287,7 @@ export default function ConsultStatus({ lang, onNavigate }: ScreenProps) {
           >
             <button
               type="button"
-              onClick={() => onNavigate('/mitanin/referral')}
+              onClick={handleCreateReferral}
               style={{
                 width: '100%',
                 height: 62,
@@ -320,7 +359,7 @@ export default function ConsultStatus({ lang, onNavigate }: ScreenProps) {
                         key={key}
                         type="button"
                         aria-pressed={on}
-                        onClick={() => setVariant(key)}
+                        onClick={() => handleVariantChange(key)}
                         style={{
                           border: 0,
                           cursor: 'pointer',
@@ -352,7 +391,7 @@ export default function ConsultStatus({ lang, onNavigate }: ScreenProps) {
                 {t.caseNo}
               </span>
               <p style={{ margin: '4px 0 0', fontSize: 16, fontWeight: 800, color: 'var(--ms-green-900)' }}>
-                {dataService.getPatientSummary('p1', lang)}
+                {getPatientSummary(patientId, lang)}
               </p>
             </div>
           </div>
@@ -431,7 +470,7 @@ export default function ConsultStatus({ lang, onNavigate }: ScreenProps) {
               <div style={{ marginTop: 24, borderTop: '1px solid var(--ms-border)', paddingTop: 20 }}>
                 <button
                   type="button"
-                  onClick={() => onNavigate('/mitanin/referral')}
+                  onClick={handleCreateReferral}
                   style={{
                     width: '100%',
                     height: 56,

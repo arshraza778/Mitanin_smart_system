@@ -3,21 +3,44 @@ import type { ScreenProps } from '../App';
 import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
 import { dataService } from '../services';
+import { useCaseStore } from '../store/CaseStore';
 
 const STEP = 4;
 
 const COPY = { en: enLocale.screens.ScreeningResult, hi: hiLocale.screens.ScreeningResult } as const;
 
-export default function ScreeningResult({ lang, onNavigate }: ScreenProps) {
+export default function ScreeningResult({ lang, online = true, onNavigate }: ScreenProps) {
   const t = COPY[lang];
+  const { updateScreening, requestConsult, currentScreening, getPatientSummary } = useCaseStore();
+  const patientId = currentScreening?.patientId || 'p1';
+  const caseId = patientId === 'p1' ? 'c1' : `c-${patientId}`;
   const [saved, setSaved] = useState(false);
   const timer = useRef<number | undefined>(undefined);
 
   useEffect(() => () => window.clearTimeout(timer.current), []);
 
+  const handleAskDoctor = () => {
+    updateScreening(
+      {
+        patientId,
+        state: 'SCREENED',
+      },
+      online
+    );
+    requestConsult(caseId, patientId, online);
+    onNavigate('/mitanin/consult');
+  };
+
   const save = () => {
     if (saved) return;
     setSaved(true);
+    updateScreening(
+      {
+        patientId,
+        state: 'SCREENED',
+      },
+      online
+    );
     timer.current = window.setTimeout(() => onNavigate('/mitanin/home'), 3200);
   };
 
@@ -165,7 +188,7 @@ export default function ScreeningResult({ lang, onNavigate }: ScreenProps) {
                   <path d="M5 20a7 7 0 0 1 14 0" />
                 </svg>
               </span>
-              <p style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>{dataService.getPatientSummary('p1', lang)}</p>
+              <p style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>{getPatientSummary(patientId, lang)}</p>
             </div>
             <ul style={{ listStyle: 'none', margin: '12px 0 0', padding: 0, display: 'flex', flexWrap: 'wrap', gap: 8 }}>
               {t.facts.map((f) => (
@@ -205,7 +228,7 @@ export default function ScreeningResult({ lang, onNavigate }: ScreenProps) {
           <button
             type="button"
             disabled={saved}
-            onClick={() => onNavigate('/mitanin/consult')}
+            onClick={handleAskDoctor}
             style={{
               height: 62,
               border: 0,
@@ -321,7 +344,7 @@ export default function ScreeningResult({ lang, onNavigate }: ScreenProps) {
                 </svg>
               </span>
               <p style={{ margin: 0, fontSize: 16, fontWeight: 800, color: 'var(--ms-green-900)' }}>
-                {dataService.getPatientSummary('p1', lang)}
+                {getPatientSummary(patientId, lang)}
               </p>
             </div>
           </div>
@@ -344,7 +367,7 @@ export default function ScreeningResult({ lang, onNavigate }: ScreenProps) {
               <button
                 type="button"
                 disabled={saved}
-                onClick={() => onNavigate('/mitanin/consult')}
+                onClick={handleAskDoctor}
                 style={{
                   height: 56,
                   border: 0,

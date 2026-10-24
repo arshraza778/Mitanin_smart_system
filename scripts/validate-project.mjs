@@ -12,15 +12,15 @@ assert.deepEqual(keys(en), keys(hi), 'English/Hindi locale keys and structures m
 function strings(v, prefix = '') { return Object.entries(v).flatMap(([k, x]) => x && typeof x === 'object' ? strings(x, `${prefix}${k}.`) : [[`${prefix}${k}`, x]]); }
 for (const [key, value] of strings(hi)) assert(typeof value === 'string' ? value.trim().length > 0 : true, `Empty Hindi translation: ${key}`);
 
-const allowedRoutes = ['/role','/mitanin/home','/mitanin/visits','/mitanin/screening/symptoms','/mitanin/screening/test','/mitanin/screening/result','/mitanin/consult','/mitanin/referral','/doctor/inbox','/doctor/review','/supervisor/overview','/case','/alerts','/profile'];
+const allowedRoutes = ['/role','/mitanin/home','/mitanin/visits','/mitanin/screening/patient','/mitanin/screening/symptoms','/mitanin/screening/test','/mitanin/screening/result','/mitanin/consult','/mitanin/referral','/doctor/inbox','/doctor/review','/supervisor/overview','/case','/alerts','/profile'];
 const routes = readJson('src/routes.json');
 assert.deepEqual(routes.map((r) => r.route).sort(), [...allowedRoutes].sort(), 'routes.json must match the exact allowed route list');
-assert.equal(routes.length, 14, 'Expected 14 application routes; States.tsx is reusable and not a route');
+assert.equal(routes.length, 15, 'Expected 15 application routes; States.tsx is reusable and not a route');
 const app = fs.readFileSync(path.join(src, 'App.tsx'), 'utf8');
 for (const route of allowedRoutes) assert(app.includes(`'${route}'`), `App route missing: ${route}`);
 const screenDir = path.join(src, 'screens');
 const screenFiles = fs.readdirSync(screenDir).filter((f) => f.endsWith('.tsx'));
-assert.equal(screenFiles.length, 15, 'Expected 14 routed screens plus reusable States.tsx');
+assert.equal(screenFiles.length, 16, 'Expected 15 routed screens plus reusable States.tsx');
 for (const file of screenFiles) {
   const code = fs.readFileSync(path.join(screenDir, file), 'utf8');
   assert(!code.includes('BottomNav'), `${file} must not render its own bottom navigation`);

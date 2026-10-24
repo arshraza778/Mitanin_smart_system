@@ -1,9 +1,10 @@
 /// <reference types="vite/client" />
-import { useCallback, useEffect, useState, type ComponentType } from 'react';
+import { useCallback, useEffect, useRef, useState, type ComponentType } from 'react';
 import BottomNav, { TABS, isActive, type Lang, type Role, type Tab } from './BottomNav';
 import enLocale from './i18n/en.json';
 import hiLocale from './i18n/hi.json';
 import { ViewModeProvider, useViewMode, type ViewMode } from './ViewModeContext';
+import { CaseProvider, useCaseStore } from './store/CaseStore';
 
 export { ViewModeProvider, useViewMode, type ViewMode };
 
@@ -21,6 +22,7 @@ export const ROUTES: Record<string, string> = {
   '/role': 'RoleSelect',
   '/mitanin/home': 'MitaninHome',
   '/mitanin/visits': 'Visits',
+  '/mitanin/screening/patient': 'ScreeningPatient',
   '/mitanin/screening/symptoms': 'ScreeningSymptoms',
   '/mitanin/screening/test': 'TestPhoto',
   '/mitanin/screening/result': 'ScreeningResult',
@@ -308,6 +310,7 @@ function WebTopbar({
   onSwitchRole: (newRole: Role | 'role') => void;
 }) {
   const { mode, setMode } = useViewMode();
+  const { syncNow, waitingSyncCount } = useCaseStore();
 
   return (
     <header className="ms-web-topbar">
@@ -370,8 +373,37 @@ function WebTopbar({
               background: online ? 'var(--ms-ok)' : 'var(--ms-warn)',
             }}
           />
-          <span>{online ? (lang === 'hi' ? 'सिंक किया गया' : 'Synced') : (lang === 'hi' ? 'ऑफ़लाइन' : 'Offline')}</span>
+          <span>
+            {online
+              ? (lang === 'hi' ? 'सिंक किया गया (सिम्युलेटेड)' : 'Synced (Simulated)')
+              : (lang === 'hi'
+                  ? `ऑफ़लाइन (${waitingSyncCount ? `${waitingSyncCount} लंबित` : 'सिम्युलेटेड'})`
+                  : `Offline (${waitingSyncCount ? `${waitingSyncCount} waiting` : 'Simulated'})`)}
+          </span>
         </button>
+
+        {online && waitingSyncCount > 0 && (
+          <button
+            type="button"
+            onClick={syncNow}
+            title={lang === 'hi' ? 'सिम्युलेटेड सिंक' : 'Simulated sync'}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 4,
+              padding: '4px 10px',
+              borderRadius: 999,
+              border: '1px solid var(--ms-green)',
+              background: 'var(--ms-green)',
+              color: '#FFFFFF',
+              fontSize: 11.5,
+              fontWeight: 800,
+              cursor: 'pointer',
+            }}
+          >
+            {lang === 'hi' ? 'अभी सिंक करें (सिम्युलेटेड)' : 'Sync now (Simulated)'}
+          </button>
+        )}
 
         {/* EN / HI Toggle */}
         <div
@@ -514,6 +546,15 @@ function AppContent() {
   const [online, setOnline] = useState<boolean>(true);
 
   const { isWeb, setMode } = useViewMode();
+  const { syncNow } = useCaseStore();
+  const prevOnline = useRef(online);
+
+  useEffect(() => {
+    if (!prevOnline.current && online) {
+      syncNow();
+    }
+    prevOnline.current = online;
+  }, [online, syncNow]);
 
   const onNavigate = useCallback((next: string) => {
     // Reject unknown route strings instead of silently rendering an arbitrary screen.
@@ -635,7 +676,9 @@ function AppContent() {
 export default function App() {
   return (
     <ViewModeProvider>
-      <AppContent />
+      <CaseProvider>
+        <AppContent />
+      </CaseProvider>
     </ViewModeProvider>
   );
 }

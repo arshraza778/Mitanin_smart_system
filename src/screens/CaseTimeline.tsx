@@ -3,6 +3,7 @@ import type { ScreenProps } from '../App';
 import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
 import { dataService } from '../services';
+import { useCaseStore } from '../store/CaseStore';
 
 type Tab = 'timeline' | 'details' | 'photos';
 
@@ -136,8 +137,26 @@ const base: Record<string, CSSProperties> = {
 
 export default function CaseTimeline({ lang }: ScreenProps) {
   const t = COPY[lang];
-  const patient = dataService.getPatient('p1');
-  const patientSummary = dataService.getPatientSummary('p1', lang);
+  const { getCaseByPatientId, currentScreening, getPatient, getPatientSummary } = useCaseStore();
+  const patientId = currentScreening?.patientId || 'p1';
+  const caseRecord = getCaseByPatientId(patientId);
+  const patient = getPatient(patientId) || dataService.getPatient('p1');
+  const patientSummary = getPatientSummary(patientId, lang);
+
+  const stepMap: Record<string, number> = {
+    SCREENED: 1,
+    CONSULT_REQUESTED: 2,
+    CONSULT_REPLIED: 3,
+    REFERRAL_CREATED: 4,
+    REMINDER_SENT: 5,
+    REACHED_FACILITY: 6,
+    OUTCOME_RECORDED: 7,
+  };
+  const currentStep = caseRecord?.state ? (stepMap[caseRecord.state] ?? CURRENT) : CURRENT;
+
+  const villageStr = typeof patient?.village === 'string'
+    ? patient.village
+    : patient?.village?.[lang];
 
   const detailRows = t.detailRows.map(
     ([label, value], index) =>
@@ -146,7 +165,7 @@ export default function CaseTimeline({ lang }: ScreenProps) {
         index === 0
           ? patientSummary
           : index === 1
-            ? patient?.village[lang] ?? value
+            ? (villageStr ?? value)
             : value,
       ] as [string, string],
   );
@@ -171,8 +190,8 @@ export default function CaseTimeline({ lang }: ScreenProps) {
   const renderTimeline = () => (
     <ol style={{ listStyle: 'none', margin: 0, padding: 0 }}>
       {t.steps.map((label, i) => {
-        const done = i < CURRENT;
-        const current = i === CURRENT;
+        const done = i < currentStep;
+        const current = i === currentStep - 1;
         const last = i === t.steps.length - 1;
 
         return (

@@ -3,6 +3,7 @@ import type { ScreenProps } from '../App';
 import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
 import { dataService } from '../services';
+import { useCaseStore } from '../store/CaseStore';
 
 type Filter = 'all' | 'over2h' | 'photos';
 type Read = 'agree' | 'disagree';
@@ -15,6 +16,7 @@ interface Case {
   symptoms: Record<'en' | 'hi', string>;
   waitingMin: number;
   photo: boolean;
+  photoData?: string;
   patientId: string;
 }
 
@@ -31,8 +33,39 @@ function waitStyle(min: number) {
   return { background: 'var(--ms-green-100)', color: 'var(--ms-green-700)' };
 }
 
-function Thumb({ has, alt, empty }: { has: boolean; alt: string; empty: string }) {
-  return has ? (
+function Thumb({ has, src, alt, empty }: { has: boolean; src?: string; alt: string; empty: string }) {
+  if (!has) {
+    return (
+      <span
+        style={{
+          flex: '0 0 60px',
+          height: 60,
+          borderRadius: 14,
+          display: 'grid',
+          placeItems: 'center',
+          textAlign: 'center',
+          padding: 4,
+          fontSize: 10.5,
+          fontWeight: 700,
+          lineHeight: 1.2,
+          border: '2px dashed var(--ms-border)',
+          color: 'var(--ms-muted)',
+        }}
+      >
+        {empty}
+      </span>
+    );
+  }
+  if (src && typeof src === 'string' && src.startsWith('data:image')) {
+    return (
+      <img
+        src={src}
+        alt={alt}
+        style={{ flex: '0 0 60px', width: 60, height: 60, borderRadius: 14, objectFit: 'cover' }}
+      />
+    );
+  }
+  return (
     <svg viewBox="0 0 60 60" width="60" height="60" role="img" aria-label={alt} style={{ flex: '0 0 60px', borderRadius: 14 }}>
       <rect width="60" height="60" rx="14" fill="#1c3a2b" />
       <rect x="8" y="22" width="44" height="16" rx="4" fill="#f1f5f2" />
@@ -41,25 +74,6 @@ function Thumb({ has, alt, empty }: { has: boolean; alt: string; empty: string }
       <rect x="33" y="25" width="1.6" height="10" fill="#d9534f" />
       <rect x="40" y="25" width="1.6" height="10" fill="#d9534f" />
     </svg>
-  ) : (
-    <span
-      style={{
-        flex: '0 0 60px',
-        height: 60,
-        borderRadius: 14,
-        display: 'grid',
-        placeItems: 'center',
-        textAlign: 'center',
-        padding: 4,
-        fontSize: 10.5,
-        fontWeight: 700,
-        lineHeight: 1.2,
-        border: '2px dashed var(--ms-border)',
-        color: 'var(--ms-muted)',
-      }}
-    >
-      {empty}
-    </span>
   );
 }
 
@@ -68,6 +82,20 @@ const dist = (a: React.Touch, b: React.Touch) => Math.hypot(a.clientX - b.client
 export default function DoctorReview({ lang, online, onNavigate, onToggleOnline }: ScreenProps) {
   const t = COPY.review[lang];
   const tInbox = COPY.inbox[lang];
+  const { doctorReply, syncedCases, getPatientSummary } = useCaseStore();
+
+  const cases = useMemo(() => {
+    return syncedCases.map((c) => ({
+      id: c.id,
+      patientId: c.patientId,
+      name: c.name,
+      village: typeof c.village === 'string' ? { en: c.village, hi: c.village } : c.village,
+      symptoms: c.symptoms,
+      waitingMin: c.waitingMin ?? 0,
+      photo: Boolean(c.photo),
+      photoData: c.photoData || (typeof c.photo === 'string' && c.photo.startsWith('data:image') ? c.photo : undefined),
+    }));
+  }, [syncedCases]);
 
   // Wide mode split view state
   const [filter, setFilter] = useState<Filter>('all');
@@ -85,13 +113,13 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
   useEffect(() => () => window.clearTimeout(timer.current), []);
 
   const list = useMemo(() => {
-    const base = [...CASES].sort((a, b) => b.waitingMin - a.waitingMin);
+    const base = [...cases].sort((a, b) => b.waitingMin - a.waitingMin);
     if (filter === 'over2h') return base.filter((c) => c.waitingMin > 120);
     if (filter === 'photos') return base.filter((c) => c.photo);
     return base;
-  }, [filter]);
+  }, [cases, filter]);
 
-  const selectedCase = CASES.find((c) => c.id === selectedCaseId) || list[0] || CASES[0];
+  const selectedCase = cases.find((c) => c.id === selectedCaseId) || list[0] || cases[0];
 
   const handleSelectCase = (id: string) => {
     setSelectedCaseId(id);
@@ -119,6 +147,13 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
   const send = () => {
     if (!ready) return;
     setSent(true);
+    doctorReply(
+      selectedCase.id || 'c1',
+      advice || (lang === 'hi' ? 'बच्चे को बुखार और जाँच पॉज़िटिव है। कृपया आज ज़िला अस्पताल रेफ़र करें।' : 'The child has fever and a positive test. Please refer to the district hospital today and keep giving fluids on the way.'),
+      decision ? t.decisions[decision] : (lang === 'hi' ? 'रेफ़र करें' : 'Refer'),
+      read || undefined,
+      online
+    );
     timer.current = window.setTimeout(() => onNavigate('/doctor/inbox'), 1800);
   };
 
@@ -135,7 +170,7 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
           }}
         >
           <p style={{ margin: 0, fontSize: 13.5, fontWeight: 700, opacity: 0.85 }}>{t.caseNo}</p>
-          <h1 style={{ margin: '4px 0 0', fontSize: 28, fontWeight: 800, lineHeight: 1.15 }}>{dataService.getPatientSummary('p1', lang)}</h1>
+          <h1 style={{ margin: '4px 0 0', fontSize: 28, fontWeight: 800, lineHeight: 1.15 }}>{getPatientSummary(selectedCase?.patientId, lang) || selectedCase?.name[lang]}</h1>
         </header>
 
         <section style={{ padding: '18px 20px 0', display: 'grid', gap: 16 }}>
@@ -152,28 +187,45 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
               touchAction: 'pan-y',
             }}
           >
-            <svg
-              viewBox="0 0 300 255"
-              role="img"
-              aria-label={t.photoAlt}
-              style={{
-                position: 'absolute',
-                inset: 0,
-                width: '100%',
-                height: '100%',
-                transform: `scale(${scale})`,
-                transformOrigin: 'center',
-              }}
-            >
-              <rect width="300" height="255" fill="#1c3a2b" />
-              <rect x="40" y="88" width="220" height="80" rx="14" fill="#f1f5f2" />
-              <rect x="58" y="106" width="42" height="44" rx="8" fill="#d9e2dc" />
-              <rect x="114" y="104" width="130" height="48" rx="8" fill="#fff" stroke="var(--ms-border)" />
-              <rect x="152" y="104" width="4" height="48" fill="#d9534f" />
-              <rect x="190" y="104" width="4" height="48" fill="#d9534f" />
-              <text x="152" y="98" fontSize="9" textAnchor="middle" fill="#6b7770">C</text>
-              <text x="192" y="98" fontSize="9" textAnchor="middle" fill="#6b7770">T</text>
-            </svg>
+            {selectedCase.photoData ? (
+              <img
+                src={selectedCase.photoData}
+                alt={t.photoAlt}
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'contain',
+                  transform: `scale(${scale})`,
+                  transformOrigin: 'center',
+                  transition: 'transform 0.15s ease',
+                }}
+              />
+            ) : (
+              <svg
+                viewBox="0 0 300 255"
+                role="img"
+                aria-label={t.photoAlt}
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  width: '100%',
+                  height: '100%',
+                  transform: `scale(${scale})`,
+                  transformOrigin: 'center',
+                }}
+              >
+                <rect width="300" height="255" fill="#1c3a2b" />
+                <rect x="40" y="88" width="220" height="80" rx="14" fill="#f1f5f2" />
+                <rect x="58" y="106" width="42" height="44" rx="8" fill="#d9e2dc" />
+                <rect x="114" y="104" width="130" height="48" rx="8" fill="#fff" stroke="var(--ms-border)" />
+                <rect x="152" y="104" width="4" height="48" fill="#d9534f" />
+                <rect x="190" y="104" width="4" height="48" fill="#d9534f" />
+                <text x="152" y="98" fontSize="9" textAnchor="middle" fill="#6b7770">C</text>
+                <text x="192" y="98" fontSize="9" textAnchor="middle" fill="#6b7770">T</text>
+              </svg>
+            )}
 
             {scale === 1 ? (
               <span
@@ -539,7 +591,7 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                           transition: 'all 0.15s ease',
                         }}
                       >
-                        <Thumb has={c.photo} alt={tInbox.photoAlt} empty={tInbox.noPhoto} />
+                        <Thumb has={c.photo} src={c.photoData} alt={tInbox.photoAlt} empty={tInbox.noPhoto} />
                         <span style={{ flex: 1, minWidth: 0 }}>
                           <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
                             <span style={{ fontSize: 15.5, fontWeight: 800, color: isSelected ? 'var(--ms-forest)' : 'var(--ms-ink)' }}>{c.name[lang]}</span>
@@ -580,7 +632,7 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                       {t.caseNo} • {selectedCase.id.toUpperCase()}
                     </span>
                     <h2 style={{ margin: '4px 0 0', fontSize: 24, fontWeight: 800, color: 'var(--ms-ink)' }}>
-                      {dataService.getPatientSummary(selectedCase.patientId, lang) || selectedCase.name[lang]}
+                      {getPatientSummary(selectedCase.patientId, lang) || selectedCase.name[lang]}
                     </h2>
                     <p style={{ margin: '4px 0 0', fontSize: 13.5, color: 'var(--ms-muted)', fontWeight: 600 }}>
                       {selectedCase.village[lang]} • {selectedCase.symptoms[lang]}
@@ -611,29 +663,46 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                         background: '#12241b',
                       }}
                     >
-                      <svg
-                        viewBox="0 0 300 255"
-                        role="img"
-                        aria-label={t.photoAlt}
-                        style={{
-                          position: 'absolute',
-                          inset: 0,
-                          width: '100%',
-                          height: '100%',
-                          transform: `scale(${scale})`,
-                          transformOrigin: 'center',
-                          transition: 'transform 0.2s ease',
-                        }}
-                      >
-                        <rect width="300" height="255" fill="#1c3a2b" />
-                        <rect x="40" y="88" width="220" height="80" rx="14" fill="#f1f5f2" />
-                        <rect x="58" y="106" width="42" height="44" rx="8" fill="#d9e2dc" />
-                        <rect x="114" y="104" width="130" height="48" rx="8" fill="#fff" stroke="var(--ms-border)" />
-                        <rect x="152" y="104" width="4" height="48" fill="#d9534f" />
-                        <rect x="190" y="104" width="4" height="48" fill="#d9534f" />
-                        <text x="152" y="98" fontSize="9" textAnchor="middle" fill="#6b7770">C</text>
-                        <text x="192" y="98" fontSize="9" textAnchor="middle" fill="#6b7770">T</text>
-                      </svg>
+                      {selectedCase.photoData ? (
+                        <img
+                          src={selectedCase.photoData}
+                          alt={t.photoAlt}
+                          style={{
+                            position: 'absolute',
+                            inset: 0,
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'contain',
+                            transform: `scale(${scale})`,
+                            transformOrigin: 'center',
+                            transition: 'transform 0.15s ease',
+                          }}
+                        />
+                      ) : (
+                        <svg
+                          viewBox="0 0 300 255"
+                          role="img"
+                          aria-label={t.photoAlt}
+                          style={{
+                            position: 'absolute',
+                            inset: 0,
+                            width: '100%',
+                            height: '100%',
+                            transform: `scale(${scale})`,
+                            transformOrigin: 'center',
+                            transition: 'transform 0.2s ease',
+                          }}
+                        >
+                          <rect width="300" height="255" fill="#1c3a2b" />
+                          <rect x="40" y="88" width="220" height="80" rx="14" fill="#f1f5f2" />
+                          <rect x="58" y="106" width="42" height="44" rx="8" fill="#d9e2dc" />
+                          <rect x="114" y="104" width="130" height="48" rx="8" fill="#fff" stroke="var(--ms-border)" />
+                          <rect x="152" y="104" width="4" height="48" fill="#d9534f" />
+                          <rect x="190" y="104" width="4" height="48" fill="#d9534f" />
+                          <text x="152" y="98" fontSize="9" textAnchor="middle" fill="#6b7770">C</text>
+                          <text x="192" y="98" fontSize="9" textAnchor="middle" fill="#6b7770">T</text>
+                        </svg>
+                      )}
 
                       <div style={{ position: 'absolute', left: 12, bottom: 12, display: 'flex', gap: 8 }}>
                         {scale === 1 ? (

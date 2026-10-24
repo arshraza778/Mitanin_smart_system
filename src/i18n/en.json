@@ -11,7 +11,15 @@
     "cancel": "Cancel",
     "online": "Online",
     "offline": "Offline",
-    "empty": "Nothing here yet"
+    "empty": "Nothing here yet",
+    "simulatedSync": "Simulated sync",
+    "syncNow": "Sync now",
+    "syncing": "Syncing...",
+    "waitingToSend": "Waiting to send",
+    "sent": "Sent",
+    "resetDemoData": "Reset demo data",
+    "demoDataResetToast": "Demo data reset successfully",
+    "changePatient": "Change patient"
   },
   "screens": {
     "Alerts": {
@@ -276,6 +284,45 @@
       "brandLine1": "Mitanin",
       "brandLine2": "Signal"
     },
+    "ScreeningPatient": {
+      "steps": [
+        "Patient",
+        "Symptoms",
+        "Test",
+        "Result"
+      ],
+      "stepOf": "Step 1 of 4",
+      "title": "Select patient",
+      "subtitle": "Choose an existing patient or add a new one",
+      "searchPlaceholder": "Search by name or village...",
+      "banner": "Demo: use fictional names only",
+      "addNewPatient": "Add new patient",
+      "cancel": "Cancel",
+      "savePatient": "Save patient",
+      "nameLabel": "Name *",
+      "namePlaceholder": "Enter full name",
+      "ageLabel": "Age (0 - 120) *",
+      "agePlaceholder": "e.g. 24",
+      "sexLabel": "Sex (optional)",
+      "female": "Female",
+      "male": "Male",
+      "other": "Other",
+      "villageLabel": "Village",
+      "customVillagePlaceholder": "Type village name",
+      "pregnantLabel": "Pregnant",
+      "yes": "Yes",
+      "no": "No",
+      "existingPatients": "Existing patients",
+      "noPatientsFound": "No patients found",
+      "next": "Next: Symptoms",
+      "back": "Back",
+      "changePatient": "Change patient",
+      "years": "years",
+      "errors": {
+        "nameRequired": "Patient name is required",
+        "ageInvalid": "Age must be a number between 0 and 120"
+      }
+    },
     "ScreeningResult": {
       "steps": [
         "Patient",
@@ -384,6 +431,21 @@
         "negative": "Negative",
         "invalid": "Invalid"
       },
+      "cameraUnavailableMsg": "Camera not available. You can upload a photo or use a demo photo.",
+      "reasons": {
+        "permission_denied": "Permission denied",
+        "not_found": "No camera found",
+        "insecure": "Page not secure",
+        "unknown": "Camera unavailable"
+      },
+      "takeOrUpload": "Take or upload photo",
+      "useDemoPhoto": "Use demo photo",
+      "demoCassettes": {
+        "positive": "Positive",
+        "negative": "Negative",
+        "invalid": "Invalid"
+      },
+      "demoBadge": "Demo photo",
       "note": "A doctor can check this photo",
       "repeat": "Repeat the test",
       "next": "Next",

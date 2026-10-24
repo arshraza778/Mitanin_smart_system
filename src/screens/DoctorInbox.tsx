@@ -3,6 +3,7 @@ import type { ScreenProps } from '../App';
 import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
 import { dataService } from '../services';
+import { useCaseStore } from '../store/CaseStore';
 
 type Filter = 'all' | 'over2h' | 'photos';
 type Read = 'agree' | 'disagree';
@@ -15,6 +16,7 @@ interface Case {
   symptoms: Record<'en' | 'hi', string>;
   waitingMin: number;
   photo: boolean;
+  photoData?: string;
   patientId: string;
 }
 
@@ -31,8 +33,39 @@ function waitStyle(min: number) {
   return { background: 'var(--ms-green-100)', color: 'var(--ms-green-700)' };
 }
 
-function Thumb({ has, alt, empty }: { has: boolean; alt: string; empty: string }) {
-  return has ? (
+function Thumb({ has, src, alt, empty }: { has: boolean; src?: string; alt: string; empty: string }) {
+  if (!has) {
+    return (
+      <span
+        style={{
+          flex: '0 0 60px',
+          height: 60,
+          borderRadius: 14,
+          display: 'grid',
+          placeItems: 'center',
+          textAlign: 'center',
+          padding: 4,
+          fontSize: 10.5,
+          fontWeight: 700,
+          lineHeight: 1.2,
+          border: '2px dashed var(--ms-border)',
+          color: 'var(--ms-muted)',
+        }}
+      >
+        {empty}
+      </span>
+    );
+  }
+  if (src && typeof src === 'string' && src.startsWith('data:image')) {
+    return (
+      <img
+        src={src}
+        alt={alt}
+        style={{ flex: '0 0 60px', width: 60, height: 60, borderRadius: 14, objectFit: 'cover' }}
+      />
+    );
+  }
+  return (
     <svg viewBox="0 0 60 60" width="60" height="60" role="img" aria-label={alt} style={{ flex: '0 0 60px', borderRadius: 14 }}>
       <rect width="60" height="60" rx="14" fill="#1c3a2b" />
       <rect x="8" y="22" width="44" height="16" rx="4" fill="#f1f5f2" />
@@ -41,34 +74,29 @@ function Thumb({ has, alt, empty }: { has: boolean; alt: string; empty: string }
       <rect x="33" y="25" width="1.6" height="10" fill="#d9534f" />
       <rect x="40" y="25" width="1.6" height="10" fill="#d9534f" />
     </svg>
-  ) : (
-    <span
-      style={{
-        flex: '0 0 60px',
-        height: 60,
-        borderRadius: 14,
-        display: 'grid',
-        placeItems: 'center',
-        textAlign: 'center',
-        padding: 4,
-        fontSize: 10.5,
-        fontWeight: 700,
-        lineHeight: 1.2,
-        border: '2px dashed var(--ms-border)',
-        color: 'var(--ms-muted)',
-      }}
-    >
-      {empty}
-    </span>
   );
 }
 
 export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }: ScreenProps) {
   const t = COPY.inbox[lang];
   const tReview = COPY.review[lang];
+  const { syncedCases, doctorReply } = useCaseStore();
+
+  const caseList = useMemo(() => {
+    return syncedCases.map((c) => ({
+      id: c.id,
+      patientId: c.patientId,
+      name: c.name,
+      village: typeof c.village === 'string' ? { en: c.village, hi: c.village } : c.village,
+      symptoms: c.symptoms,
+      waitingMin: c.waitingMin ?? 0,
+      photo: Boolean(c.photo),
+      photoData: c.photoData || (typeof c.photo === 'string' && c.photo.startsWith('data:image') ? c.photo : undefined),
+    }));
+  }, [syncedCases]);
 
   const [filter, setFilter] = useState<Filter>('all');
-  const [selectedCaseId, setSelectedCaseId] = useState<string>(CASES[0]?.id ?? 'c1');
+  const [selectedCaseId, setSelectedCaseId] = useState<string>(() => caseList[0]?.id ?? 'c1');
 
   // Review panel state for selected case
   const [scale, setScale] = useState(1);
@@ -81,13 +109,13 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
   useEffect(() => () => window.clearTimeout(timer.current), []);
 
   const list = useMemo(() => {
-    const base = [...CASES].sort((a, b) => b.waitingMin - a.waitingMin);
+    const base = [...caseList].sort((a, b) => b.waitingMin - a.waitingMin);
     if (filter === 'over2h') return base.filter((c) => c.waitingMin > 120);
     if (filter === 'photos') return base.filter((c) => c.photo);
     return base;
-  }, [filter]);
+  }, [caseList, filter]);
 
-  const selectedCase = CASES.find((c) => c.id === selectedCaseId) || list[0] || CASES[0];
+  const selectedCase = caseList.find((c) => c.id === selectedCaseId) || list[0] || caseList[0];
 
   const handleSelectCase = (id: string) => {
     setSelectedCaseId(id);
@@ -104,6 +132,13 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
   const send = () => {
     if (!ready) return;
     setSent(true);
+    doctorReply(
+      selectedCase.id || 'c1',
+      advice || (lang === 'hi' ? 'बच्चे को बुखार और जाँच पॉज़िटिव है। कृपया आज ज़िला अस्पताल रेफ़र करें।' : 'The child has fever and a positive test. Please refer to the district hospital today and keep giving fluids on the way.'),
+      decision ? tReview.decisions[decision] : (lang === 'hi' ? 'रेफ़र करें' : 'Refer'),
+      read || undefined,
+      online
+    );
   };
 
   return (
@@ -237,7 +272,7 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                       color: 'var(--ms-ink)',
                     }}
                   >
-                    <Thumb has={c.photo} alt={t.photoAlt} empty={t.noPhoto} />
+                    <Thumb has={c.photo} src={c.photoData} alt={t.photoAlt} empty={t.noPhoto} />
                     <span style={{ flex: 1, minWidth: 0 }}>
                       <span style={{ display: 'block', fontSize: 17, fontWeight: 800 }}>{c.name[lang]}</span>
                       <span style={{ display: 'block', marginTop: 1, fontSize: 13, color: 'var(--ms-muted)' }}>{c.village[lang]}</span>
@@ -375,7 +410,7 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                           transition: 'all 0.15s ease',
                         }}
                       >
-                        <Thumb has={c.photo} alt={t.photoAlt} empty={t.noPhoto} />
+                        <Thumb has={c.photo} src={c.photoData} alt={t.photoAlt} empty={t.noPhoto} />
                         <span style={{ flex: 1, minWidth: 0 }}>
                           <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
                             <span style={{ fontSize: 15.5, fontWeight: 800, color: isSelected ? 'var(--ms-forest)' : 'var(--ms-ink)' }}>{c.name[lang]}</span>

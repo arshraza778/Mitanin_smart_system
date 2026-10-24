@@ -11,7 +11,15 @@
     "cancel": "रद्द करें",
     "online": "ऑनलाइन",
     "offline": "ऑफ़लाइन",
-    "empty": "अभी यहाँ कुछ नहीं है"
+    "empty": "अभी यहाँ कुछ नहीं है",
+    "simulatedSync": "सिम्युलेटेड सिंक",
+    "syncNow": "अभी सिंक करें",
+    "syncing": "सिंक हो रहा है...",
+    "waitingToSend": "भेजने की प्रतीक्षा में",
+    "sent": "भेज दिया गया",
+    "resetDemoData": "डेमो डेटा रीसेट करें",
+    "demoDataResetToast": "डेमो डेटा सफलतापूर्वक रीसेट किया गया",
+    "changePatient": "मरीज़ बदलें"
   },
   "screens": {
     "Alerts": {
@@ -276,6 +284,45 @@
       "brandLine1": "Mitanin",
       "brandLine2": "Signal"
     },
+    "ScreeningPatient": {
+      "steps": [
+        "मरीज़",
+        "लक्षण",
+        "जाँच",
+        "परिणाम"
+      ],
+      "stepOf": "चरण 1 / 4",
+      "title": "मरीज़ चुनें",
+      "subtitle": "मौजूदा मरीज़ चुनें या नया जोड़ें",
+      "searchPlaceholder": "नाम या गाँव से खोजें...",
+      "banner": "डेमो: केवल काल्पनिक नामों का उपयोग करें",
+      "addNewPatient": "नया मरीज़ जोड़ें",
+      "cancel": "रद्द करें",
+      "savePatient": "मरीज़ सहेजें",
+      "nameLabel": "नाम *",
+      "namePlaceholder": "पूरा नाम दर्ज करें",
+      "ageLabel": "उम्र (0 - 120) *",
+      "agePlaceholder": "उदा. 24",
+      "sexLabel": "लिंग (वैकल्पिक)",
+      "female": "महिला",
+      "male": "पुरुष",
+      "other": "अन्य",
+      "villageLabel": "गाँव",
+      "customVillagePlaceholder": "गाँव का नाम लिखें",
+      "pregnantLabel": "गर्भवती",
+      "yes": "हाँ",
+      "no": "नहीं",
+      "existingPatients": "मौजूदा मरीज़",
+      "noPatientsFound": "कोई मरीज़ नहीं मिला",
+      "next": "आगे: लक्षण",
+      "back": "वापस",
+      "changePatient": "मरीज़ बदलें",
+      "years": "वर्ष",
+      "errors": {
+        "nameRequired": "कृपया मरीज़ का नाम दर्ज करें",
+        "ageInvalid": "उम्र 0 से 120 के बीच होनी चाहिए"
+      }
+    },
     "ScreeningResult": {
       "steps": [
         "मरीज़",
@@ -384,6 +431,21 @@
         "negative": "नेगेटिव",
         "invalid": "अमान्य"
       },
+      "cameraUnavailableMsg": "कैमरा उपलब्ध नहीं है। आप फ़ोटो अपलोड कर सकते हैं या डेमो फ़ोटो का उपयोग कर सकते हैं।",
+      "reasons": {
+        "permission_denied": "अनुमति अस्वीकृत",
+        "not_found": "कोई कैमरा नहीं मिला",
+        "insecure": "पेज सुरक्षित नहीं है",
+        "unknown": "कैमरा अनुपलब्ध"
+      },
+      "takeOrUpload": "फ़ोटो लें या अपलोड करें",
+      "useDemoPhoto": "डेमो फ़ोटो का उपयोग करें",
+      "demoCassettes": {
+        "positive": "पॉज़िटिव",
+        "negative": "नेगेटिव",
+        "invalid": "अमान्य"
+      },
+      "demoBadge": "डेमो फ़ोटो",
       "note": "डॉक्टर इस फ़ोटो की जाँच कर सकते हैं",
       "repeat": "जाँच दोबारा करें",
       "next": "आगे",

@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import type { ScreenProps } from '../App';
 import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
+import { useCaseStore } from '../store/CaseStore';
 
 type VisitType = 'screening' | 'followup' | 'referral';
 type Status = 'overdue' | 'due' | 'scheduled' | 'done';
@@ -15,6 +16,7 @@ interface Visit {
   village: Record<'en' | 'hi', string>;
   type: VisitType;
   status: Status;
+  patientId: string;
 }
 
 const TODAY = 24;
@@ -22,17 +24,17 @@ const WEEK = [21, 22, 23, 24, 25, 26, 27];
 
 const VISITS: Record<number, Visit[]> = {
   24: [
-    { id: 'v1', start: '09:30', end: '10:15', name: { en: 'Meena Bai', hi: 'मीना बाई' }, village: { en: 'Amora', hi: 'अमोरा' }, type: 'referral', status: 'overdue' },
-    { id: 'v2', start: '11:00', end: '11:40', name: { en: 'Radha Yadav', hi: 'राधा यादव' }, village: { en: 'Kodar', hi: 'कोड़ार' }, type: 'followup', status: 'due' },
-    { id: 'v3', start: '14:15', end: '15:00', name: { en: 'Kamla Sahu', hi: 'कमला साहू' }, village: { en: 'Pachri', hi: 'पचरी' }, type: 'screening', status: 'scheduled' },
+    { id: 'v1', start: '09:30', end: '10:15', name: { en: 'Meena Bai', hi: 'मीना बाई' }, village: { en: 'Amora', hi: 'अमोरा' }, type: 'referral', status: 'overdue', patientId: 'p2' },
+    { id: 'v2', start: '11:00', end: '11:40', name: { en: 'Radha Yadav', hi: 'राधा यादव' }, village: { en: 'Kodar', hi: 'कोड़ार' }, type: 'followup', status: 'due', patientId: 'p3' },
+    { id: 'v3', start: '14:15', end: '15:00', name: { en: 'Kamla Sahu', hi: 'कमला साहू' }, village: { en: 'Pachri', hi: 'पचरी' }, type: 'screening', status: 'scheduled', patientId: 'p8' },
   ],
   22: [
-    { id: 'v4', start: '10:00', end: '10:45', name: { en: 'Lata Verma', hi: 'लता वर्मा' }, village: { en: 'Kodar', hi: 'कोड़ार' }, type: 'screening', status: 'done' },
-    { id: 'v5', start: '12:30', end: '13:10', name: { en: 'Geeta Netam', hi: 'गीता नेताम' }, village: { en: 'Amora', hi: 'अमोरा' }, type: 'followup', status: 'done' },
+    { id: 'v4', start: '10:00', end: '10:45', name: { en: 'Lata Verma', hi: 'लता वर्मा' }, village: { en: 'Kodar', hi: 'कोड़ार' }, type: 'screening', status: 'done', patientId: 'p9' },
+    { id: 'v5', start: '12:30', end: '13:10', name: { en: 'Geeta Netam', hi: 'गीता नेताम' }, village: { en: 'Amora', hi: 'अमोरा' }, type: 'followup', status: 'done', patientId: 'p10' },
   ],
   25: [
-    { id: 'v6', start: '09:00', end: '09:45', name: { en: 'Sarita Dhruw', hi: 'सरिता ध्रुव' }, village: { en: 'Pachri', hi: 'पचरी' }, type: 'followup', status: 'scheduled' },
-    { id: 'v7', start: '11:30', end: '12:15', name: { en: 'Ramkali Sahu', hi: 'रामकली साहू' }, village: { en: 'Kodar', hi: 'कोड़ार' }, type: 'screening', status: 'scheduled' },
+    { id: 'v6', start: '09:00', end: '09:45', name: { en: 'Sarita Dhruw', hi: 'सरिता ध्रुव' }, village: { en: 'Pachri', hi: 'पचरी' }, type: 'followup', status: 'scheduled', patientId: 'p11' },
+    { id: 'v7', start: '11:30', end: '12:15', name: { en: 'Ramkali Sahu', hi: 'रामकली साहू' }, village: { en: 'Kodar', hi: 'कोड़ार' }, type: 'screening', status: 'scheduled', patientId: 'p12' },
   ],
 };
 
@@ -44,9 +46,9 @@ const PRIORITY: Record<Status, number> = {
 };
 
 const ROUTE_FOR: Record<VisitType, string> = {
-  screening: '/screening/symptoms',
-  followup: '/consult',
-  referral: '/referral',
+  screening: '/mitanin/screening/symptoms',
+  followup: '/mitanin/consult',
+  referral: '/mitanin/referral',
 };
 
 const COPY = {
@@ -67,9 +69,17 @@ function pillStyle(status: Status) {
 
 export default function Visits({ lang, onNavigate }: ScreenProps) {
   const t = COPY[lang];
+  const { selectScreeningPatient } = useCaseStore();
   const [day, setDay] = useState<number>(TODAY);
   const [sort, setSort] = useState<Sort>('time');
   const [selectedVisitId, setSelectedVisitId] = useState<string | null>(null);
+
+  const handleVisitClick = (visit: Visit) => {
+    if (visit.patientId) {
+      selectScreeningPatient(visit.patientId);
+    }
+    onNavigate(ROUTE_FOR[visit.type]);
+  };
 
   const list = useMemo(() => {
     const items = [...(VISITS[day] ?? [])];
@@ -320,7 +330,7 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
                   <button
                     type="button"
                     aria-label={`${visit.name[lang]}, ${t.types[visit.type]}, ${t.status[visit.status]}`}
-                    onClick={() => onNavigate(ROUTE_FOR[visit.type])}
+                    onClick={() => handleVisitClick(visit)}
                     style={{
                       ...buttonBase,
                       width: '100%',
@@ -722,7 +732,7 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
 
                   <button
                     type="button"
-                    onClick={() => onNavigate(ROUTE_FOR[selectedVisit.type])}
+                    onClick={() => handleVisitClick(selectedVisit)}
                     style={{
                       marginTop: 8,
                       width: '100%',

@@ -3,6 +3,7 @@ import type { ScreenProps } from '../App';
 import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
 import { dataService } from '../services';
+import { useCaseStore } from '../store/CaseStore';
 
 type Outcome = 'completed' | 'rescheduled' | 'escalated' | 'unresolved';
 
@@ -47,18 +48,36 @@ const ACTION_ICONS = [
   </svg>,
 ];
 
-export default function ReferralTracker({ lang }: ScreenProps) {
+export default function ReferralTracker({ lang, online = true }: ScreenProps) {
   const t = COPY[lang];
-  const referral = dataService.getReferrals()[0];
-  const referralValues = [dataService.getPatientSummary(referral.patientId, lang), referral.facility[lang], referral.owner[lang], t.dueWithin];
-  const [stage, setStage] = useState(1); // steps completed, 1..4
-  const [outcome, setOutcome] = useState<Outcome | null>(null);
+  const { getReferralByPatientId, referralAction, currentScreening, getPatientSummary } = useCaseStore();
+  const patientId = currentScreening?.patientId || 'p1';
+  const storeReferral = getReferralByPatientId(patientId);
+  const defaultReferral = dataService.getReferrals()[0];
+  const referral = storeReferral
+    ? {
+        ...storeReferral,
+        facility: storeReferral.facility || defaultReferral.facility,
+        owner: storeReferral.owner || defaultReferral.owner,
+      }
+    : defaultReferral;
+
+  const referralValues = [getPatientSummary(referral.patientId, lang), referral.facility[lang], referral.owner[lang], t.dueWithin];
+  const [stage, setStage] = useState(() => storeReferral?.stage ?? 1);
+  const [outcome, setOutcome] = useState<Outcome | null>(() => (storeReferral?.outcome as Outcome) ?? null);
   const [sheet, setSheet] = useState(false);
-  const [pick, setPick] = useState<Outcome | null>(null);
+  const [pick, setPick] = useState<Outcome | null>(() => (storeReferral?.outcome as Outcome) ?? null);
   const [note, setNote] = useState('');
   const deadline = useRef(Date.now() + DEMO_MS_LEFT);
   const [now, setNow] = useState(() => Date.now());
   const panelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (storeReferral) {
+      if (storeReferral.stage) setStage(storeReferral.stage);
+      if (storeReferral.outcome) setOutcome(storeReferral.outcome as Outcome);
+    }
+  }, [storeReferral]);
 
   useEffect(() => {
     const id = window.setInterval(() => setNow(Date.now()), 30_000);
@@ -77,12 +96,21 @@ export default function ReferralTracker({ lang }: ScreenProps) {
   const h = Math.floor(msLeft / 3_600_000);
   const m = Math.floor((msLeft % 3_600_000) / 60_000);
 
-  const advance = (to: number) => setStage((s) => Math.max(s, to));
+  const advance = (to: number) => {
+    setStage((s) => Math.max(s, to));
+    if (to === 2) {
+      referralAction(referral.id, 'reminder', undefined, undefined, online);
+    } else if (to === 3) {
+      referralAction(referral.id, 'reached_facility', undefined, undefined, online);
+    }
+  };
+
   const saveOutcome = () => {
     if (!pick) return;
     setOutcome(pick);
     setStage(4);
     setSheet(false);
+    referralAction(referral.id, 'outcome', pick as any, note, online);
   };
 
   // Action state: reminder, reached, outcome.

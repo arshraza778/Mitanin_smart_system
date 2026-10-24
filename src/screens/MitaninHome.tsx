@@ -2,6 +2,7 @@ import type { ScreenProps } from '../App';
 import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
 import { dataService } from '../services';
+import { useCaseStore } from '../store/CaseStore';
 
 const COPY = { en: enLocale.screens.MitaninHome, hi: hiLocale.screens.MitaninHome } as const;
 
@@ -35,6 +36,13 @@ function HeroLeaves() {
 
 export default function MitaninHome({ lang, online, onNavigate, onToggleOnline }: ScreenProps) {
   const t = COPY[lang];
+  const { getPriorityStats, waitingSyncCount } = useCaseStore();
+  const priorityStats = getPriorityStats();
+  const priorityCounts = [
+    priorityStats.overdueReferralsCount,
+    priorityStats.followupsDueCount,
+    priorityStats.awaitingDoctorCount,
+  ];
 
   return (
     <div>
@@ -164,7 +172,7 @@ export default function MitaninHome({ lang, online, onNavigate, onToggleOnline }
                       opacity: 0.55,
                     }}
                   />
-                  <span style={{ fontSize: 36, fontWeight: 800, lineHeight: 1 }}>{card.count}</span>
+                  <span style={{ fontSize: 36, fontWeight: 800, lineHeight: 1 }}>{priorityCounts[i] ?? card.count}</span>
                   <span style={{ marginTop: 4, fontSize: 14, fontWeight: 700, lineHeight: 1.25 }}>
                     {t.priorities[i]}
                   </span>
@@ -239,7 +247,7 @@ export default function MitaninHome({ lang, online, onNavigate, onToggleOnline }
 
             <button
               type="button"
-              onClick={() => onNavigate('/mitanin/screening/symptoms')}
+              onClick={() => onNavigate('/mitanin/screening/patient')}
               style={{
                 marginTop: 22,
                 width: '100%',
@@ -370,7 +378,7 @@ export default function MitaninHome({ lang, online, onNavigate, onToggleOnline }
                         <span style={{ fontSize: 14.5, fontWeight: 700, lineHeight: 1.25, maxWidth: 170 }}>
                           {t.priorities[i]}
                         </span>
-                        <span style={{ fontSize: 32, fontWeight: 800, lineHeight: 1 }}>{card.count}</span>
+                        <span style={{ fontSize: 32, fontWeight: 800, lineHeight: 1 }}>{priorityCounts[i] ?? card.count}</span>
                       </button>
                     </li>
                   ))}
@@ -470,7 +478,7 @@ export default function MitaninHome({ lang, online, onNavigate, onToggleOnline }
             {/* New Screening CTA */}
             <button
               type="button"
-              onClick={() => onNavigate('/mitanin/screening/symptoms')}
+              onClick={() => onNavigate('/mitanin/screening/patient')}
               style={{
                 width: '100%',
                 minHeight: 64,

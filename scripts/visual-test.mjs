@@ -10,7 +10,7 @@ const base = process.env.BASE_URL || 'http://127.0.0.1:5173';
 const out = path.resolve('visual-test-results');
 await fs.mkdir(out, { recursive: true });
 const routes = [
-  '/role', '/mitanin/home', '/mitanin/visits', '/mitanin/screening/symptoms',
+  '/role', '/mitanin/home', '/mitanin/visits', '/mitanin/screening/patient', '/mitanin/screening/symptoms',
   '/mitanin/screening/test', '/mitanin/screening/result', '/mitanin/consult',
   '/mitanin/referral', '/doctor/inbox', '/doctor/review', '/supervisor/overview',
   '/case', '/alerts', '/profile',

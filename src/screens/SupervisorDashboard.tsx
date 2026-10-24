@@ -1,8 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ScreenProps } from '../App';
 import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
 import { dataService } from '../services';
+import { useCaseStore } from '../store/CaseStore';
+import { priority } from '../domain';
 
 type Lang = 'en' | 'hi';
 type StatusKey = 'overdue' | 'soon' | 'awaiting';
@@ -76,6 +78,8 @@ const selectStyle = {
 
 export default function SupervisorDashboard({ lang, online = true, onNavigate, onToggleOnline }: ScreenProps) {
   const t = COPY[lang];
+  const { syncedCases, getLoopClosureRate, isOverdue } = useCaseStore();
+  const loopRate = getLoopClosureRate(24);
   const [village, setVillage] = useState('all');
   const [mitanin, setMitanin] = useState('all');
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -91,7 +95,105 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
     timer.current = window.setTimeout(() => setToast(null), 2600);
   };
 
-  const rows = ROWS.filter(
+  const dynamicRows: Row[] = useMemo(() => {
+    const mappedBase = ROWS.map((baseRow) => {
+      const c = syncedCases.find(
+        (sc) => sc.patientId === baseRow.id.replace('r', 'p') || (baseRow.id === 'r1' && sc.id === 'c1')
+      );
+      if (!c) return baseRow;
+
+      let status: StatusKey = baseRow.status;
+      let reason = baseRow.reason;
+
+      if (c.id === 'c1' || c.patientId === 'p1') {
+        if (c.state === 'OUTCOME_RECORDED') {
+          status = 'soon';
+          reason = {
+            en: 'Outcome recorded (resolved)',
+            hi: 'परिणाम दर्ज (समाधान)',
+          };
+        } else if (c.state === 'REACHED_FACILITY') {
+          status = 'soon';
+          reason = {
+            en: 'Reached facility confirmed',
+            hi: 'अस्पताल पहुँचने की पुष्टि हुई',
+          };
+        } else if (c.state === 'CONSULT_REQUESTED') {
+          status = 'awaiting';
+          reason = {
+            en: 'Doctor reply pending, 2 hours',
+            hi: 'डॉक्टर का जवाब बाकी, 2 घंटे',
+          };
+        } else if (c.state === 'CONSULT_REPLIED') {
+          status = 'soon';
+          reason = {
+            en: 'Doctor replied, create referral',
+            hi: 'डॉक्टर का जवाब आया, रेफ़रल बनाएँ',
+          };
+        } else {
+          const overdue = isOverdue(c.dueAt);
+          status = overdue ? 'overdue' : 'soon';
+        }
+      } else {
+        const p = priority(c);
+        if (p.rank === 2) {
+          status = 'overdue';
+        } else if (p.rank === 3) {
+          status = 'soon';
+        } else if (c.state === 'CONSULT_REQUESTED') {
+          status = 'awaiting';
+        }
+      }
+
+      return {
+        ...baseRow,
+        status,
+        reason,
+      };
+    });
+
+    const newRows: Row[] = syncedCases
+      .filter(
+        (c) =>
+          !ROWS.some(
+            (baseRow) =>
+              c.patientId === baseRow.id.replace('r', 'p') ||
+              (baseRow.id === 'r1' && (c.id === 'c1' || c.patientId === 'p1'))
+          )
+      )
+      .map((c) => {
+        const overdue = isOverdue(c.dueAt);
+        let status: StatusKey = overdue ? 'overdue' : 'soon';
+        if (c.state === 'CONSULT_REQUESTED') {
+          status = 'awaiting';
+        }
+        const villageName =
+          typeof c.village === 'object' && c.village !== null
+            ? (c.village as { en: string; hi: string }).en
+            : typeof c.village === 'string' && c.village
+            ? c.village
+            : 'Amora';
+
+        return {
+          id: c.id,
+          name: c.name,
+          village: villageName,
+          mitanin: 'Sunita Netam',
+          phone: '94252 01842',
+          status,
+          reason: c.symptoms || { en: 'Screened', hi: 'जाँच की गई' },
+        };
+      });
+
+    return [...mappedBase, ...newRows];
+  }, [syncedCases, isOverdue]);
+
+  const overdueCount = dynamicRows.filter((r) => r.status === 'overdue').length;
+  const soonCount = dynamicRows.filter((r) => r.status === 'soon').length;
+  const awaitingCount = dynamicRows.filter((r) => r.status === 'awaiting').length;
+  const dynamicStats = [overdueCount, soonCount, awaitingCount];
+
+  const rows = dynamicRows.filter(
     (r) => (village === 'all' || r.village === village) && (mitanin === 'all' || r.mitanin === mitanin),
   );
 
@@ -142,7 +244,7 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
           </div>
 
           <div style={{ position: 'relative', marginTop: 20, display: 'flex', alignItems: 'center', gap: 18 }}>
-            <svg width="144" height="144" viewBox="0 0 144 144" role="img" aria-label={`${t.ringTitle}: ${Math.round(DEMO_RATE * 100)}% (${t.demo})`}>
+            <svg width="144" height="144" viewBox="0 0 144 144" role="img" aria-label={`${t.ringTitle}: ${Math.round(loopRate * 100)}%`}>
               <circle cx="72" cy="72" r={R} fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="14" />
               <circle
                 cx="72"
@@ -153,11 +255,11 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
                 strokeWidth="14"
                 strokeLinecap="round"
                 strokeDasharray={C}
-                strokeDashoffset={C * (1 - DEMO_RATE)}
+                strokeDashoffset={C * (1 - loopRate)}
                 transform="rotate(-90 72 72)"
               />
               <text x="72" y="82" textAnchor="middle" fontSize="34" fontWeight="800" fill="#fff">
-                {Math.round(DEMO_RATE * 100)}%
+                {Math.round(loopRate * 100)}%
               </text>
             </svg>
             <div>
@@ -207,7 +309,7 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
                 }}
               >
                 <span aria-hidden style={{ position: 'absolute', top: -22, right: -18, width: 64, height: 64, borderRadius: '50%', background: s.blob, opacity: 0.55 }} />
-                <span style={{ fontSize: 30, fontWeight: 800, lineHeight: 1 }}>{s.n}</span>
+                <span style={{ fontSize: 30, fontWeight: 800, lineHeight: 1 }}>{dynamicStats[i]}</span>
                 <span style={{ marginTop: 3, fontSize: 12.5, fontWeight: 700, lineHeight: 1.2 }}>{t.stats[i]}</span>
               </li>
             ))}
@@ -363,7 +465,7 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
                 <path d="M0 84C-42 44-34-22 0-66C34-22 42 44 0 84Z" fill="var(--ms-green-500)" />
               </g>
             </svg>
-            <svg width="80" height="80" viewBox="0 0 144 144" role="img" aria-label={`${t.ringTitle}: ${Math.round(DEMO_RATE * 100)}%`}>
+            <svg width="80" height="80" viewBox="0 0 144 144" role="img" aria-label={`${t.ringTitle}: ${Math.round(loopRate * 100)}%`}>
               <circle cx="72" cy="72" r={R} fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="15" />
               <circle
                 cx="72"
@@ -374,11 +476,11 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
                 strokeWidth="15"
                 strokeLinecap="round"
                 strokeDasharray={C}
-                strokeDashoffset={C * (1 - DEMO_RATE)}
+                strokeDashoffset={C * (1 - loopRate)}
                 transform="rotate(-90 72 72)"
               />
               <text x="72" y="81" textAnchor="middle" fontSize="30" fontWeight="800" fill="#fff">
-                {Math.round(DEMO_RATE * 100)}%
+                {Math.round(loopRate * 100)}%
               </text>
             </svg>
             <div style={{ position: 'relative', zIndex: 1, minWidth: 0 }}>
@@ -419,7 +521,7 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
               }}
             >
               <span aria-hidden style={{ position: 'absolute', top: -20, right: -16, width: 70, height: 70, borderRadius: '50%', background: s.blob, opacity: 0.55 }} />
-              <span style={{ fontSize: 36, fontWeight: 800, lineHeight: 1 }}>{s.n}</span>
+              <span style={{ fontSize: 36, fontWeight: 800, lineHeight: 1 }}>{dynamicStats[i]}</span>
               <span style={{ marginTop: 6, fontSize: 13.5, fontWeight: 700, lineHeight: 1.2 }}>{t.stats[i]}</span>
             </div>
           ))}

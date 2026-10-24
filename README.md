@@ -1,6 +1,6 @@
 # Mitanin Signal — screen export
 
-A Vite + React + TypeScript prototype with 14 user-facing screens and one reusable `States.tsx` component. Mock data, locale strings, route inventory, shared navigation, and design tokens are separated into dedicated modules.
+A Vite + React + TypeScript prototype with 15 user-facing screens and one reusable `States.tsx` component. Mock data, locale strings, route inventory, shared navigation, and design tokens are separated into dedicated modules.
 
 ## Screens, routes, and data
 
@@ -9,18 +9,19 @@ A Vite + React + TypeScript prototype with 14 user-facing screens and one reusab
 | 1 | `RoleSelect.tsx` / `RoleSelect` | `/role` | None |
 | 2 | `MitaninHome.tsx` / `MitaninHome` | `/mitanin/home` | Patients, visits, alerts, dashboard summaries |
 | 3 | `Visits.tsx` / `Visits` | `/mitanin/visits` | Visits and canonical patient records |
-| 4 | `ScreeningSymptoms.tsx` / `ScreeningSymptoms` | `/mitanin/screening/symptoms` | Canonical patient record |
-| 5 | `TestPhoto.tsx` / `TestPhoto` | `/mitanin/screening/test` | Canonical patient record; camera/demo input |
-| 6 | `ScreeningResult.tsx` / `ScreeningResult` | `/mitanin/screening/result` | Case and canonical patient record |
-| 7 | `ConsultStatus.tsx` / `ConsultStatus` | `/mitanin/consult` | Case, patient, consultation timeline |
-| 8 | `ReferralTracker.tsx` / `ReferralTracker` | `/mitanin/referral` | Referral and patient records |
-| 9 | `DoctorInbox.tsx` / `DoctorInbox` | `/doctor/inbox` | Doctor inbox cases and canonical patient records |
-| 10 | `DoctorReview.tsx` / `DoctorReview` | `/doctor/review` | Case and patient record |
-| 11 | `SupervisorDashboard.tsx` / `SupervisorDashboard` | `/supervisor/overview` | Supervisor case rows, patient records, dashboard stats, village/worker directory |
-| 12 | `CaseTimeline.tsx` / `CaseTimeline` | `/case` | Case, patient, and timeline data |
-| 13 | `Alerts.tsx` / `Alerts` | `/alerts` | Alerts |
-| 14 | `Profile.tsx` / `Profile` | `/profile` | Local profile/language/connectivity state |
-| 15 | `States.tsx` / `States` | Reusable component; not a route | `variant`: `offline`, `syncing`, or `empty` |
+| 4 | `ScreeningPatient.tsx` / `ScreeningPatient` | `/mitanin/screening/patient` | Patients and village directory |
+| 5 | `ScreeningSymptoms.tsx` / `ScreeningSymptoms` | `/mitanin/screening/symptoms` | Canonical patient record |
+| 6 | `TestPhoto.tsx` / `TestPhoto` | `/mitanin/screening/test` | Canonical patient record; camera/demo input |
+| 7 | `ScreeningResult.tsx` / `ScreeningResult` | `/mitanin/screening/result` | Case and canonical patient record |
+| 8 | `ConsultStatus.tsx` / `ConsultStatus` | `/mitanin/consult` | Case, patient, consultation timeline |
+| 9 | `ReferralTracker.tsx` / `ReferralTracker` | `/mitanin/referral` | Referral and patient records |
+| 10 | `DoctorInbox.tsx` / `DoctorInbox` | `/doctor/inbox` | Doctor inbox cases and canonical patient records |
+| 11 | `DoctorReview.tsx` / `DoctorReview` | `/doctor/review` | Case and patient record |
+| 12 | `SupervisorDashboard.tsx` / `SupervisorDashboard` | `/supervisor/overview` | Supervisor case rows, patient records, dashboard stats, village/worker directory |
+| 13 | `CaseTimeline.tsx` / `CaseTimeline` | `/case` | Case, patient, and timeline data |
+| 14 | `Alerts.tsx` / `Alerts` | `/alerts` | Alerts |
+| 15 | `Profile.tsx` / `Profile` | `/profile` | Local profile/language/connectivity state |
+| 16 | `States.tsx` / `States` | Reusable component; not a route | `variant`: `offline`, `syncing`, or `empty` |
 
 ## Project structure
 

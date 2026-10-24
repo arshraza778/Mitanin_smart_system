@@ -3,6 +3,7 @@ import type { ScreenProps } from '../App';
 import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
 import { dataService } from '../services';
+import { useCaseStore } from '../store/CaseStore';
 
 const STEP = 2;
 
@@ -40,10 +41,42 @@ const ICONS: ReactElement[] = [
   </svg>,
 ];
 
-export default function ScreeningSymptoms({ lang, onNavigate }: ScreenProps) {
+export default function ScreeningSymptoms({ lang, online = true, onNavigate }: ScreenProps) {
   const t = COPY[lang];
-  const [checked, setChecked] = useState<boolean[]>(() => t.items.map(() => false));
+  const { updateScreening, getCaseByPatientId, currentScreening, getPatientSummary } = useCaseStore();
+  const patientId = currentScreening?.patientId || 'p1';
+  const existingCase = getCaseByPatientId(patientId);
+  const [checked, setChecked] = useState<boolean[]>(() => {
+    if (existingCase?.symptomFlags?.length) {
+      const flags = ['fever', 'drink', 'fits', 'sleepy', 'palm'];
+      return flags.map((f) => existingCase.symptomFlags?.includes(f) ?? false);
+    }
+    return t.items.map((_, i) => i === 0);
+  });
   const [speaking, setSpeaking] = useState<number | null>(null);
+
+  const handleNext = () => {
+    const selectedEn = enLocale.screens.ScreeningSymptoms.items.filter((_, i) => checked[i]);
+    const selectedHi = hiLocale.screens.ScreeningSymptoms.items.filter((_, i) => checked[i]);
+    const flagNames = ['fever', 'drink', 'fits', 'sleepy', 'palm'];
+    const selectedFlags = checked.map((c, i) => (c ? flagNames[i] : null)).filter(Boolean) as string[];
+    const hasDanger = Boolean(checked[1] || checked[2] || checked[3] || checked[4]);
+
+    updateScreening(
+      {
+        patientId,
+        symptoms: {
+          en: selectedEn.length ? selectedEn.join(', ') : 'Fever over 2 days, test positive',
+          hi: selectedHi.length ? selectedHi.join(', ') : '2 दिन से ज़्यादा बुखार, जाँच पॉज़िटिव',
+        },
+        symptomFlags: selectedFlags.length ? selectedFlags : ['fever'],
+        hasDangerSigns: hasDanger,
+        state: 'SCREENED',
+      },
+      online
+    );
+    onNavigate('/mitanin/screening/test');
+  };
 
   useEffect(() => {
     return () => {
@@ -221,30 +254,52 @@ export default function ScreeningSymptoms({ lang, onNavigate }: ScreenProps) {
               marginTop: 18,
               display: 'flex',
               alignItems: 'center',
+              justifyContent: 'space-between',
               gap: 12,
               padding: '12px 14px',
               borderRadius: 20,
               background: 'var(--ms-green-100)',
             }}
           >
-            <span
-              aria-hidden
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
+              <span
+                aria-hidden
+                style={{
+                  flex: '0 0 44px',
+                  height: 44,
+                  borderRadius: 14,
+                  display: 'grid',
+                  placeItems: 'center',
+                  background: 'var(--ms-green-500)',
+                  color: '#fff',
+                }}
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" aria-hidden>
+                  <circle cx="12" cy="8" r="3.6" />
+                  <path d="M5 20a7 7 0 0 1 14 0" />
+                </svg>
+              </span>
+              <p style={{ margin: 0, fontSize: 18, fontWeight: 800, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {getPatientSummary(patientId, lang)}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => onNavigate('/mitanin/screening/patient')}
               style={{
-                flex: '0 0 44px',
-                height: 44,
-                borderRadius: 14,
-                display: 'grid',
-                placeItems: 'center',
-                background: 'var(--ms-green-500)',
-                color: '#fff',
+                border: 0,
+                background: 'none',
+                color: 'var(--ms-green-900)',
+                fontSize: 13,
+                fontWeight: 700,
+                textDecoration: 'underline',
+                cursor: 'pointer',
+                padding: '4px 6px',
+                flexShrink: 0,
               }}
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" aria-hidden>
-                <circle cx="12" cy="8" r="3.6" />
-                <path d="M5 20a7 7 0 0 1 14 0" />
-              </svg>
-            </span>
-            <p style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>{dataService.getPatientSummary('p1', lang)}</p>
+              {lang === 'hi' ? hiLocale.common.changePatient : enLocale.common.changePatient}
+            </button>
           </div>
         </header>
 
@@ -283,7 +338,7 @@ export default function ScreeningSymptoms({ lang, onNavigate }: ScreenProps) {
         >
           <button
             type="button"
-            onClick={() => onNavigate('/mitanin/home')}
+            onClick={() => onNavigate('/mitanin/screening/patient')}
             style={{
               flex: '0 0 auto',
               padding: '16px 14px',
@@ -299,7 +354,7 @@ export default function ScreeningSymptoms({ lang, onNavigate }: ScreenProps) {
           </button>
           <button
             type="button"
-            onClick={() => onNavigate('/mitanin/screening/test')}
+            onClick={handleNext}
             style={{
               flex: 1,
               height: 62,
@@ -377,30 +432,50 @@ export default function ScreeningSymptoms({ lang, onNavigate }: ScreenProps) {
                 padding: '18px 20px',
                 display: 'flex',
                 alignItems: 'center',
+                justifyContent: 'space-between',
                 gap: 12,
               }}
             >
-              <span
-                aria-hidden
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
+                <span
+                  aria-hidden
+                  style={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: 14,
+                    display: 'grid',
+                    placeItems: 'center',
+                    background: 'var(--ms-green-500)',
+                    color: '#fff',
+                    flexShrink: 0,
+                  }}
+                >
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+                    <circle cx="12" cy="8" r="3.6" />
+                    <path d="M5 20a7 7 0 0 1 14 0" />
+                  </svg>
+                </span>
+                <p style={{ margin: 0, fontSize: 16, fontWeight: 800, color: 'var(--ms-green-900)' }}>
+                  {getPatientSummary(patientId, lang)}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => onNavigate('/mitanin/screening/patient')}
                 style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: 14,
-                  display: 'grid',
-                  placeItems: 'center',
-                  background: 'var(--ms-green-500)',
-                  color: '#fff',
+                  border: 0,
+                  background: 'none',
+                  color: 'var(--ms-green-900)',
+                  fontSize: 12.5,
+                  fontWeight: 700,
+                  textDecoration: 'underline',
+                  cursor: 'pointer',
+                  padding: '4px 6px',
                   flexShrink: 0,
                 }}
               >
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
-                  <circle cx="12" cy="8" r="3.6" />
-                  <path d="M5 20a7 7 0 0 1 14 0" />
-                </svg>
-              </span>
-              <p style={{ margin: 0, fontSize: 16, fontWeight: 800, color: 'var(--ms-green-900)' }}>
-                {dataService.getPatientSummary('p1', lang)}
-              </p>
+                {lang === 'hi' ? hiLocale.common.changePatient : enLocale.common.changePatient}
+              </button>
             </div>
           </div>
 
@@ -438,7 +513,7 @@ export default function ScreeningSymptoms({ lang, onNavigate }: ScreenProps) {
             <div style={{ marginTop: 28, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, borderTop: '1px solid var(--ms-border)', paddingTop: 20 }}>
               <button
                 type="button"
-                onClick={() => onNavigate('/mitanin/home')}
+                onClick={() => onNavigate('/mitanin/screening/patient')}
                 style={{
                   padding: '12px 20px',
                   border: '1.5px solid var(--ms-border)',
@@ -454,7 +529,7 @@ export default function ScreeningSymptoms({ lang, onNavigate }: ScreenProps) {
               </button>
               <button
                 type="button"
-                onClick={() => onNavigate('/mitanin/screening/test')}
+                onClick={handleNext}
                 style={{
                   padding: '14px 32px',
                   border: 0,

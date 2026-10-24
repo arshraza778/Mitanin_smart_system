@@ -26,6 +26,15 @@
     ]
   },
   {
+    "screen": "ScreeningPatient.tsx",
+    "component": "ScreeningPatient",
+    "route": "/mitanin/screening/patient",
+    "data": [
+      "patients",
+      "directory"
+    ]
+  },
+  {
     "screen": "ScreeningSymptoms.tsx",
     "component": "ScreeningSymptoms",
     "route": "/mitanin/screening/symptoms",
