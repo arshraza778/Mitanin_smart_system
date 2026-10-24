@@ -101,131 +101,231 @@ export default function RoleSelect({ lang, onNavigate, onSetLang }: ScreenProps)
   const t = COPY[lang];
 
   return (
-    <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column' }}>
-      <header style={{ position: 'relative', height: 300, color: '#fff' }}>
-        <Hero />
-        <div
-          role="group"
-          aria-label={lang === 'hi' ? 'भाषा' : 'Language'}
+    <div className="@container w-full min-h-screen flex flex-col" style={{ background: 'var(--ms-surface)' }}>
+      {/* ─── Narrow Phone Layout (Exact Original) ─── */}
+      <div className="block @2xl:hidden flex-1 flex flex-col" style={{ minHeight: '100dvh' }}>
+        <header style={{ position: 'relative', height: 300, color: '#fff' }}>
+          <Hero />
+          <div
+            role="group"
+            aria-label={lang === 'hi' ? 'भाषा' : 'Language'}
+            style={{
+              position: 'absolute',
+              top: 'calc(16px + env(safe-area-inset-top, 0px))',
+              right: 16,
+              display: 'flex',
+              padding: 3,
+              borderRadius: 999,
+              background: 'rgba(31, 77, 56, 0.55)',
+              backdropFilter: 'blur(6px)',
+            }}
+          >
+            {(['en', 'hi'] as const).map((code) => {
+              const on = lang === code;
+              return (
+                <button
+                  key={code}
+                  type="button"
+                  aria-pressed={on}
+                  onClick={() => onSetLang(code)}
+                  style={{
+                    border: 0,
+                    cursor: 'pointer',
+                    padding: '6px 12px',
+                    borderRadius: 999,
+                    fontSize: 13,
+                    fontWeight: 700,
+                    background: on ? '#fff' : 'transparent',
+                    color: on ? 'var(--ms-green-900)' : 'var(--ms-green-100)',
+                  }}
+                >
+                  {code === 'en' ? 'English' : 'हिन्दी'}
+                </button>
+              );
+            })}
+          </div>
+          <h1
+            style={{
+              position: 'absolute',
+              left: 24,
+              top: 'calc(72px + env(safe-area-inset-top, 0px))',
+              margin: 0,
+              fontSize: 34,
+              lineHeight: 1.1,
+              fontWeight: 800,
+              letterSpacing: '-0.01em',
+            }}
+          >
+            {t.brandLine1}
+            <br />
+            {t.brandLine2}
+          </h1>
+        </header>
+
+        <section
           style={{
-            position: 'absolute',
-            top: 'calc(16px + env(safe-area-inset-top, 0px))',
-            right: 16,
+            flex: 1,
+            marginTop: -36,
+            position: 'relative',
+            background: 'var(--ms-surface)',
+            borderRadius: '36px 36px 0 0',
+            padding: '28px 20px calc(20px + env(safe-area-inset-bottom, 0px))',
             display: 'flex',
-            padding: 3,
-            borderRadius: 999,
-            background: 'rgba(31, 77, 56, 0.55)',
-            backdropFilter: 'blur(6px)',
+            flexDirection: 'column',
           }}
         >
-          {(['en', 'hi'] as const).map((code) => {
-            const on = lang === code;
-            return (
+          <h2 style={{ margin: '0 4px 18px', fontSize: 24, fontWeight: 800 }}>{t.title}</h2>
+
+          <div style={{ display: 'grid', gap: 14 }}>
+            {CARDS.map((card) => (
               <button
-                key={code}
+                key={card.key}
                 type="button"
-                aria-pressed={on}
-                onClick={() => onSetLang(code)}
+                onClick={() => onNavigate(card.route)}
                 style={{
-                  border: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 16,
+                  width: '100%',
+                  padding: 16,
+                  textAlign: 'left',
                   cursor: 'pointer',
-                  padding: '6px 12px',
-                  borderRadius: 999,
-                  fontSize: 13,
-                  fontWeight: 700,
-                  background: on ? '#fff' : 'transparent',
-                  color: on ? 'var(--ms-green-900)' : 'var(--ms-green-100)',
+                  border: '1px solid var(--ms-green-100)',
+                  borderRadius: 24,
+                  background: 'var(--ms-bg)',
+                  color: 'var(--ms-ink)',
                 }}
               >
-                {code === 'en' ? 'English' : 'हिन्दी'}
+                <span
+                  style={{
+                    flex: '0 0 60px',
+                    height: 60,
+                    borderRadius: 20,
+                    display: 'grid',
+                    placeItems: 'center',
+                    background: card.tile,
+                    color: '#fff',
+                  }}
+                >
+                  {card.icon}
+                </span>
+                <span style={{ flex: 1, minWidth: 0 }}>
+                  <span style={{ display: 'block', fontSize: 18, fontWeight: 800 }}>
+                    {t.roles[card.key].name}
+                  </span>
+                  <span style={{ display: 'block', marginTop: 2, fontSize: 13.5, color: 'var(--ms-muted)' }}>
+                    {t.roles[card.key].desc}
+                  </span>
+                </span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--ms-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <path d="m9 6 6 6-6 6" />
+                </svg>
               </button>
-            );
-          })}
-        </div>
-        <h1
-          style={{
-            position: 'absolute',
-            left: 24,
-            top: 'calc(72px + env(safe-area-inset-top, 0px))',
-            margin: 0,
-            fontSize: 34,
-            lineHeight: 1.1,
-            fontWeight: 800,
-            letterSpacing: '-0.01em',
-          }}
-        >
-          {t.brandLine1}
-          <br />
-          {t.brandLine2}
-        </h1>
-      </header>
+            ))}
+          </div>
 
-      <section
-        style={{
-          flex: 1,
-          marginTop: -36,
-          position: 'relative',
-          background: 'var(--ms-surface)',
-          borderRadius: '36px 36px 0 0',
-          padding: '28px 20px calc(20px + env(safe-area-inset-bottom, 0px))',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
-        <h2 style={{ margin: '0 4px 18px', fontSize: 24, fontWeight: 800 }}>{t.title}</h2>
+          <p style={{ margin: 'auto 0 0', paddingTop: 24, textAlign: 'center', fontSize: 12.5, color: 'var(--ms-muted)' }}>
+            {t.footer}
+          </p>
+        </section>
+      </div>
 
-        <div style={{ display: 'grid', gap: 14 }}>
-          {CARDS.map((card) => (
-            <button
-              key={card.key}
-              type="button"
-              onClick={() => onNavigate(card.route)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 16,
-                width: '100%',
-                padding: 16,
-                textAlign: 'left',
-                cursor: 'pointer',
-                border: '1px solid var(--ms-green-100)',
-                borderRadius: 24,
-                background: 'var(--ms-bg)',
-                color: 'var(--ms-ink)',
-              }}
+      {/* ─── Wide Layout: Three role cards side by side in a centred container ─── */}
+      <div className="hidden @2xl:flex flex-col flex-1">
+        {/* Top Hero Banner */}
+        <header className="relative h-64 overflow-hidden text-white flex items-center justify-between px-8 @4xl:px-12">
+          <Hero />
+          <div className="relative z-10 max-w-5xl w-full mx-auto flex items-center justify-between">
+            <div>
+              <h1 className="text-4xl @3xl:text-5xl font-black tracking-tight m-0 text-white leading-tight">
+                {t.brandLine1} {t.brandLine2}
+              </h1>
+              <p className="text-white/80 font-medium text-sm mt-2 m-0 max-w-md">
+                {lang === 'hi'
+                  ? 'सामुदायिक स्वास्थ्य कार्यकर्ताओं और डॉक्टरों के लिए ग्रामीण परीक्षण प्रणाली'
+                  : 'Point-of-care rapid visual diagnostic and closed-loop clinical referral system'}
+              </p>
+            </div>
+
+            <div
+              role="group"
+              aria-label={lang === 'hi' ? 'भाषा' : 'Language'}
+              className="flex p-1 rounded-full bg-[#1F4D38]/60 backdrop-blur-md border border-white/20"
             >
-              <span
-                style={{
-                  flex: '0 0 60px',
-                  height: 60,
-                  borderRadius: 20,
-                  display: 'grid',
-                  placeItems: 'center',
-                  background: card.tile,
-                  color: '#fff',
-                }}
-              >
-                {card.icon}
-              </span>
-              <span style={{ flex: 1, minWidth: 0 }}>
-                <span style={{ display: 'block', fontSize: 18, fontWeight: 800 }}>
-                  {t.roles[card.key].name}
-                </span>
-                <span style={{ display: 'block', marginTop: 2, fontSize: 13.5, color: 'var(--ms-muted)' }}>
-                  {t.roles[card.key].desc}
-                </span>
-              </span>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--ms-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <path d="m9 6 6 6-6 6" />
-              </svg>
-            </button>
-          ))}
-        </div>
+              {(['en', 'hi'] as const).map((code) => {
+                const on = lang === code;
+                return (
+                  <button
+                    key={code}
+                    type="button"
+                    aria-pressed={on}
+                    onClick={() => onSetLang(code)}
+                    className="border-0 cursor-pointer px-4 py-1.5 rounded-full text-xs font-bold transition-all"
+                    style={{
+                      background: on ? '#FFFFFF' : 'transparent',
+                      color: on ? 'var(--ms-green-900)' : 'var(--ms-green-100)',
+                    }}
+                  >
+                    {code === 'en' ? 'English' : 'हिन्दी'}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </header>
 
-        <p style={{ margin: 'auto 0 0', paddingTop: 24, textAlign: 'center', fontSize: 12.5, color: 'var(--ms-muted)' }}>
-          {t.footer}
-        </p>
-      </section>
+        {/* Centered Role Cards Container */}
+        <main className="flex-1 -mt-8 relative z-20 bg-[var(--ms-surface)] rounded-t-[36px] px-8 py-10 @4xl:px-12 flex flex-col items-center">
+          <div className="w-full max-w-5xl">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl @3xl:text-3xl font-black text-[var(--ms-ink)] m-0">
+                {t.title}
+              </h2>
+              <p className="text-sm text-[var(--ms-muted)] mt-1.5 m-0 font-medium">
+                {lang === 'hi'
+                  ? 'आरंभ करने के लिए अपने कार्यक्षेत्र के अनुसार भूमिका चुनें'
+                  : 'Select your workspace role to begin screening, reviewing, or supervising'}
+              </p>
+            </div>
+
+            {/* Three cards side-by-side */}
+            <div className="grid grid-cols-1 @2xl:grid-cols-3 gap-6">
+              {CARDS.map((card) => (
+                <button
+                  key={card.key}
+                  type="button"
+                  onClick={() => onNavigate(card.route)}
+                  className="flex flex-col items-center text-center p-7 rounded-3xl bg-[var(--ms-bg)] border border-[var(--ms-green-100)] hover:border-[var(--ms-forest)] transition-all hover:-translate-y-1 hover:shadow-lg cursor-pointer group"
+                >
+                  <span
+                    className="w-18 h-18 rounded-2xl flex items-center justify-center text-white mb-5 transition-transform group-hover:scale-105"
+                    style={{ background: card.tile, width: 72, height: 72 }}
+                  >
+                    {card.icon}
+                  </span>
+
+                  <h3 className="text-xl font-extrabold text-[var(--ms-ink)] m-0 group-hover:text-[var(--ms-forest)] transition-colors">
+                    {t.roles[card.key].name}
+                  </h3>
+
+                  <p className="text-xs text-[var(--ms-muted)] mt-2 mb-6 font-medium leading-relaxed flex-1">
+                    {t.roles[card.key].desc}
+                  </p>
+
+                  <span className="w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-[var(--ms-surface)] border border-[var(--ms-green-100)] text-[var(--ms-forest)] group-hover:bg-[var(--ms-forest)] group-hover:text-white transition-colors flex items-center justify-center gap-1.5">
+                    <span>{lang === 'hi' ? 'प्रवेश करें' : 'Continue'}</span>
+                    <span aria-hidden="true">→</span>
+                  </span>
+                </button>
+              ))}
+            </div>
+
+            <p className="mt-12 text-center text-xs text-[var(--ms-muted)] font-medium">
+              {t.footer}
+            </p>
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

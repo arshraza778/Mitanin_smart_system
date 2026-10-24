@@ -67,12 +67,328 @@ img, svg { max-width: 100%; }
 /* Shared safe-area, tap target and mobile overflow safeguards. */
 .ms-screen-content { padding-bottom: 24px; }
 .ms-screen-content button, .ms-screen-content a, .ms-screen-content input, .ms-screen-content select, .ms-screen-content textarea { max-width: 100%; }
-.ms-screen-content button { min-height: 44px; }
+.ms-screen-content button,
+.ms-app-shell button,
+.ms-app-shell a,
+.ms-app-shell select,
+.ms-app-shell input[type="button"],
+.ms-app-shell input[type="submit"],
+.ms-app-shell [role="button"],
+.ms-app-shell [role="tab"] {
+  min-height: 48px;
+}
 @media (max-width: 390px) {
   .ms-screen-content { overflow-x: clip; }
-  .ms-screen-content [style*="grid-template-columns"] { grid-template-columns: minmax(0, 1fr) !important; }
+  .ms-screen-content .ms-responsive-grid { grid-template-columns: minmax(0, 1fr) !important; }
 }
 @media (max-width: 360px) {
   .ms-screen-content { font-size: 14px; }
   .ms-screen-content button { overflow-wrap: anywhere; }
 }
+
+/* Container queries root wrapper */
+.\@container,
+.ms-container-wrap {
+  container-type: inline-size;
+}
+
+/* Tailwind utility base classes */
+.hidden { display: none; }
+.block { display: block; }
+.flex { display: flex; }
+.grid { display: grid; }
+.gap-4 { gap: 16px; }
+.gap-6 { gap: 24px; }
+.grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+.grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+.col-span-4 { grid-column: span 4 / span 4; }
+.col-span-5 { grid-column: span 5 / span 5; }
+.col-span-6 { grid-column: span 6 / span 6; }
+.col-span-7 { grid-column: span 7 / span 7; }
+.col-span-8 { grid-column: span 8 / span 8; }
+.col-span-12 { grid-column: span 12 / span 12; }
+
+/* Tailwind container query variant classes */
+@container (min-width: 28rem) {
+  /* @md variants (min-width: 448px) */
+  .\@md\:block { display: block !important; }
+  .\@md\:hidden { display: none !important; }
+  .\@md\:flex { display: flex !important; }
+  .\@md\:grid { display: grid !important; }
+  .\@md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .\@md\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+  .\@md\:gap-4 { gap: 16px !important; }
+  .\@md\:gap-6 { gap: 24px !important; }
+  .\@md\:p-6 { padding: 24px !important; }
+}
+
+@container (min-width: 42rem) {
+  /* @2xl variants (min-width: 672px) */
+  .\@2xl\:block { display: block !important; }
+  .\@2xl\:hidden { display: none !important; }
+  .\@2xl\:flex { display: flex !important; }
+  .\@2xl\:flex-row { flex-direction: row !important; }
+  .\@2xl\:flex-col { flex-direction: column !important; }
+  .\@2xl\:items-center { align-items: center !important; }
+  .\@2xl\:items-start { align-items: flex-start !important; }
+  .\@2xl\:justify-between { justify-content: space-between !important; }
+  .\@2xl\:grid { display: grid !important; }
+  .\@2xl\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .\@2xl\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+  .\@2xl\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+  .\@2xl\:grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)) !important; }
+  .\@2xl\:col-span-4 { grid-column: span 4 / span 4 !important; }
+  .\@2xl\:col-span-5 { grid-column: span 5 / span 5 !important; }
+  .\@2xl\:col-span-6 { grid-column: span 6 / span 6 !important; }
+  .\@2xl\:col-span-7 { grid-column: span 7 / span 7 !important; }
+  .\@2xl\:col-span-8 { grid-column: span 8 / span 8 !important; }
+  .\@2xl\:col-span-12 { grid-column: span 12 / span 12 !important; }
+  .\@2xl\:gap-4 { gap: 16px !important; }
+  .\@2xl\:gap-6 { gap: 24px !important; }
+  .\@2xl\:p-6 { padding: 24px !important; }
+  .\@2xl\:p-8 { padding: 32px !important; }
+  .\@2xl\:flex-1 { flex: 1 1 0% !important; }
+  .\@2xl\:w-\[320px\] { width: 320px !important; }
+  .\@2xl\:max-w-\[640px\] { max-width: 640px !important; }
+  .\@2xl\:text-3xl { font-size: 30px !important; line-height: 36px !important; }
+  .\@2xl\:text-5xl { font-size: 48px !important; line-height: 1 !important; }
+}
+
+@container (min-width: 56rem) {
+  /* @4xl variants (min-width: 896px) */
+  .\@4xl\:block { display: block !important; }
+  .\@4xl\:hidden { display: none !important; }
+  .\@4xl\:flex { display: flex !important; }
+  .\@4xl\:grid { display: grid !important; }
+  .\@4xl\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .\@4xl\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+  .\@4xl\:grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)) !important; }
+  .\@4xl\:col-span-4 { grid-column: span 4 / span 4 !important; }
+  .\@4xl\:col-span-5 { grid-column: span 5 / span 5 !important; }
+  .\@4xl\:col-span-6 { grid-column: span 6 / span 6 !important; }
+  .\@4xl\:col-span-7 { grid-column: span 7 / span 7 !important; }
+  .\@4xl\:col-span-8 { grid-column: span 8 / span 8 !important; }
+  .\@4xl\:gap-6 { gap: 24px !important; }
+  .\@4xl\:p-8 { padding: 32px !important; }
+}
+
+/* Phone view mode on desktop */
+.ms-phone-mode-backdrop {
+  width: 100%;
+  height: 100dvh;
+  min-height: 100dvh;
+  background: var(--ms-bg);
+  overflow: hidden;
+}
+
+.ms-phone-device {
+  width: 100%;
+  max-width: 430px;
+  height: 100dvh;
+  min-height: 100dvh;
+  margin: 0 auto;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--ms-bg);
+}
+
+.ms-phone-device-island {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .ms-phone-mode-backdrop {
+    background: #2E654E;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100dvh;
+    min-height: 100dvh;
+    overflow: hidden;
+    padding: 24px 16px;
+    box-sizing: border-box;
+  }
+
+  .ms-phone-device {
+    height: min(880px, calc(100dvh - 48px));
+    min-height: auto;
+    border-radius: 46px;
+    box-shadow:
+      0 0 0 10px #1E2922,
+      0 0 0 12px #334338,
+      0 30px 70px -10px rgba(0, 0, 0, 0.45);
+  }
+
+  .ms-phone-device-island {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 110px;
+    height: 20px;
+    background: #1E2922;
+    border-radius: 12px;
+    margin: 8px auto 0;
+    flex-shrink: 0;
+    z-index: 50;
+    pointer-events: none;
+  }
+}
+
+/* Profile View Switch: hidden below 768px, visible at 768px and wider */
+.ms-profile-view-switch {
+  display: none;
+}
+@media (min-width: 768px) {
+  .ms-profile-view-switch {
+    display: block;
+  }
+}
+
+/* Phone internal scroll container */
+.ms-phone-scroll-body {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  overflow-y: auto;
+  overflow-x: clip;
+  position: relative;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.ms-phone-scroll-body::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+/* Hide scrollbar artifacts while preserving scroll functionality */
+.ms-phone-device,
+.ms-phone-scroll-body,
+[style*="overflow-x: auto"],
+[style*="overflow-x"] {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.ms-phone-device::-webkit-scrollbar,
+.ms-phone-scroll-body::-webkit-scrollbar,
+[style*="overflow-x: auto"]::-webkit-scrollbar,
+[style*="overflow-x"]::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+@media (max-width: 639px) {
+  .ms-phone-device-island {
+    display: none;
+  }
+  .ms-phone-device {
+    width: 100%;
+    max-width: 430px;
+    height: 100dvh;
+    height: 100vh;
+    margin-inline: auto;
+    position: relative;
+    background: var(--ms-bg);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+/* Web Mode Layout */
+.ms-web-layout {
+  display: flex;
+  min-height: 100dvh;
+  width: 100%;
+  background: var(--ms-bg);
+}
+
+.ms-web-sidebar {
+  width: 256px;
+  min-width: 256px;
+  max-width: 256px;
+  height: 100dvh;
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--ms-surface);
+  border-right: 1px solid var(--ms-border);
+  box-sizing: border-box;
+  z-index: 30;
+}
+
+.ms-web-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 100dvh;
+}
+
+.ms-web-topbar {
+  height: 64px;
+  background: var(--ms-surface);
+  border-bottom: 1px solid var(--ms-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  box-sizing: border-box;
+  gap: 16px;
+}
+
+.ms-web-content-wrap {
+  flex: 1;
+  padding: 24px;
+  box-sizing: border-box;
+  overflow-x: auto;
+}
+
+.ms-web-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Doctor Review action container */
+.ms-doctor-review-actions {
+  position: sticky;
+  bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+  margin-top: 18px;
+  padding: 14px 20px 6px;
+  background: linear-gradient(to top, var(--ms-bg) 70%, rgba(246, 248, 245, 0));
+}
+
+/* Web/Desktop layout: position in normal flow with proper spacing below decision options */
+.ms-web-layout .ms-doctor-review-actions {
+  position: static;
+  bottom: auto;
+  margin-top: 24px;
+  padding: 0 20px 24px;
+  background: transparent;
+}
+
+@keyframes ms-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin {
+  animation: ms-spin 1s linear infinite;
+}
+

@@ -103,162 +103,303 @@ export default function ReferralTracker({ lang }: ScreenProps) {
     return { text: t.steps[stage - 1], bg: colors[0], fg: colors[1] };
   })();
 
-  return (
-    <div>
-      <header
+  // Render Referral Details Card
+  const renderReferralCard = () => (
+    <div
+      style={{
+        padding: 22,
+        borderRadius: 24,
+        background: 'var(--ms-surface)',
+        border: '1px solid var(--ms-border)',
+        boxShadow: 'var(--ms-shadow-card)',
+      }}
+    >
+      <dl style={{ margin: 0, display: 'grid', gap: 14 }}>
+        {t.rows.map((label, i) => (
+          <div key={label} style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'baseline' }}>
+            <dt style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--ms-muted)' }}>{label}</dt>
+            <dd style={{ margin: 0, textAlign: 'right', fontSize: 16, fontWeight: 800 }}>
+              {referralValues[i]}
+              {i === 3 && (
+                <span style={{ display: 'block', marginTop: 2, fontSize: 13.5, fontWeight: 700, color: stage >= 3 ? 'var(--ms-green-700)' : 'var(--ms-orange)' }}>
+                  {stage >= 3 ? t.done : lang === 'hi' ? `${h} ${t.hourUnit} ${m} ${t.minuteUnit} ${t.leftSuffix}` : `${h} ${t.hourUnit} ${m} ${t.minuteUnit} ${t.leftSuffix}`}
+                </span>
+              )}
+            </dd>
+          </div>
+        ))}
+      </dl>
+      <span
         style={{
-          background: 'var(--ms-green-700)',
-          color: '#fff',
-          borderRadius: '0 0 32px 32px',
-          padding: 'calc(22px + env(safe-area-inset-top, 0px)) 20px 26px',
+          display: 'inline-block',
+          marginTop: 18,
+          padding: '6px 16px',
+          borderRadius: 999,
+          fontSize: 13,
+          fontWeight: 800,
+          background: pill.bg,
+          color: pill.fg,
         }}
       >
-        <h1 style={{ margin: 0, fontSize: 28, fontWeight: 800 }}>{t.title}</h1>
-      </header>
+        {pill.text}
+      </span>
+    </div>
+  );
 
-      <section style={{ padding: '18px 20px 0', display: 'grid', gap: 16 }}>
-        <div
-          style={{
-            padding: 18,
-            borderRadius: 24,
-            background: 'var(--ms-surface)',
-            boxShadow: '0 4px 16px rgba(31, 77, 56, 0.07)',
-          }}
-        >
-          <dl style={{ margin: 0, display: 'grid', gap: 12 }}>
-            {t.rows.map((label, i) => (
-              <div key={label} style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'baseline' }}>
-                <dt style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--ms-muted)' }}>{label}</dt>
-                <dd style={{ margin: 0, textAlign: 'right', fontSize: 16, fontWeight: 800 }}>
-                  {referralValues[i]}
-                  {i === 3 && (
-                    <span style={{ display: 'block', marginTop: 2, fontSize: 13.5, fontWeight: 700, color: stage >= 3 ? 'var(--ms-green-700)' : 'var(--ms-orange)' }}>
-                      {stage >= 3 ? t.done : lang === 'hi' ? `${h} ${t.hourUnit} ${m} ${t.minuteUnit} ${t.leftSuffix}` : `${h} ${t.hourUnit} ${m} ${t.minuteUnit} ${t.leftSuffix}`}
-                    </span>
-                  )}
-                </dd>
-              </div>
-            ))}
-          </dl>
-          <span
-            style={{
-              display: 'inline-block',
-              marginTop: 16,
-              padding: '5px 14px',
-              borderRadius: 999,
-              fontSize: 13,
-              fontWeight: 800,
-              background: pill.bg,
-              color: pill.fg,
-            }}
-          >
-            {pill.text}
-          </span>
-        </div>
-
-        <ol
-          aria-label={t.trackerLabel}
-          style={{
-            listStyle: 'none',
-            margin: 0,
-            padding: '16px 8px',
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
-            borderRadius: 24,
-            background: 'var(--ms-surface)',
-            boxShadow: '0 4px 16px rgba(31, 77, 56, 0.07)',
-          }}
-        >
-          {t.steps.map((label, i) => {
-            const done = i < stage;
-            return (
-              <li
-                key={label}
-                aria-current={i === stage - 1 ? 'step' : undefined}
-                style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}
-              >
-                {i > 0 && (
-                  <span
-                    aria-hidden
-                    style={{
-                      position: 'absolute',
-                      top: 14,
-                      right: '50%',
-                      width: '100%',
-                      height: 3,
-                      borderRadius: 2,
-                      background: done ? 'var(--ms-green-500)' : '#d6ddd8',
-                    }}
-                  />
-                )}
+  // Render 4-step Progress Tracker
+  const renderTracker = () => (
+    <div
+      style={{
+        padding: 22,
+        borderRadius: 24,
+        background: 'var(--ms-surface)',
+        border: '1px solid var(--ms-border)',
+        boxShadow: 'var(--ms-shadow-card)',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+      }}
+    >
+      <h3 style={{ margin: '0 0 18px', fontSize: 16, fontWeight: 800, color: 'var(--ms-ink)' }}>
+        {t.trackerLabel}
+      </h3>
+      <ol
+        aria-label={t.trackerLabel}
+        style={{
+          listStyle: 'none',
+          margin: 0,
+          padding: '8px 0',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, 1fr)',
+        }}
+      >
+        {t.steps.map((label, i) => {
+          const done = i < stage;
+          return (
+            <li
+              key={label}
+              aria-current={i === stage - 1 ? 'step' : undefined}
+              style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}
+            >
+              {i > 0 && (
                 <span
                   aria-hidden
                   style={{
-                    position: 'relative',
-                    width: 30,
-                    height: 30,
-                    borderRadius: '50%',
-                    display: 'grid',
-                    placeItems: 'center',
-                    background: done ? 'var(--ms-green-500)' : 'var(--ms-surface)',
-                    border: done ? 0 : '2.5px dashed #b9c4bd',
-                    color: '#fff',
+                    position: 'absolute',
+                    top: 14,
+                    right: '50%',
+                    width: '100%',
+                    height: 3,
+                    borderRadius: 2,
+                    background: done ? 'var(--ms-green-500)' : '#d6ddd8',
                   }}
-                >
-                  {done && (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="m5 12.5 4.5 4.5L19 7.5" />
-                    </svg>
-                  )}
-                </span>
-                <span style={{ marginTop: 8, padding: '0 2px', fontSize: 12, lineHeight: 1.25, fontWeight: i === stage - 1 ? 800 : 600, color: done ? 'var(--ms-ink)' : 'var(--ms-muted)' }}>
-                  {label}
-                </span>
-              </li>
-            );
-          })}
-        </ol>
-
-        <div style={{ display: 'grid', gap: 10 }}>
-          {t.actions.map((label, i) => {
-            const done = doneFlags[i];
-            const primary = i === nextIdx;
-            return (
-              <button
-                key={label}
-                type="button"
-                disabled={done}
-                onClick={handlers[i]}
+                />
+              )}
+              <span
+                aria-hidden
                 style={{
-                  minHeight: 60,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 12,
-                  padding: '0 18px',
-                  textAlign: 'left',
-                  borderRadius: 20,
-                  cursor: done ? 'default' : 'pointer',
-                  fontSize: 17,
-                  fontWeight: 800,
-                  border: primary ? 0 : `2px solid ${done ? '#e3e9e5' : 'var(--ms-green-500)'}`,
-                  background: primary ? 'var(--ms-orange)' : 'var(--ms-surface)',
-                  color: primary ? '#fff' : done ? '#9aa7a0' : 'var(--ms-green-700)',
-                  boxShadow: primary ? '0 10px 22px rgba(240, 121, 75, 0.35)' : 'none',
+                  position: 'relative',
+                  width: 32,
+                  height: 32,
+                  borderRadius: '50%',
+                  display: 'grid',
+                  placeItems: 'center',
+                  background: done ? 'var(--ms-green-500)' : 'var(--ms-surface)',
+                  border: done ? 0 : '2.5px dashed #b9c4bd',
+                  color: '#fff',
                 }}
               >
-                {ACTION_ICONS[i]}
-                <span style={{ flex: 1 }}>{label}</span>
                 {done && (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="m5 12.5 4.5 4.5L19 7.5" />
                   </svg>
                 )}
-              </button>
-            );
-          })}
-        </div>
-      </section>
+              </span>
+              <span style={{ marginTop: 8, padding: '0 2px', fontSize: lang === 'hi' ? 11 : 12, lineHeight: 1.2, wordBreak: 'break-word', maxWidth: '100%', fontWeight: i === stage - 1 ? 800 : 600, color: done ? 'var(--ms-ink)' : 'var(--ms-muted)' }}>
+                {label}
+              </span>
+            </li>
+          );
+        })}
+      </ol>
+    </div>
+  );
 
+  // Render Action Buttons
+  const renderActions = () => (
+    <div style={{ display: 'grid', gap: 10 }}>
+      {t.actions.map((label, i) => {
+        const done = doneFlags[i];
+        const primary = i === nextIdx;
+        return (
+          <button
+            key={label}
+            type="button"
+            disabled={done}
+            onClick={handlers[i]}
+            style={{
+              minHeight: 60,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              padding: '0 18px',
+              textAlign: 'left',
+              borderRadius: 20,
+              cursor: done ? 'default' : 'pointer',
+              fontSize: 16,
+              fontWeight: 800,
+              border: primary ? 0 : `2px solid ${done ? '#e3e9e5' : 'var(--ms-green-500)'}`,
+              background: primary ? 'var(--ms-orange)' : 'var(--ms-surface)',
+              color: primary ? '#fff' : done ? '#9aa7a0' : 'var(--ms-green-700)',
+              boxShadow: primary ? '0 10px 22px rgba(240, 121, 75, 0.35)' : 'none',
+              transition: 'all 0.15s ease',
+            }}
+          >
+            {ACTION_ICONS[i]}
+            <span style={{ flex: 1 }}>{label}</span>
+            {done && (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <path d="m5 12.5 4.5 4.5L19 7.5" />
+              </svg>
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
+
+  return (
+    <div>
+      {/* ===================== NARROW PHONE LAYOUT (@md and below) ===================== */}
+      <div className="block @2xl:hidden">
+        <header
+          style={{
+            background: 'var(--ms-green-700)',
+            color: '#fff',
+            borderRadius: '0 0 32px 32px',
+            padding: 'calc(22px + env(safe-area-inset-top, 0px)) 20px 26px',
+          }}
+        >
+          <h1 style={{ margin: 0, fontSize: 28, fontWeight: 800 }}>{t.title}</h1>
+        </header>
+
+        <section style={{ padding: '18px 20px 0', display: 'grid', gap: 16 }}>
+          {renderReferralCard()}
+
+          <ol
+            aria-label={t.trackerLabel}
+            style={{
+              listStyle: 'none',
+              margin: 0,
+              padding: '16px 8px',
+              display: 'grid',
+              gridTemplateColumns: 'repeat(4, 1fr)',
+              borderRadius: 24,
+              background: 'var(--ms-surface)',
+              boxShadow: '0 4px 16px rgba(31, 77, 56, 0.07)',
+            }}
+          >
+            {t.steps.map((label, i) => {
+              const done = i < stage;
+              return (
+                <li
+                  key={label}
+                  aria-current={i === stage - 1 ? 'step' : undefined}
+                  style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}
+                >
+                  {i > 0 && (
+                    <span
+                      aria-hidden
+                      style={{
+                        position: 'absolute',
+                        top: 14,
+                        right: '50%',
+                        width: '100%',
+                        height: 3,
+                        borderRadius: 2,
+                        background: done ? 'var(--ms-green-500)' : '#d6ddd8',
+                      }}
+                    />
+                  )}
+                  <span
+                    aria-hidden
+                    style={{
+                      position: 'relative',
+                      width: 30,
+                      height: 30,
+                      borderRadius: '50%',
+                      display: 'grid',
+                      placeItems: 'center',
+                      background: done ? 'var(--ms-green-500)' : 'var(--ms-surface)',
+                      border: done ? 0 : '2.5px dashed #b9c4bd',
+                      color: '#fff',
+                    }}
+                  >
+                    {done && (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="m5 12.5 4.5 4.5L19 7.5" />
+                      </svg>
+                    )}
+                  </span>
+                  <span style={{ marginTop: 8, padding: '0 2px', fontSize: lang === 'hi' ? 10.5 : 12, lineHeight: 1.2, wordBreak: 'break-word', maxWidth: '100%', fontWeight: i === stage - 1 ? 800 : 600, color: done ? 'var(--ms-ink)' : 'var(--ms-muted)' }}>
+                    {label}
+                  </span>
+                </li>
+              );
+            })}
+          </ol>
+
+          {renderActions()}
+        </section>
+      </div>
+
+      {/* ===================== WIDE CONTAINER LAYOUT (@2xl and above) ===================== */}
+      <div className="hidden @2xl:block" style={{ padding: '24px 28px 40px' }}>
+        {/* Wide Header */}
+        <header style={{ marginBottom: 24 }}>
+          <h1 style={{ margin: 0, fontSize: 28, fontWeight: 800, color: 'var(--ms-ink)' }}>{t.title}</h1>
+          <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--ms-muted)', fontWeight: 600 }}>
+            {lang === 'hi' ? 'उच्च सुविधा केंद्र रेफ़रल स्थिति एवं ट्रैकिंग' : 'Hospital Referral Status & Care Loop Tracking'}
+          </p>
+        </header>
+
+        {/* Wide Layout: Referral card beside 4-step tracker on the left, Actions in a side panel on the right */}
+        <div className="grid grid-cols-12 @md:grid-cols-12 @2xl:grid-cols-12 @4xl:grid-cols-12 gap-6" style={{ alignItems: 'start' }}>
+          {/* Main Area (~65-70%): Referral card beside the 4-step tracker */}
+          <div className="col-span-12 @2xl:col-span-8 @4xl:col-span-8">
+            <div className="grid grid-cols-1 @md:grid-cols-2 @2xl:grid-cols-2 gap-6">
+              {/* 1. Referral Card */}
+              <div>
+                {renderReferralCard()}
+              </div>
+
+              {/* 2. 4-step Tracker */}
+              <div>
+                {renderTracker()}
+              </div>
+            </div>
+          </div>
+
+          {/* Side Panel (~30-35%): Actions (Send reminder, Mark reached, Record outcome) */}
+          <div
+            className="col-span-12 @2xl:col-span-4 @4xl:col-span-4"
+            style={{
+              background: 'var(--ms-surface)',
+              borderRadius: 24,
+              border: '1px solid var(--ms-border)',
+              boxShadow: 'var(--ms-shadow-card)',
+              padding: 24,
+            }}
+          >
+            <h2 style={{ margin: '0 0 16px', fontSize: 18, fontWeight: 800, color: 'var(--ms-ink)' }}>
+              {lang === 'hi' ? 'कार्रवाई' : 'Next Actions'}
+            </h2>
+            {renderActions()}
+          </div>
+        </div>
+      </div>
+
+      {/* Outcome Sheet/Dialog (shared across narrow and wide) */}
       {sheet && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 40 }}>
           <div
@@ -278,12 +419,13 @@ export default function ReferralTracker({ lang }: ScreenProps) {
               bottom: 0,
               transform: 'translateX(-50%)',
               width: '100%',
-              maxWidth: 430,
+              maxWidth: 440,
               maxHeight: '92dvh',
               overflowY: 'auto',
-              padding: '12px 20px calc(20px + env(safe-area-inset-bottom, 0px))',
+              padding: '16px 22px calc(24px + env(safe-area-inset-bottom, 0px))',
               borderRadius: '32px 32px 0 0',
               background: 'var(--ms-surface)',
+              boxShadow: '0 -8px 30px rgba(0,0,0,0.2)',
               outline: 'none',
             }}
           >
@@ -316,6 +458,7 @@ export default function ReferralTracker({ lang }: ScreenProps) {
                       border: `2px solid ${on ? st.bg : '#e3e9e5'}`,
                       background: on ? st.bg : 'var(--ms-bg)',
                       color: on ? '#fff' : 'var(--ms-ink)',
+                      transition: 'all 0.15s ease',
                     }}
                   >
                     <span
@@ -368,7 +511,7 @@ export default function ReferralTracker({ lang }: ScreenProps) {
               style={{
                 marginTop: 16,
                 width: '100%',
-                height: 60,
+                height: 56,
                 border: 0,
                 borderRadius: 20,
                 cursor: pick ? 'pointer' : 'default',
@@ -385,12 +528,12 @@ export default function ReferralTracker({ lang }: ScreenProps) {
               onClick={() => setSheet(false)}
               style={{
                 display: 'block',
-                margin: '6px auto 0',
-                padding: '12px 16px',
+                margin: '8px auto 0',
+                padding: '10px 16px',
                 border: 0,
                 background: 'none',
                 cursor: 'pointer',
-                fontSize: 16,
+                fontSize: 15,
                 fontWeight: 800,
                 color: 'var(--ms-green-700)',
               }}

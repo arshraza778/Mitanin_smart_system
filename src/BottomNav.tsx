@@ -5,7 +5,7 @@ import hiLocale from './i18n/hi.json';
 export type Role = 'mitanin' | 'doctor' | 'supervisor';
 export type Lang = 'en' | 'hi';
 
-interface Tab {
+export interface Tab {
   id: string;
   route: string;
   /** Routes that keep this tab highlighted (exact or as a path prefix). */
@@ -159,7 +159,7 @@ export const TABS: Record<Role, Tab[]> = {
   ],
 };
 
-const isActive = (tab: Tab, route: string) =>
+export const isActive = (tab: Tab, route: string) =>
   tab.match.some((m) => route === m || route.startsWith(m + '/'));
 
 interface BottomNavProps {
@@ -173,8 +173,9 @@ export default function BottomNav({ role, route, lang, onNavigate }: BottomNavPr
   return (
     <nav
       aria-label={(lang === 'hi' ? hiLocale : enLocale).navigation.main}
+      className="pb-[env(safe-area-inset-bottom)]"
       style={{
-        position: 'fixed',
+        position: 'absolute',
         bottom: 0,
         left: '50%',
         transform: 'translateX(-50%)',
@@ -190,9 +191,10 @@ export default function BottomNav({ role, route, lang, onNavigate }: BottomNavPr
         style={{
           listStyle: 'none',
           margin: 0,
-          padding: '10px 8px 8px',
+          padding: '8px',
           display: 'grid',
           gridTemplateColumns: 'repeat(4, 1fr)',
+          alignItems: 'center',
           background: 'var(--ms-surface)',
           borderRadius: 28,
           boxShadow: '0 10px 30px rgba(31, 77, 56, 0.18)',
@@ -202,7 +204,7 @@ export default function BottomNav({ role, route, lang, onNavigate }: BottomNavPr
         {TABS[role].map((tab) => {
           const active = isActive(tab, route);
           return (
-            <li key={tab.id} style={{ display: 'flex' }}>
+            <li key={tab.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <button
                 type="button"
                 onClick={() => onNavigate(tab.route)}
@@ -213,23 +215,31 @@ export default function BottomNav({ role, route, lang, onNavigate }: BottomNavPr
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
+                  justifyContent: 'center',
                   gap: 3,
-                  padding: '4px 0',
+                  padding: '4px 2px',
+                  minHeight: 48,
+                  minWidth: 48,
+                  width: '100%',
                   background: 'none',
                   border: 0,
                   borderRadius: 16,
                   cursor: 'pointer',
                   font: 'inherit',
-                  fontSize: 11,
+                  fontSize: lang === 'hi' ? 10.5 : 11,
                   fontWeight: active ? 700 : 500,
                   color: active ? 'var(--ms-orange)' : 'var(--ms-muted)',
                 }}
               >
                 {tab.icon}
-                <span>{(lang === 'hi' ? hiLocale : enLocale).navigation[tab.labelKey]}</span>
+                <span style={{ maxWidth: '100%', overflowWrap: 'break-word', textAlign: 'center', lineHeight: 1.15 }}>
+                  {(lang === 'hi' ? hiLocale : enLocale).navigation[tab.labelKey]}
+                </span>
                 <span
                   aria-hidden
                   style={{
+                    display: 'block',
+                    flexShrink: 0,
                     width: 5,
                     height: 5,
                     borderRadius: '50%',
