@@ -8,7 +8,11 @@ import {
   isCaptureDisabled,
   getVisibleView,
   createCassetteJpeg,
+  getFilePickerProps,
 } from './photoUtils';
+
+declare const require: any;
+declare const process: any;
 
 describe('domain: priority(case)', () => {
   const baseTime = 1700000000000;
@@ -279,5 +283,29 @@ describe('domain: photoUtils & retake behavior (4 & 5)', () => {
     expect(stateAfterRetake2.result).toBeNull();
     expect(getVisibleView(stateAfterRetake2)).toBe('video');
     expect(isCaptureDisabled(stateAfterRetake2)).toBe(false); // capture is re-enabled
+  });
+
+  it('verifies that the file input for "Choose from files or gallery" has NO capture attribute', () => {
+    // 1. Contract from helper
+    const galleryProps = getFilePickerProps('gallery');
+    expect(galleryProps.type).toBe('file');
+    expect(galleryProps.accept).toBe('image/*');
+    expect(galleryProps.capture).toBeUndefined();
+
+    const cameraProps = getFilePickerProps('camera');
+    expect(cameraProps.capture).toBe('environment');
+
+    // 2. Verified directly in TestPhoto.tsx source
+    const fs = require('node:fs');
+    const path = require('node:path');
+    const testPhotoCode = fs.readFileSync(path.join(process.cwd(), 'src/screens/TestPhoto.tsx'), 'utf8');
+    const galleryInputMatch = testPhotoCode.match(/<input[^>]*data-testid="gallery-file-input"[^>]*\/>/);
+    expect(galleryInputMatch).toBeTruthy();
+    expect(galleryInputMatch![0]).not.toContain('capture');
+
+    // Contrast with camera input which does have capture="environment"
+    const cameraInputMatch = testPhotoCode.match(/<input[^>]*data-testid="camera-file-input"[^>]*\/>/);
+    expect(cameraInputMatch).toBeTruthy();
+    expect(cameraInputMatch![0]).toContain('capture="environment"');
   });
 });

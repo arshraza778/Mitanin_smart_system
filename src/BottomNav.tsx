@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import enLocale from './i18n/en.json';
 import hiLocale from './i18n/hi.json';
+import { useCaseStore } from './store/CaseStore';
 
 export type Role = 'mitanin' | 'doctor' | 'supervisor';
 export type Lang = 'en' | 'hi';
@@ -170,6 +171,8 @@ interface BottomNavProps {
 }
 
 export default function BottomNav({ role, route, lang, onNavigate }: BottomNavProps) {
+  const { unreadAlertsCount } = useCaseStore();
+
   return (
     <nav
       aria-label={(lang === 'hi' ? hiLocale : enLocale).navigation.main}
@@ -231,7 +234,31 @@ export default function BottomNav({ role, route, lang, onNavigate }: BottomNavPr
                   color: active ? 'var(--ms-orange)' : 'var(--ms-muted)',
                 }}
               >
-                {tab.icon}
+                <span style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {tab.icon}
+                  {tab.id === 'alerts' && unreadAlertsCount > 0 && (
+                    <span
+                      style={{
+                        position: 'absolute',
+                        top: -4,
+                        right: -8,
+                        minWidth: 16,
+                        height: 16,
+                        padding: '0 4px',
+                        borderRadius: 999,
+                        background: 'var(--ms-danger)',
+                        color: '#fff',
+                        fontSize: 10,
+                        fontWeight: 800,
+                        display: 'grid',
+                        placeItems: 'center',
+                        lineHeight: 1,
+                      }}
+                    >
+                      {unreadAlertsCount > 9 ? '9+' : unreadAlertsCount}
+                    </span>
+                  )}
+                </span>
                 <span style={{ maxWidth: '100%', overflowWrap: 'break-word', textAlign: 'center', lineHeight: 1.15 }}>
                   {(lang === 'hi' ? hiLocale : enLocale).navigation[tab.labelKey]}
                 </span>

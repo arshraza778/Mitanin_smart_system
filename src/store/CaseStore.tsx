@@ -7,11 +7,13 @@ import React, {
   type ReactNode,
 } from 'react';
 import { priority, loopClosureRate, type CaseState } from '../domain';
+import { createCassetteJpeg } from '../domain/photoUtils';
 import { dataService } from '../services';
 
 export type { CaseState };
 
 export const STORAGE_KEY = 'ms-state-v1';
+export const SCHEMA_VERSION = 2;
 
 export interface PatientRecord {
   id: string; // e.g. "p1"
@@ -33,6 +35,7 @@ export interface CaseRecord {
   waitingMin: number;
   photo: boolean | string;
   photoData?: string;
+  photoIsDemo?: boolean;
   testResult?: 'positive' | 'negative' | 'invalid';
   state: CaseState;
   dueAt?: string; // ISO date string. NOTE: Overdue is ALWAYS computed from dueAt vs now, NEVER stored.
@@ -67,23 +70,37 @@ export interface ConsultRecord {
   id: string;
   caseId: string;
   patientId: string;
-  status: 'waiting' | 'replied';
   requestedAt: string;
+  receivedAt?: string;
   repliedAt?: string;
-  doctorName?: string;
-  advice?: string;
-  decision?: string;
+  advice: string;
+  decision: 'treat_locally' | 'send_to_hospital';
+  doctorName: string;
+  status: 'waiting' | 'replied';
   testRead?: string;
+  doctorRead?: 'agree' | 'disagree';
+  agreed?: boolean;
 }
 
 export interface AlertRecord {
-  id: string;
+  id: string; // deterministic: `${type}:${caseId}:${consultId or referralId || 'none'}:${sequence}`
+  type: 'doctor_replied' | 'overdue' | 'followup';
+  caseId: string;
+  consultId?: string;
+  referralId?: string;
+  createdAt: string;
+  readAt?: string;
+  title: { en: string; hi: string };
+  advice?: string;
+  decision?: 'treat_locally' | 'send_to_hospital';
+  doctorName?: string;
+  repliedAt?: string;
+  // UI helper fields
   kind: 'overdue' | 'replied' | 'followup';
   group: 'today' | 'earlier';
   text: { en: string; hi: string };
   time: { en: string; hi: string };
   patientId?: string;
-  caseId?: string;
   timestamp: string;
 }
 
@@ -98,8 +115,10 @@ export interface SyncItem {
 }
 
 export interface CaseStoreState {
+  schemaVersion: number;
   patients: PatientRecord[];
   currentScreening: { patientId: string };
+  currentCaseId?: string;
   cases: CaseRecord[];
   referrals: ReferralRecord[];
   consults: ConsultRecord[];
@@ -109,6 +128,8 @@ export interface CaseStoreState {
   syncedCases: CaseRecord[];
   syncedReferrals: ReferralRecord[];
   syncedConsults: ConsultRecord[];
+  syncedAlerts: AlertRecord[];
+  demoDataResetNotice?: boolean;
 }
 
 export function computeIsOverdue(
@@ -131,46 +152,42 @@ export function getInitialSeedState(): CaseStoreState {
   const rawSupervisor = dataService.getSupervisorRows();
   const now = Date.now();
 
-  // Ramesh c1 / p1 initial state
-  const initialCases: CaseRecord[] = rawCases.map((rc: any) => {
-    const isRamesh = rc.patientId === 'p1' || rc.id === 'c1';
-    const isPooja = rc.patientId === 'p6' || rc.id === 'c4';
-    const isAnita = rc.patientId === 'p4' || rc.id === 'c2';
+  // Ramesh c1 / p1 must start with NO case, consult, referral, or alert (Item 23)
+  const initialCases: CaseRecord[] = rawCases
+    .filter((rc: any) => rc.patientId !== 'p1' && rc.id !== 'c1')
+    .map((rc: any) => {
+      const isPooja = rc.patientId === 'p6' || rc.id === 'c4';
+      const isAnita = rc.patientId === 'p4' || rc.id === 'c2';
 
-    // Due times for demo (e.g. Ramesh referral 2h ago, Pooja 1d ago)
-    const dueTime = isRamesh
-      ? new Date(now - 2 * 3600 * 1000).toISOString()
-      : isPooja
-      ? new Date(now - 24 * 3600 * 1000).toISOString()
-      : undefined;
+      const dueTime = isPooja ? new Date(now - 24 * 3600 * 1000).toISOString() : undefined;
 
-    const caseState: CaseState = isRamesh
-      ? 'SCREENED'
-      : isAnita
-      ? 'CONSULT_REQUESTED'
-      : isPooja
-      ? 'REFERRAL_CREATED'
-      : 'SCREENED';
+      const caseState: CaseState = isAnita
+        ? 'CONSULT_REQUESTED'
+        : isPooja
+        ? 'REFERRAL_CREATED'
+        : 'SCREENED';
 
-    return {
-      id: rc.id,
-      patientId: rc.patientId,
-      name: rc.name,
-      village: rc.village,
-      symptoms: rc.symptoms || { en: '', hi: '' },
-      symptomFlags: isRamesh ? ['fever'] : isAnita ? ['sleepy', 'drink'] : [],
-      waitingMin: rc.waitingMin ?? 0,
-      photo: rc.photo ?? false,
-      testResult: isRamesh ? 'positive' : undefined,
-      state: caseState,
-      dueAt: dueTime,
-      createdAt: new Date(now - (rc.waitingMin ?? 60) * 60 * 1000).toISOString(),
-      updatedAt: new Date(now - (rc.waitingMin ?? 60) * 60 * 1000).toISOString(),
-      type: isRamesh || isPooja ? 'referral' : 'consult',
-      hasDangerSigns: isAnita,
-      mitanin: 'Sunita',
-    };
-  });
+      return {
+        id: rc.id,
+        patientId: rc.patientId,
+        name: rc.name,
+        village: rc.village,
+        symptoms: rc.symptoms || { en: '', hi: '' },
+        symptomFlags: isAnita ? ['sleepy', 'drink'] : [],
+        waitingMin: rc.waitingMin ?? 0,
+        photo: rc.photo ?? false,
+        photoData: isAnita ? createCassetteJpeg('positive') : undefined,
+        photoIsDemo: isAnita ? true : false,
+        testResult: isAnita ? 'positive' : undefined,
+        state: caseState,
+        dueAt: dueTime,
+        createdAt: new Date(now - (rc.waitingMin ?? 60) * 60 * 1000).toISOString(),
+        updatedAt: new Date(now - (rc.waitingMin ?? 60) * 60 * 1000).toISOString(),
+        type: isPooja ? 'referral' : 'consult',
+        hasDangerSigns: isAnita,
+        mitanin: 'Sunita',
+      };
+    });
 
   // Add Budhram Sahu (follow-up due tomorrow) from supervisor rows if not in cases
   const budhramRow = rawSupervisor.find((r: any) => r.patientId === 'p13');
@@ -241,21 +258,23 @@ export function getInitialSeedState(): CaseStoreState {
 
   const allCases = [...initialCases, ...historicalClosedCases];
 
-  // Initial referrals
-  const initialReferrals: ReferralRecord[] = rawReferrals.map((rf: any) => ({
-    id: rf.id,
-    patientId: rf.patientId,
-    caseId: 'c1',
-    facility: rf.facility,
-    owner: rf.owner,
-    status: 'in_progress', // Never store overdue
-    stage: 1,
-    dueHours: rf.dueHours ?? 24,
-    dueAt: new Date(now - 2 * 3600 * 1000).toISOString(), // 2h ago
-    createdAt: new Date(now - 26 * 3600 * 1000).toISOString(),
-  }));
+  // Initial referrals (no Ramesh; Pooja has an active referral)
+  const initialReferrals: ReferralRecord[] = [
+    {
+      id: 'r-p6',
+      patientId: 'p6',
+      caseId: 'c4',
+      facility: { en: 'District hospital', hi: 'ज़िला अस्पताल' },
+      owner: { en: 'Sunita', hi: 'सुनीता' },
+      status: 'in_progress', // Never store overdue
+      stage: 1,
+      dueHours: 24,
+      dueAt: new Date(now - 24 * 3600 * 1000).toISOString(),
+      createdAt: new Date(now - 48 * 3600 * 1000).toISOString(),
+    },
+  ];
 
-  // Initial consults
+  // Initial consults (no Ramesh)
   const initialConsults: ConsultRecord[] = [
     {
       id: 'con-c2',
@@ -263,6 +282,9 @@ export function getInitialSeedState(): CaseStoreState {
       patientId: 'p4',
       status: 'waiting',
       requestedAt: new Date(now - 140 * 60 * 1000).toISOString(),
+      advice: '',
+      decision: 'treat_locally',
+      doctorName: 'Dr. Rao',
     },
     {
       id: 'con-c3',
@@ -270,22 +292,44 @@ export function getInitialSeedState(): CaseStoreState {
       patientId: 'p5',
       status: 'waiting',
       requestedAt: new Date(now - 75 * 60 * 1000).toISOString(),
+      advice: '',
+      decision: 'treat_locally',
+      doctorName: 'Dr. Rao',
     },
   ];
 
-  // Initial alerts
-  const initialAlerts: AlertRecord[] = rawAlerts.map((al: any) => ({
-    id: al.id,
-    kind: al.kind,
-    group: al.group,
-    text: al.text,
-    time: al.time,
-    timestamp: new Date().toISOString(),
-  }));
+  // Initial alerts (remove seeded 'Referral overdue: Ramesh' alt-1 per Item 21)
+  const initialAlerts: AlertRecord[] = rawAlerts
+    .filter((al: any) => al.id !== 'alt-1' && al.patientId !== 'p1' && !(al.text?.en && al.text.en.includes('Ramesh')))
+    .map((al: any, idx: number) => {
+      const alertType: 'doctor_replied' | 'overdue' | 'followup' =
+        al.kind === 'replied' ? 'doctor_replied' : al.kind;
+      const caseId = al.caseId || (alertType === 'doctor_replied' ? 'c-geeta' : alertType === 'overdue' ? 'c4' : 'c-p13');
+      const consultId = alertType === 'doctor_replied' ? (al.consultId || 'con-geeta') : undefined;
+      const referralId = alertType === 'overdue' ? (al.referralId || 'r-p6') : undefined;
+      return {
+        id: `${alertType}:${caseId}:${consultId || referralId || 'none'}:${idx + 1}`,
+        type: alertType,
+        caseId,
+        consultId,
+        referralId,
+        createdAt: new Date(now - 30 * 60 * 1000).toISOString(),
+        readAt: undefined,
+        title: al.text,
+        kind: al.kind,
+        group: al.group,
+        text: al.text,
+        time: al.time,
+        timestamp: new Date().toISOString(),
+        patientId: al.patientId,
+      };
+    });
 
   return {
+    schemaVersion: SCHEMA_VERSION,
     patients: rawPatients,
     currentScreening: { patientId: 'p1' },
+    currentCaseId: undefined,
     cases: allCases,
     referrals: initialReferrals,
     consults: initialConsults,
@@ -295,11 +339,15 @@ export function getInitialSeedState(): CaseStoreState {
     syncedCases: allCases,
     syncedReferrals: initialReferrals,
     syncedConsults: initialConsults,
+    syncedAlerts: initialAlerts,
+    demoDataResetNotice: false,
   };
 }
 
 export type CaseAction =
   | { type: 'RESET_DEMO_DATA' }
+  | { type: 'DISMISS_RESET_NOTICE' }
+  | { type: 'SET_CURRENT_CASE_ID'; payload: { caseId: string } }
   | { type: 'SELECT_SCREENING_PATIENT'; payload: { patientId: string } }
   | { type: 'ADD_PATIENT'; payload: PatientRecord }
   | {
@@ -311,8 +359,11 @@ export type CaseAction =
         hasDangerSigns?: boolean;
         photo?: boolean | string;
         photoData?: string;
+        photoIsDemo?: boolean;
         testResult?: 'positive' | 'negative' | 'invalid';
         state?: CaseState;
+        nowISO?: string;
+        syncItemId?: string;
       };
       online: boolean;
     }
@@ -321,18 +372,40 @@ export type CaseAction =
       payload: {
         caseId: string;
         patientId: string;
+        nowISO?: string;
+        consultId?: string;
+        syncItemId?: string;
       };
       online: boolean;
+    }
+  | {
+      type: 'MARK_CONSULT_RECEIVED';
+      payload: {
+        caseId: string;
+        nowISO?: string;
+      };
     }
   | {
       type: 'DOCTOR_REPLY';
       payload: {
         caseId: string;
+        consultId?: string;
         advice: string;
-        decision: string;
+        decision: 'treat_locally' | 'send_to_hospital';
         read?: string;
+        doctorName?: string;
+        nowISO?: string;
+        alert?: AlertRecord;
+        syncItemId?: string;
       };
       online: boolean;
+    }
+  | {
+      type: 'MARK_ALERT_READ';
+      payload: {
+        alertId: string;
+        nowISO?: string;
+      };
     }
   | {
       type: 'CREATE_REFERRAL';
@@ -341,8 +414,20 @@ export type CaseAction =
         patientId: string;
         facility?: { en: string; hi: string };
         dueHours?: number;
+        nowISO?: string;
+        referralId?: string;
+        dueAt?: string;
+        syncItemId?: string;
       };
       online: boolean;
+    }
+  | {
+      type: 'RECORD_OUTCOME';
+      payload: {
+        caseId: string;
+        outcome?: 'completed' | 'rescheduled' | 'refused';
+        nowISO?: string;
+      };
     }
   | {
       type: 'REFERRAL_ACTION';
@@ -351,15 +436,15 @@ export type CaseAction =
         action: 'reminder' | 'reached_facility' | 'outcome';
         outcome?: 'completed' | 'rescheduled' | 'refused';
         notes?: string;
+        nowISO?: string;
+        syncItemId?: string;
       };
       online: boolean;
     }
-  | { type: 'SYNC_NOW' }
+  | { type: 'SYNC_NOW'; nowISO?: string }
   | { type: 'SET_CLOCK_OFFSET'; payload: { offsetMinutes: number } };
 
 export function caseReducer(state: CaseStoreState, action: CaseAction): CaseStoreState {
-  const now = Date.now();
-
   switch (action.type) {
     case 'RESET_DEMO_DATA': {
       try {
@@ -370,6 +455,20 @@ export function caseReducer(state: CaseStoreState, action: CaseAction): CaseStor
         console.warn('Failed to clear localStorage', err);
       }
       return getInitialSeedState();
+    }
+
+    case 'DISMISS_RESET_NOTICE': {
+      return {
+        ...state,
+        demoDataResetNotice: false,
+      };
+    }
+
+    case 'SET_CURRENT_CASE_ID': {
+      return {
+        ...state,
+        currentCaseId: action.payload.caseId,
+      };
     }
 
     case 'SELECT_SCREENING_PATIENT': {
@@ -391,6 +490,7 @@ export function caseReducer(state: CaseStoreState, action: CaseAction): CaseStor
 
     case 'UPDATE_SCREENING': {
       const { payload, online } = action;
+      const nowISO = payload.nowISO || '2026-10-24T12:00:00.000Z';
       const existingIdx = state.cases.findIndex(
         (c) => c.patientId === payload.patientId || (payload.patientId === 'p1' && c.id === 'c1')
       );
@@ -423,9 +523,10 @@ export function caseReducer(state: CaseStoreState, action: CaseAction): CaseStor
               ...(payload.hasDangerSigns !== undefined ? { hasDangerSigns: payload.hasDangerSigns } : {}),
               ...(payload.photo !== undefined ? { photo: payload.photo } : {}),
               ...(payload.photoData !== undefined ? { photoData: payload.photoData } : {}),
+              ...(payload.photoIsDemo !== undefined ? { photoIsDemo: payload.photoIsDemo } : {}),
               ...(payload.testResult !== undefined ? { testResult: payload.testResult } : {}),
               state: payload.state || state.cases[existingIdx].state,
-              updatedAt: new Date(now).toISOString(),
+              updatedAt: nowISO,
             }
           : {
               id: caseId,
@@ -437,10 +538,11 @@ export function caseReducer(state: CaseStoreState, action: CaseAction): CaseStor
               waitingMin: 0,
               photo: payload.photo ?? true,
               photoData: payload.photoData,
+              photoIsDemo: payload.photoIsDemo,
               testResult: payload.testResult ?? 'positive',
               state: payload.state || 'SCREENED',
-              createdAt: new Date(now).toISOString(),
-              updatedAt: new Date(now).toISOString(),
+              createdAt: nowISO,
+              updatedAt: nowISO,
               type: 'referral',
               mitanin: 'Sunita',
             };
@@ -452,11 +554,11 @@ export function caseReducer(state: CaseStoreState, action: CaseAction): CaseStor
 
       const syncItem: SyncItem | null = !online
         ? {
-            id: `sync-${now}-${Math.random().toString(36).slice(2, 6)}`,
+            id: payload.syncItemId || `sync-screening-${caseId}`,
             actionType: 'UPDATE_SCREENING',
             payload,
             status: 'waiting_to_send',
-            createdAt: new Date(now).toISOString(),
+            createdAt: nowISO,
             description: {
               en: `Screening updated for ${patientName.en} (${payload.state || 'SCREENED'})`,
               hi: `${patientName.hi} की जाँच अद्यतित (${payload.state || 'जाँच पूर्ण'})`,
@@ -476,6 +578,7 @@ export function caseReducer(state: CaseStoreState, action: CaseAction): CaseStor
 
     case 'REQUEST_CONSULT': {
       const { payload, online } = action;
+      const nowISO = payload.nowISO || '2026-10-24T12:00:00.000Z';
       const targetCaseId = payload.caseId || (payload.patientId === 'p1' ? 'c1' : `c-${payload.patientId}`);
       const patient = state.patients.find((p) => p.id === payload.patientId) || dataService.getPatient(payload.patientId);
       const patientNameEn = patient?.name?.en || 'Patient';
@@ -483,17 +586,29 @@ export function caseReducer(state: CaseStoreState, action: CaseAction): CaseStor
 
       const nextCases = state.cases.map((c) =>
         c.id === targetCaseId || c.patientId === payload.patientId
-          ? { ...c, state: 'CONSULT_REQUESTED' as CaseState, updatedAt: new Date(now).toISOString() }
+          ? { ...c, state: 'CONSULT_REQUESTED' as CaseState, updatedAt: nowISO }
           : c
       );
 
-      const newConsult: ConsultRecord = {
-        id: `con-${targetCaseId}-${now}`,
-        caseId: targetCaseId,
-        patientId: payload.patientId,
-        status: 'waiting',
-        requestedAt: new Date(now).toISOString(),
-      };
+      const consultId = payload.consultId || `con-${targetCaseId}`;
+      const existingConsult = state.consults.find((con) => con.caseId === targetCaseId);
+
+      const newConsult: ConsultRecord = existingConsult
+        ? {
+            ...existingConsult,
+            status: 'waiting',
+            requestedAt: nowISO,
+          }
+        : {
+            id: consultId,
+            caseId: targetCaseId,
+            patientId: payload.patientId,
+            status: 'waiting',
+            requestedAt: nowISO,
+            advice: '',
+            decision: 'treat_locally',
+            doctorName: 'Dr. Rao',
+          };
 
       const nextConsults = [
         newConsult,
@@ -502,11 +617,11 @@ export function caseReducer(state: CaseStoreState, action: CaseAction): CaseStor
 
       const syncItem: SyncItem | null = !online
         ? {
-            id: `sync-${now}-${Math.random().toString(36).slice(2, 6)}`,
+            id: payload.syncItemId || `sync-con-${targetCaseId}`,
             actionType: 'REQUEST_CONSULT',
             payload,
             status: 'waiting_to_send',
-            createdAt: new Date(now).toISOString(),
+            createdAt: nowISO,
             description: {
               en: `Doctor consult requested for ${patientNameEn}`,
               hi: `${patientNameHi} के लिए डॉक्टर परामर्श का अनुरोध`,
@@ -526,14 +641,46 @@ export function caseReducer(state: CaseStoreState, action: CaseAction): CaseStor
       };
     }
 
+    case 'MARK_CONSULT_RECEIVED': {
+      const { payload } = action;
+      const nowISO = payload.nowISO || '2026-10-24T12:00:00.000Z';
+      const nextConsults = state.consults.map((con) => {
+        if (con.caseId === payload.caseId) {
+          // Sets receivedAt once, never overwritten (Item 9)
+          if (!con.receivedAt) {
+            return { ...con, receivedAt: nowISO };
+          }
+        }
+        return con;
+      });
+
+      return {
+        ...state,
+        consults: nextConsults,
+        syncedConsults: nextConsults,
+      };
+    }
+
     case 'DOCTOR_REPLY': {
       const { payload, online } = action;
+      const nowISO = payload.nowISO || '2026-10-24T12:00:00.000Z';
       const targetCaseId = payload.caseId || 'c1';
 
+      // Item 6: One consult allows exactly one reply. If already 'replied', reject/ignore.
+      const existingConsult = state.consults.find(
+        (con) => con.caseId === targetCaseId || (payload.consultId && con.id === payload.consultId)
+      );
+      if (existingConsult && existingConsult.status === 'replied') {
+        return state;
+      }
+
       const targetCase = state.cases.find((c) => c.id === targetCaseId);
-      const patient = state.patients.find((p) => p.id === targetCase?.patientId) || (targetCase?.patientId ? dataService.getPatient(targetCase.patientId) : undefined);
+      const patient = state.patients.find((p) => p.id === targetCase?.patientId) ||
+        (targetCase?.patientId ? dataService.getPatient(targetCase.patientId) : undefined);
       const patientNameEn = patient?.name?.en || targetCase?.name?.en || 'Patient';
       const patientNameHi = patient?.name?.hi || targetCase?.name?.hi || 'मरीज़';
+      const doctorName = payload.doctorName || 'Dr. Rao';
+      const consultId = payload.consultId || existingConsult?.id || `con-${targetCaseId}`;
 
       const nextCases = state.cases.map((c) =>
         c.id === targetCaseId
@@ -543,29 +690,63 @@ export function caseReducer(state: CaseStoreState, action: CaseAction): CaseStor
               doctorAdvice: payload.advice,
               doctorDecision: payload.decision,
               doctorRead: payload.read,
-              updatedAt: new Date(now).toISOString(),
+              updatedAt: nowISO,
             }
           : c
       );
 
-      const nextConsults = state.consults.map((con) =>
-        con.caseId === targetCaseId
-          ? {
-              ...con,
-              status: 'replied' as const,
-              repliedAt: new Date(now).toISOString(),
-              doctorName: 'Dr. Rao',
-              advice: payload.advice,
-              decision: payload.decision,
-              testRead: payload.read,
-            }
-          : con
-      );
+      const doctorAgreed = payload.read === 'agree' ? true : payload.read === 'disagree' ? false : undefined;
+      const doctorReadVal: ('agree' | 'disagree') | undefined = payload.read === 'agree' || payload.read === 'disagree' ? payload.read : undefined;
 
-      const newAlert: AlertRecord = {
-        id: `alt-rep-${now}`,
-        kind: 'replied',
-        group: 'today',
+      const updatedConsult: ConsultRecord = existingConsult
+        ? {
+            ...existingConsult,
+            status: 'replied' as const,
+            repliedAt: nowISO,
+            doctorName,
+            advice: payload.advice,
+            decision: payload.decision,
+            testRead: payload.read,
+            doctorRead: doctorReadVal,
+            agreed: doctorAgreed,
+          }
+        : {
+            id: consultId,
+            caseId: targetCaseId,
+            patientId: targetCase?.patientId || 'p1',
+            status: 'replied' as const,
+            requestedAt: nowISO,
+            repliedAt: nowISO,
+            doctorName,
+            advice: payload.advice,
+            decision: payload.decision,
+            testRead: payload.read,
+            doctorRead: doctorReadVal,
+            agreed: doctorAgreed,
+          };
+
+      const nextConsults = [
+        updatedConsult,
+        ...state.consults.filter((con) => con.id !== updatedConsult.id && con.caseId !== targetCaseId),
+      ];
+
+      // Item 4: Deterministic alert id: `${type}:${caseId}:${consultId}:${sequence}`
+      const alertToAdd: AlertRecord = payload.alert || {
+        id: `doctor_replied:${targetCaseId}:${consultId}:1`,
+        type: 'doctor_replied' as const,
+        caseId: targetCaseId,
+        consultId,
+        createdAt: nowISO,
+        title: {
+          en: `Doctor replied: ${patientNameEn}`,
+          hi: `डॉक्टर का जवाब आया: ${patientNameHi}`,
+        },
+        advice: payload.advice,
+        decision: payload.decision,
+        doctorName,
+        repliedAt: nowISO,
+        kind: 'replied' as const,
+        group: 'today' as const,
         text: {
           en: `Doctor replied: ${patientNameEn}`,
           hi: `डॉक्टर का जवाब आया: ${patientNameHi}`,
@@ -574,20 +755,26 @@ export function caseReducer(state: CaseStoreState, action: CaseAction): CaseStor
           en: 'Just now',
           hi: 'अभी-अभी',
         },
-        caseId: targetCaseId,
         patientId: targetCase?.patientId,
-        timestamp: new Date(now).toISOString(),
+        timestamp: nowISO,
       };
 
-      const nextAlerts = [newAlert, ...state.alerts];
+      // Item 4 & 7: Check if alert already exists by ID or by (type, caseId, consultId)
+      const alertAlreadyExists = state.alerts.some(
+        (a) =>
+          a.id === alertToAdd.id ||
+          (a.type === 'doctor_replied' && a.caseId === targetCaseId && a.consultId === consultId)
+      );
+
+      const nextAlerts = alertAlreadyExists ? state.alerts : [alertToAdd, ...state.alerts];
 
       const syncItem: SyncItem | null = !online
         ? {
-            id: `sync-${now}-${Math.random().toString(36).slice(2, 6)}`,
+            id: payload.syncItemId || `sync-reply-${targetCaseId}-${consultId}`,
             actionType: 'DOCTOR_REPLY',
             payload,
             status: 'waiting_to_send',
-            createdAt: new Date(now).toISOString(),
+            createdAt: nowISO,
             description: {
               en: `Doctor reply sent for ${patientNameEn}`,
               hi: `${patientNameHi} के लिए डॉक्टर का जवाब भेजा गया`,
@@ -604,12 +791,27 @@ export function caseReducer(state: CaseStoreState, action: CaseAction): CaseStor
         alerts: nextAlerts,
         syncedCases: online ? nextCases : state.syncedCases,
         syncedConsults: online ? nextConsults : state.syncedConsults,
+        syncedAlerts: online ? nextAlerts : state.syncedAlerts,
         syncQueue: nextSyncQueue,
+      };
+    }
+
+    case 'MARK_ALERT_READ': {
+      const { payload } = action;
+      const nowISO = payload.nowISO || '2026-10-24T12:00:00.000Z';
+      const nextAlerts = state.alerts.map((a) =>
+        a.id === payload.alertId ? { ...a, readAt: a.readAt || nowISO } : a
+      );
+      return {
+        ...state,
+        alerts: nextAlerts,
+        syncedAlerts: nextAlerts,
       };
     }
 
     case 'CREATE_REFERRAL': {
       const { payload, online } = action;
+      const nowISO = payload.nowISO || '2026-10-24T12:00:00.000Z';
       const targetCaseId = payload.caseId || 'c1';
       const targetPatientId = payload.patientId || 'p1';
 
@@ -622,8 +824,8 @@ export function caseReducer(state: CaseStoreState, action: CaseAction): CaseStor
           ? {
               ...c,
               state: 'REFERRAL_CREATED' as CaseState,
-              dueAt: new Date(now + 24 * 3600 * 1000).toISOString(),
-              updatedAt: new Date(now).toISOString(),
+              dueAt: payload.dueAt || new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
+              updatedAt: nowISO,
             }
           : c
       );
@@ -638,10 +840,10 @@ export function caseReducer(state: CaseStoreState, action: CaseAction): CaseStor
               ...state.referrals[existingRefIdx],
               stage: 1,
               status: 'in_progress',
-              dueAt: new Date(now + (payload.dueHours || 24) * 3600 * 1000).toISOString(),
+              dueAt: payload.dueAt || new Date(Date.now() + (payload.dueHours || 24) * 3600 * 1000).toISOString(),
             }
           : {
-              id: `r-${targetPatientId}`,
+              id: payload.referralId || `r-${targetPatientId}`,
               patientId: targetPatientId,
               caseId: targetCaseId,
               facility: payload.facility || { en: 'District hospital', hi: 'ज़िला अस्पताल' },
@@ -649,8 +851,8 @@ export function caseReducer(state: CaseStoreState, action: CaseAction): CaseStor
               status: 'in_progress',
               stage: 1,
               dueHours: payload.dueHours || 24,
-              dueAt: new Date(now + (payload.dueHours || 24) * 3600 * 1000).toISOString(),
-              createdAt: new Date(now).toISOString(),
+              dueAt: payload.dueAt || new Date(Date.now() + (payload.dueHours || 24) * 3600 * 1000).toISOString(),
+              createdAt: nowISO,
             };
 
       const nextReferrals =
@@ -660,11 +862,11 @@ export function caseReducer(state: CaseStoreState, action: CaseAction): CaseStor
 
       const syncItem: SyncItem | null = !online
         ? {
-            id: `sync-${now}-${Math.random().toString(36).slice(2, 6)}`,
+            id: payload.syncItemId || `sync-referral-${targetPatientId}`,
             actionType: 'CREATE_REFERRAL',
             payload,
             status: 'waiting_to_send',
-            createdAt: new Date(now).toISOString(),
+            createdAt: nowISO,
             description: {
               en: `Referral created for ${patientNameEn}`,
               hi: `${patientNameHi} के लिए रेफ़रल बनाया गया`,
@@ -684,8 +886,30 @@ export function caseReducer(state: CaseStoreState, action: CaseAction): CaseStor
       };
     }
 
+    case 'RECORD_OUTCOME': {
+      const { payload } = action;
+      const nowISO = payload.nowISO || '2026-10-24T12:00:00.000Z';
+      const nextCases = state.cases.map((c) =>
+        c.id === payload.caseId
+          ? {
+              ...c,
+              state: 'OUTCOME_RECORDED' as CaseState,
+              outcome: payload.outcome || 'completed',
+              updatedAt: nowISO,
+            }
+          : c
+      );
+
+      return {
+        ...state,
+        cases: nextCases,
+        syncedCases: nextCases,
+      };
+    }
+
     case 'REFERRAL_ACTION': {
       const { payload, online } = action;
+      const nowISO = payload.nowISO || '2026-10-24T12:00:00.000Z';
       const refIdx = state.referrals.findIndex((r) => r.id === payload.referralId || r.id === 'r1');
       if (refIdx < 0) return state;
 
@@ -723,7 +947,7 @@ export function caseReducer(state: CaseStoreState, action: CaseAction): CaseStor
               ...c,
               state: newCaseState,
               outcome: payload.outcome ?? c.outcome,
-              updatedAt: new Date(now).toISOString(),
+              updatedAt: nowISO,
             }
           : c
       );
@@ -734,11 +958,11 @@ export function caseReducer(state: CaseStoreState, action: CaseAction): CaseStor
 
       const syncItem: SyncItem | null = !online
         ? {
-            id: `sync-${now}-${Math.random().toString(36).slice(2, 6)}`,
+            id: payload.syncItemId || `sync-ref-action-${ref.id}-${payload.action}`,
             actionType: 'REFERRAL_ACTION',
             payload,
             status: 'waiting_to_send',
-            createdAt: new Date(now).toISOString(),
+            createdAt: nowISO,
             description: {
               en: `Referral action (${payload.action}) for ${patientNameEn}`,
               hi: `${patientNameHi} के लिए रेफ़रल कार्रवाई (${payload.action})`,
@@ -759,9 +983,10 @@ export function caseReducer(state: CaseStoreState, action: CaseAction): CaseStor
     }
 
     case 'SYNC_NOW': {
+      const nowISO = action.nowISO || '2026-10-24T12:00:00.000Z';
       const updatedQueue = state.syncQueue.map((item) =>
         item.status === 'waiting_to_send'
-          ? { ...item, status: 'sent' as const, sentAt: new Date(now).toISOString() }
+          ? { ...item, status: 'sent' as const, sentAt: nowISO }
           : item
       );
 
@@ -771,6 +996,7 @@ export function caseReducer(state: CaseStoreState, action: CaseAction): CaseStor
         syncedCases: state.cases,
         syncedReferrals: state.referrals,
         syncedConsults: state.consults,
+        syncedAlerts: state.alerts,
       };
     }
 
@@ -790,10 +1016,18 @@ export interface CaseStoreContextValue {
   state: CaseStoreState;
   patients: PatientRecord[];
   currentScreening: { patientId: string };
+  currentCaseId?: string;
   syncedCases: CaseRecord[];
   syncedReferrals: ReferralRecord[];
   syncedConsults: ConsultRecord[];
+  syncedAlerts: AlertRecord[];
+  unreadAlertsCount: number;
   waitingSyncCount: number;
+  demoDataResetNotice?: boolean;
+  demoClockOffsetMinutes: number;
+  readingAgreement: { agreed: number; total: number; rate: number };
+  dismissResetNotice: () => void;
+  setCurrentCaseId: (caseId: string) => void;
   isOverdue: (dueAt?: string | null) => boolean;
   getCase: (id: string) => CaseRecord | undefined;
   getCaseByPatientId: (patientId: string) => CaseRecord | undefined;
@@ -819,19 +1053,23 @@ export interface CaseStoreContextValue {
       hasDangerSigns?: boolean;
       photo?: boolean | string;
       photoData?: string;
+      photoIsDemo?: boolean;
       testResult?: 'positive' | 'negative' | 'invalid';
       state?: CaseState;
     },
     online: boolean
   ) => void;
   requestConsult: (caseId: string, patientId: string, online: boolean) => void;
+  markConsultReceived: (caseId: string) => void;
+  markAlertRead: (alertId: string) => void;
+  recordOutcome: (caseId: string, outcome?: 'completed' | 'rescheduled' | 'refused') => void;
   doctorReply: (
     caseId: string,
     advice: string,
-    decision: string,
+    decision: 'treat_locally' | 'send_to_hospital' | string,
     read: string | undefined,
     online: boolean
-  ) => void;
+  ) => { ok: boolean; error?: string };
   createReferral: (
     caseId: string,
     patientId: string,
@@ -856,34 +1094,117 @@ export interface CaseStoreContextValue {
 
 const CaseStoreContext = createContext<CaseStoreContextValue | null>(null);
 
-function loadPersistedState(): CaseStoreState {
+export function loadPersistedState(): CaseStoreState {
   if (typeof window === 'undefined') {
     return getInitialSeedState();
   }
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return getInitialSeedState();
-    const parsed = JSON.parse(raw);
-    if (!parsed || !Array.isArray(parsed.cases) || !Array.isArray(parsed.referrals)) {
-      return getInitialSeedState();
+
+    let parsed: any;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      // Corrupt JSON: reset to seed and notify (Item 3 & 29)
+      const seed = getInitialSeedState();
+      seed.demoDataResetNotice = true;
+      return seed;
     }
+
+    if (!parsed || typeof parsed !== 'object' || !Array.isArray(parsed.cases) || !Array.isArray(parsed.referrals)) {
+      const seed = getInitialSeedState();
+      seed.demoDataResetNotice = true;
+      return seed;
+    }
+
     const seed = getInitialSeedState();
+
+    // Migrate consults (Item 1 & 3)
+    const consults: ConsultRecord[] = (parsed.consults || []).map((c: any) => ({
+      id: c.id || `con-${c.caseId}`,
+      caseId: c.caseId || 'c1',
+      patientId: c.patientId || 'p1',
+      requestedAt: c.requestedAt || new Date().toISOString(),
+      receivedAt: c.receivedAt,
+      repliedAt: c.repliedAt,
+      advice: typeof c.advice === 'string' ? c.advice : '',
+      decision:
+        c.decision === 'send_to_hospital' || c.decision === 'refer'
+          ? ('send_to_hospital' as const)
+          : ('treat_locally' as const),
+      doctorName: c.doctorName || 'Dr. Rao',
+      status: c.status === 'replied' ? ('replied' as const) : ('waiting' as const),
+      testRead: c.testRead,
+    }));
+
+    // Item 7 & 21: De-duplicate existing alerts by id and by (type, caseId, consultId), drop old Ramesh overdue alert
+    const seenIds = new Set<string>();
+    const seenTypeCaseConsult = new Set<string>();
+    const dedupedAlerts: AlertRecord[] = [];
+
+    const rawAlertsList = Array.isArray(parsed.alerts) ? parsed.alerts : seed.alerts;
+    for (const a of rawAlertsList) {
+      if (!a || !a.id) continue;
+      // Item 21: Remove seeded 'Referral overdue: Ramesh' alert
+      if (a.id === 'alt-1' || (a.patientId === 'p1' && a.kind === 'overdue')) continue;
+
+      if (seenIds.has(a.id)) continue;
+
+      const alertType: 'doctor_replied' | 'overdue' | 'followup' =
+        a.type || (a.kind === 'replied' ? 'doctor_replied' : a.kind) || 'doctor_replied';
+      const key = `${alertType}:${a.caseId || ''}:${a.consultId || ''}`;
+      if (alertType === 'doctor_replied' && a.consultId && seenTypeCaseConsult.has(key)) {
+        continue;
+      }
+
+      seenIds.add(a.id);
+      if (a.consultId) seenTypeCaseConsult.add(key);
+
+      dedupedAlerts.push({
+        id: a.id,
+        type: alertType,
+        caseId: a.caseId || 'c1',
+        consultId: a.consultId,
+        referralId: a.referralId,
+        createdAt: a.createdAt || a.timestamp || new Date().toISOString(),
+        readAt: a.readAt,
+        title: a.title || a.text || { en: 'Alert', hi: 'सूचना' },
+        advice: a.advice,
+        decision: a.decision,
+        doctorName: a.doctorName,
+        repliedAt: a.repliedAt,
+        kind: a.kind || (alertType === 'doctor_replied' ? 'replied' : alertType),
+        group: a.group || 'today',
+        text: a.text || a.title || { en: 'Alert', hi: 'सूचना' },
+        time: a.time || { en: 'Recently', hi: 'हाल ही में' },
+        patientId: a.patientId,
+        timestamp: a.timestamp || a.createdAt || new Date().toISOString(),
+      });
+    }
+
     return {
+      schemaVersion: SCHEMA_VERSION,
       patients: Array.isArray(parsed.patients) && parsed.patients.length > 0 ? parsed.patients : seed.patients,
       currentScreening: parsed.currentScreening?.patientId ? parsed.currentScreening : seed.currentScreening,
+      currentCaseId: parsed.currentCaseId,
       cases: parsed.cases,
       referrals: parsed.referrals,
-      consults: parsed.consults || [],
-      alerts: parsed.alerts || [],
-      syncQueue: parsed.syncQueue || [],
+      consults,
+      alerts: dedupedAlerts,
+      syncQueue: Array.isArray(parsed.syncQueue) ? parsed.syncQueue : [],
       demoClockOffsetMinutes: parsed.demoClockOffsetMinutes ?? 0,
       syncedCases: parsed.syncedCases || parsed.cases,
       syncedReferrals: parsed.syncedReferrals || parsed.referrals,
-      syncedConsults: parsed.syncedConsults || parsed.consults || [],
+      syncedConsults: parsed.syncedConsults || consults,
+      syncedAlerts: parsed.syncedAlerts || dedupedAlerts,
+      demoDataResetNotice: false,
     };
   } catch (err) {
     console.warn('Failed to parse localStorage state:', err);
-    return getInitialSeedState();
+    const seed = getInitialSeedState();
+    seed.demoDataResetNotice = true;
+    return seed;
   }
 }
 
@@ -895,8 +1216,10 @@ export function CaseProvider({ children }: { children: ReactNode }) {
     if (typeof window === 'undefined') return;
     try {
       const toSave = {
+        schemaVersion: state.schemaVersion,
         patients: state.patients,
         currentScreening: state.currentScreening,
+        currentCaseId: state.currentCaseId,
         cases: state.cases,
         referrals: state.referrals,
         consults: state.consults,
@@ -906,6 +1229,7 @@ export function CaseProvider({ children }: { children: ReactNode }) {
         syncedCases: state.syncedCases,
         syncedReferrals: state.syncedReferrals,
         syncedConsults: state.syncedConsults,
+        syncedAlerts: state.syncedAlerts,
       };
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
     } catch (err) {
@@ -955,6 +1279,14 @@ export function CaseProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'SELECT_SCREENING_PATIENT', payload: { patientId } });
   }, []);
 
+  const setCurrentCaseId = useCallback((caseId: string) => {
+    dispatch({ type: 'SET_CURRENT_CASE_ID', payload: { caseId } });
+  }, []);
+
+  const dismissResetNotice = useCallback(() => {
+    dispatch({ type: 'DISMISS_RESET_NOTICE' });
+  }, []);
+
   const addPatient = useCallback(
     (data: {
       name: { en: string; hi: string } | string;
@@ -994,7 +1326,7 @@ export function CaseProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const syncNow = useCallback(() => {
-    dispatch({ type: 'SYNC_NOW' });
+    dispatch({ type: 'SYNC_NOW', nowISO: new Date().toISOString() });
   }, []);
 
   const updateScreening = useCallback(
@@ -1006,19 +1338,63 @@ export function CaseProvider({ children }: { children: ReactNode }) {
         hasDangerSigns?: boolean;
         photo?: boolean | string;
         photoData?: string;
+        photoIsDemo?: boolean;
         testResult?: 'positive' | 'negative' | 'invalid';
         state?: CaseState;
       },
       online: boolean
     ) => {
-      dispatch({ type: 'UPDATE_SCREENING', payload, online });
+      const nowISO = new Date().toISOString();
+      const syncItemId = `sync-screening-${payload.patientId}-${Date.now()}`;
+      dispatch({
+        type: 'UPDATE_SCREENING',
+        payload: { ...payload, nowISO, syncItemId },
+        online,
+      });
     },
     []
   );
 
   const requestConsult = useCallback(
     (caseId: string, patientId: string, online: boolean) => {
-      dispatch({ type: 'REQUEST_CONSULT', payload: { caseId, patientId }, online });
+      const nowISO = new Date().toISOString();
+      const consultId = `con-${caseId}`;
+      const syncItemId = `sync-consult-${caseId}`;
+      dispatch({
+        type: 'REQUEST_CONSULT',
+        payload: { caseId, patientId, nowISO, consultId, syncItemId },
+        online,
+      });
+    },
+    []
+  );
+
+  const markConsultReceived = useCallback(
+    (caseId: string) => {
+      const consult = state.consults.find((c) => c.caseId === caseId);
+      if (consult && !consult.receivedAt) {
+        dispatch({
+          type: 'MARK_CONSULT_RECEIVED',
+          payload: { caseId, nowISO: new Date().toISOString() },
+        });
+      }
+    },
+    [state.consults]
+  );
+
+  const markAlertRead = useCallback((alertId: string) => {
+    dispatch({
+      type: 'MARK_ALERT_READ',
+      payload: { alertId, nowISO: new Date().toISOString() },
+    });
+  }, []);
+
+  const recordOutcome = useCallback(
+    (caseId: string, outcome: 'completed' | 'rescheduled' | 'refused' = 'completed') => {
+      dispatch({
+        type: 'RECORD_OUTCOME',
+        payload: { caseId, outcome, nowISO: new Date().toISOString() },
+      });
     },
     []
   );
@@ -1027,17 +1403,83 @@ export function CaseProvider({ children }: { children: ReactNode }) {
     (
       caseId: string,
       advice: string,
-      decision: string,
+      decision: 'treat_locally' | 'send_to_hospital' | string,
       read: string | undefined,
       online: boolean
-    ) => {
+    ): { ok: boolean; error?: string } => {
+      const existingConsult = state.consults.find((con) => con.caseId === caseId);
+      if (existingConsult && existingConsult.status === 'replied') {
+        return { ok: false, error: 'Reply already sent' };
+      }
+
+      const trimmedAdvice = advice.trim();
+      const normalizedDecision: 'treat_locally' | 'send_to_hospital' =
+        decision === 'send_to_hospital' ||
+        decision.toLowerCase().includes('refer') ||
+        decision.includes('रेफ़र') ||
+        decision.includes('अस्पताल')
+          ? 'send_to_hospital'
+          : 'treat_locally';
+
+      const nowISO = new Date().toISOString();
+      const consultId = existingConsult?.id || `con-${caseId}`;
+      const targetCase = state.cases.find((c) => c.id === caseId);
+      const patientId = targetCase?.patientId || existingConsult?.patientId || 'p1';
+      const patient = state.patients.find((p) => p.id === patientId);
+      const patientNameEn = patient?.name?.en || targetCase?.name?.en || 'Patient';
+      const patientNameHi = patient?.name?.hi || targetCase?.name?.hi || 'मरीज़';
+      const doctorName = 'Dr. Rao';
+
+      const alertId = `doctor_replied:${caseId}:${consultId}:1`;
+      const alert: AlertRecord = {
+        id: alertId,
+        type: 'doctor_replied',
+        caseId,
+        consultId,
+        createdAt: nowISO,
+        title: {
+          en: `Doctor replied: ${patientNameEn}`,
+          hi: `डॉक्टर का जवाब आया: ${patientNameHi}`,
+        },
+        advice: trimmedAdvice,
+        decision: normalizedDecision,
+        doctorName,
+        repliedAt: nowISO,
+        kind: 'replied',
+        group: 'today',
+        text: {
+          en: `Doctor replied: ${patientNameEn}`,
+          hi: `डॉक्टर का जवाब आया: ${patientNameHi}`,
+        },
+        time: {
+          en: 'Just now',
+          hi: 'अभी-अभी',
+        },
+        patientId,
+        timestamp: nowISO,
+      };
+
+      const syncItemId = `sync-reply-${caseId}-${consultId}`;
+
       dispatch({
         type: 'DOCTOR_REPLY',
-        payload: { caseId, advice, decision, read },
+        payload: {
+          caseId,
+          consultId,
+          advice: trimmedAdvice,
+          decision: normalizedDecision,
+          read,
+          doctorName,
+          nowISO,
+          alert,
+          syncItemId,
+        },
         online,
       });
+
+      return { ok: true };
     },
-    []
+    [state.consults, state.cases, state.patients]
   );
 
   const createReferral = useCallback(
@@ -1048,9 +1490,13 @@ export function CaseProvider({ children }: { children: ReactNode }) {
       dueHours: number | undefined,
       online: boolean
     ) => {
+      const nowISO = new Date().toISOString();
+      const referralId = `r-${patientId}`;
+      const dueAt = new Date(Date.now() + (dueHours || 24) * 3600 * 1000).toISOString();
+      const syncItemId = `sync-referral-${patientId}`;
       dispatch({
         type: 'CREATE_REFERRAL',
-        payload: { caseId, patientId, facility, dueHours },
+        payload: { caseId, patientId, facility, dueHours, nowISO, referralId, dueAt, syncItemId },
         online,
       });
     },
@@ -1065,9 +1511,11 @@ export function CaseProvider({ children }: { children: ReactNode }) {
       notes: string | undefined,
       online: boolean
     ) => {
+      const nowISO = new Date().toISOString();
+      const syncItemId = `sync-ref-${referralId}-${action}`;
       dispatch({
         type: 'REFERRAL_ACTION',
-        payload: { referralId, action, outcome, notes },
+        payload: { referralId, action, outcome, notes, nowISO, syncItemId },
         online,
       });
     },
@@ -1095,8 +1543,8 @@ export function CaseProvider({ children }: { children: ReactNode }) {
     }
 
     return {
-      overdueReferralsCount: Math.max(overdueReferralsCount, 1),
-      followupsDueCount: Math.max(followupsDueCount, 2),
+      overdueReferralsCount: Math.max(overdueReferralsCount, 0),
+      followupsDueCount: Math.max(followupsDueCount, 0),
       awaitingDoctorCount,
     };
   }, [state.cases]);
@@ -1108,16 +1556,33 @@ export function CaseProvider({ children }: { children: ReactNode }) {
     [state.cases]
   );
 
+  const unreadAlertsCount = state.alerts.filter((a) => !a.readAt).length;
   const waitingSyncCount = state.syncQueue.filter((s) => s.status === 'waiting_to_send').length;
+
+  const readingAgreement = React.useMemo(() => {
+    const reviewed = state.consults.filter((con) => con.agreed !== undefined || con.doctorRead !== undefined);
+    const agreed = reviewed.filter((con) => con.agreed === true || con.doctorRead === 'agree').length;
+    const total = reviewed.length;
+    const rate = total > 0 ? Math.round((agreed / total) * 100) : 100;
+    return { agreed, total, rate };
+  }, [state.consults]);
 
   const value: CaseStoreContextValue = {
     state,
     patients: state.patients,
     currentScreening: state.currentScreening,
+    currentCaseId: state.currentCaseId,
     syncedCases: state.syncedCases,
     syncedReferrals: state.syncedReferrals,
     syncedConsults: state.syncedConsults,
+    syncedAlerts: state.syncedAlerts,
+    unreadAlertsCount,
     waitingSyncCount,
+    demoDataResetNotice: state.demoDataResetNotice,
+    demoClockOffsetMinutes: state.demoClockOffsetMinutes,
+    readingAgreement,
+    dismissResetNotice,
+    setCurrentCaseId,
     isOverdue,
     getCase,
     getCaseByPatientId,
@@ -1131,6 +1596,9 @@ export function CaseProvider({ children }: { children: ReactNode }) {
     syncNow,
     updateScreening,
     requestConsult,
+    markConsultReceived,
+    markAlertRead,
+    recordOutcome,
     doctorReply,
     createReferral,
     referralAction,

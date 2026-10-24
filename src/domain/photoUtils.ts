@@ -48,6 +48,26 @@ export function getVisibleView(params: {
   return 'video';
 }
 
+export interface FilePickerProps {
+  type: 'file';
+  accept: string;
+  capture?: 'environment';
+}
+
+export function getFilePickerProps(mode: 'camera' | 'gallery'): FilePickerProps {
+  if (mode === 'camera') {
+    return {
+      type: 'file',
+      accept: 'image/*',
+      capture: 'environment',
+    };
+  }
+  return {
+    type: 'file',
+    accept: 'image/*',
+  };
+}
+
 function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
   ctx.beginPath();
   ctx.moveTo(x + r, y);

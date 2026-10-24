@@ -1,4 +1,4 @@
-import { useState, type ReactElement } from 'react';
+import { useState, useEffect, useCallback, type ReactElement } from 'react';
 import type { ScreenProps } from '../App';
 import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
@@ -109,14 +109,74 @@ function EmptyIllustration() {
 
 export default function Alerts({ lang, onNavigate }: ScreenProps) {
   const t = COPY[lang];
-  const { state, getPatientSummary, currentScreening } = useCaseStore();
+  const {
+    state,
+    getPatientSummary,
+    currentScreening,
+    markAlertRead,
+    setCurrentCaseId,
+    selectScreeningPatient,
+    createReferral,
+  } = useCaseStore();
   const patientId = currentScreening?.patientId || 'p1';
-  const alertsList = state.alerts.length ? state.alerts : ALERTS;
+  const alertsList = state.alerts;
+  const isDev = typeof window !== 'undefined' && window.location.search.includes('dev=1');
   const [view, setView] = useState<View>('alerts');
   const [selectedAlertId, setSelectedAlertId] = useState<string | null>(alertsList[0]?.id ?? null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const items = view === 'alerts' ? alertsList : [];
 
   const selectedAlert = items.find((a) => a.id === selectedAlertId) || items[0] || null;
+
+  useEffect(() => {
+    if (selectedAlert?.id && !selectedAlert.readAt) {
+      markAlertRead(selectedAlert.id);
+    }
+  }, [selectedAlert?.id, markAlertRead]);
+
+  const hasReferral = useCallback(
+    (caseId: string, alertPatientId?: string) =>
+      state.referrals.some((r) => r.caseId === caseId || (alertPatientId && r.patientId === alertPatientId)),
+    [state.referrals]
+  );
+
+  const getFormattedTime = useCallback(
+    (dateStr?: string) => {
+      if (!dateStr) return lang === 'hi' ? 'अभी-अभी' : 'Just now';
+      const target = new Date(dateStr).getTime();
+      const now = Date.now() + (state.demoClockOffsetMinutes || 0) * 60 * 1000;
+      const diffSec = Math.max(0, Math.floor((now - target) / 1000));
+      if (diffSec < 60) return lang === 'hi' ? 'अभी-अभी' : 'Just now';
+      const diffMin = Math.floor(diffSec / 60);
+      if (diffMin < 60) return lang === 'hi' ? `${diffMin} मिनट पहले` : `${diffMin} min ago`;
+      const diffHr = Math.floor(diffMin / 60);
+      if (diffHr < 24) return lang === 'hi' ? `${diffHr} घंटे पहले` : `${diffHr} h ago`;
+      const diffDay = Math.floor(diffHr / 24);
+      return lang === 'hi' ? `${diffDay} दिन पहले` : `${diffDay} d ago`;
+    },
+    [state.demoClockOffsetMinutes, lang]
+  );
+
+  const handleViewReply = (a: any) => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    setTimeout(() => setIsSubmitting(false), 500);
+
+    markAlertRead(a.id);
+    if (a.caseId) setCurrentCaseId(a.caseId);
+    if (a.patientId) selectScreeningPatient(a.patientId);
+    onNavigate('/mitanin/consult');
+  };
+
+  const handleSendToHospital = (a: any) => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    setTimeout(() => setIsSubmitting(false), 500);
+
+    markAlertRead(a.id);
+    createReferral(a.caseId || 'c1', a.patientId || 'p1', { en: 'District hospital', hi: 'ज़िला अस्पताल' }, 24, true);
+    onNavigate('/mitanin/referral');
+  };
 
   return (
     <div
@@ -152,65 +212,67 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
         </header>
 
         <section style={{ padding: '20px 18px 24px' }}>
-          <div
-            role="group"
-            aria-label={t.demo}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              flexWrap: 'wrap',
-              gap: 10,
-              marginBottom: 6,
-            }}
-          >
-            <span
-              style={{
-                fontSize: 12,
-                fontWeight: 700,
-                color: COLORS.muted,
-              }}
-            >
-              {t.demo}
-            </span>
-
+          {isDev && (
             <div
+              role="group"
+              aria-label={t.demo}
               style={{
                 display: 'flex',
-                padding: 4,
-                borderRadius: 999,
-                background: '#E9EDE7',
-                gap: 2,
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: 10,
+                marginBottom: 6,
               }}
             >
-              {(['alerts', 'empty'] as const).map((key) => {
-                const on = view === key;
+              <span
+                style={{
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: COLORS.muted,
+                }}
+              >
+                {t.demo}
+              </span>
 
-                return (
-                  <button
-                    key={key}
-                    type="button"
-                    aria-pressed={on}
-                    onClick={() => setView(key)}
-                    style={{
-                      border: on ? `1px solid ${COLORS.border}` : '1px solid transparent',
-                      cursor: 'pointer',
-                      padding: '7px 13px',
-                      borderRadius: 999,
-                      fontSize: 12,
-                      fontWeight: 750,
-                      background: on ? COLORS.card : 'transparent',
-                      color: on ? COLORS.green : COLORS.muted,
-                      boxShadow: on ? '0 2px 5px rgba(38, 50, 56, 0.06)' : 'none',
-                      minHeight: 36,
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {t.views[key]}
-                  </button>
-                );
-              })}
+              <div
+                style={{
+                  display: 'flex',
+                  padding: 4,
+                  borderRadius: 999,
+                  background: '#E9EDE7',
+                  gap: 2,
+                }}
+              >
+                {(['alerts', 'empty'] as const).map((key) => {
+                  const on = view === key;
+
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      aria-pressed={on}
+                      onClick={() => setView(key)}
+                      style={{
+                        border: on ? `1px solid ${COLORS.border}` : '1px solid transparent',
+                        cursor: 'pointer',
+                        padding: '7px 13px',
+                        borderRadius: 999,
+                        fontSize: 12,
+                        fontWeight: 750,
+                        background: on ? COLORS.card : 'transparent',
+                        color: on ? COLORS.green : COLORS.muted,
+                        boxShadow: on ? '0 2px 5px rgba(38, 50, 56, 0.06)' : 'none',
+                        minHeight: 36,
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {t.views[key]}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          )}
 
           {items.length === 0 ? (
             <div
@@ -270,12 +332,168 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
                   >
                     {list.map((a) => {
                       const st = KIND_STYLE[a.kind];
+                      const isDoctorReplied = a.type === 'doctor_replied' || a.kind === 'replied';
+
+                      if (isDoctorReplied) {
+                        const needsReferral = a.decision === 'send_to_hospital' && !hasReferral(a.caseId, a.patientId);
+                        return (
+                          <li key={a.id}>
+                            <div
+                              style={{
+                                position: 'relative',
+                                overflow: 'hidden',
+                                width: '100%',
+                                padding: '16px 16px 16px 20px',
+                                textAlign: 'left',
+                                border: `1px solid ${COLORS.border}`,
+                                borderRadius: 18,
+                                background: COLORS.card,
+                                color: COLORS.ink,
+                                boxShadow: '0 4px 14px rgba(38, 50, 56, 0.045)',
+                                boxSizing: 'border-box',
+                              }}
+                            >
+                              <span
+                                aria-hidden
+                                style={{
+                                  position: 'absolute',
+                                  left: 0,
+                                  top: 0,
+                                  bottom: 0,
+                                  width: 5,
+                                  background: st.stripe,
+                                }}
+                              />
+
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: 8 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                  <span
+                                    aria-hidden
+                                    style={{
+                                      width: 32,
+                                      height: 32,
+                                      borderRadius: 10,
+                                      display: 'grid',
+                                      placeItems: 'center',
+                                      background: st.tint,
+                                      color: st.fg,
+                                    }}
+                                  >
+                                    {KIND_ICON[a.kind]}
+                                  </span>
+                                  <div>
+                                    <span style={{ fontSize: 14, fontWeight: 800, color: COLORS.ink }}>
+                                      {a.doctorName || 'Dr. Rao'}
+                                    </span>
+                                    <span style={{ display: 'block', fontSize: 11.5, color: COLORS.muted }}>
+                                      {getFormattedTime(a.repliedAt || a.createdAt)}
+                                    </span>
+                                  </div>
+                                </div>
+                                <span
+                                  style={{
+                                    display: 'inline-block',
+                                    padding: '3px 10px',
+                                    borderRadius: 999,
+                                    fontSize: 11.5,
+                                    fontWeight: 800,
+                                    background: st.tint,
+                                    color: st.fg,
+                                  }}
+                                >
+                                  {a.decision === 'send_to_hospital'
+                                    ? (lang === 'hi' ? 'अस्पताल भेजें' : 'Send to hospital')
+                                    : (lang === 'hi' ? 'स्थानीय स्तर पर इलाज करें' : 'Treat locally')}
+                                </span>
+                              </div>
+
+                              <p
+                                style={{
+                                  margin: '10px 0 14px',
+                                  fontSize: 14.5,
+                                  fontWeight: 600,
+                                  lineHeight: 1.45,
+                                  color: COLORS.ink,
+                                  whiteSpace: 'pre-wrap',
+                                }}
+                              >
+                                {a.advice || a.text[lang]}
+                              </p>
+
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                                <button
+                                  type="button"
+                                  onClick={() => handleViewReply(a)}
+                                  style={{
+                                    minHeight: 48,
+                                    padding: '0 18px',
+                                    borderRadius: 14,
+                                    border: 0,
+                                    background: COLORS.green,
+                                    color: '#FFFFFF',
+                                    fontSize: 14,
+                                    fontWeight: 800,
+                                    cursor: 'pointer',
+                                    boxShadow: '0 2px 8px rgba(40, 103, 73, 0.2)',
+                                  }}
+                                >
+                                  {lang === 'hi' ? 'जवाब देखें' : 'View reply'}
+                                </button>
+
+                                {needsReferral && (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleSendToHospital(a)}
+                                    style={{
+                                      minHeight: 48,
+                                      padding: '0 16px',
+                                      borderRadius: 14,
+                                      border: '1.5px solid var(--ms-orange)',
+                                      background: 'var(--ms-orange)',
+                                      color: '#FFFFFF',
+                                      fontSize: 13.5,
+                                      fontWeight: 800,
+                                      cursor: 'pointer',
+                                    }}
+                                  >
+                                    {lang === 'hi' ? 'अस्पताल भेजें' : 'Send to hospital'}
+                                  </button>
+                                )}
+
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    markAlertRead(a.id);
+                                    onNavigate('/case');
+                                  }}
+                                  style={{
+                                    minHeight: 48,
+                                    background: 'none',
+                                    border: 0,
+                                    padding: '0 8px',
+                                    fontSize: 13,
+                                    fontWeight: 700,
+                                    color: COLORS.muted,
+                                    cursor: 'pointer',
+                                    textDecoration: 'underline',
+                                  }}
+                                >
+                                  {lang === 'hi' ? 'समयरेखा' : 'Timeline'}
+                                </button>
+                              </div>
+                            </div>
+                          </li>
+                        );
+                      }
 
                       return (
                         <li key={a.id}>
                           <button
                             type="button"
-                            onClick={() => onNavigate('/case')}
+                            onClick={() => {
+                              markAlertRead(a.id);
+                              onNavigate('/case');
+                            }}
                             style={{
                               position: 'relative',
                               overflow: 'hidden',
@@ -362,7 +580,7 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
                                     color: COLORS.muted,
                                   }}
                                 >
-                                  {a.time[lang]}
+                                  {getFormattedTime(a.repliedAt || a.createdAt)}
                                 </span>
                               </div>
                             </span>
@@ -403,40 +621,42 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
             </p>
           </div>
 
-          <div
-            style={{
-              display: 'flex',
-              padding: 4,
-              borderRadius: 999,
-              background: '#E9EDE7',
-              gap: 2,
-            }}
-          >
-            {(['alerts', 'empty'] as const).map((key) => {
-              const on = view === key;
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  aria-pressed={on}
-                  onClick={() => setView(key)}
-                  style={{
-                    border: on ? `1px solid ${COLORS.border}` : '1px solid transparent',
-                    cursor: 'pointer',
-                    padding: '8px 16px',
-                    borderRadius: 999,
-                    fontSize: 13,
-                    fontWeight: 750,
-                    background: on ? COLORS.card : 'transparent',
-                    color: on ? COLORS.green : COLORS.muted,
-                    boxShadow: on ? '0 2px 5px rgba(38, 50, 56, 0.06)' : 'none',
-                  }}
-                >
-                  {t.views[key]}
-                </button>
-              );
-            })}
-          </div>
+          {isDev && (
+            <div
+              style={{
+                display: 'flex',
+                padding: 4,
+                borderRadius: 999,
+                background: '#E9EDE7',
+                gap: 2,
+              }}
+            >
+              {(['alerts', 'empty'] as const).map((key) => {
+                const on = view === key;
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    aria-pressed={on}
+                    onClick={() => setView(key)}
+                    style={{
+                      border: on ? `1px solid ${COLORS.border}` : '1px solid transparent',
+                      cursor: 'pointer',
+                      padding: '8px 16px',
+                      borderRadius: 999,
+                      fontSize: 13,
+                      fontWeight: 750,
+                      background: on ? COLORS.card : 'transparent',
+                      color: on ? COLORS.green : COLORS.muted,
+                      boxShadow: on ? '0 2px 5px rgba(38, 50, 56, 0.06)' : 'none',
+                    }}
+                  >
+                    {t.views[key]}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </header>
 
         {items.length === 0 ? (
@@ -479,7 +699,10 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
                           <li key={a.id}>
                             <button
                               type="button"
-                              onClick={() => setSelectedAlertId(a.id)}
+                              onClick={() => {
+                                markAlertRead(a.id);
+                                setSelectedAlertId(a.id);
+                              }}
                               style={{
                                 position: 'relative',
                                 overflow: 'hidden',
@@ -581,46 +804,167 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
                       </span>
                     </div>
                     <span style={{ fontSize: 13, color: COLORS.muted, fontWeight: 600 }}>
-                      {selectedAlert.time[lang]}
+                      {getFormattedTime(selectedAlert.repliedAt || selectedAlert.createdAt)}
                     </span>
                   </div>
 
-                  <p style={{ margin: '18px 0', fontSize: 16.5, fontWeight: 700, lineHeight: 1.45, color: COLORS.ink }}>
+                  <p style={{ margin: '18px 0 10px', fontSize: 16.5, fontWeight: 700, lineHeight: 1.45, color: COLORS.ink }}>
                     {selectedAlert.text[lang]}
                   </p>
 
-                  <div style={{ padding: '16px', borderRadius: 18, background: COLORS.page, border: `1px solid ${COLORS.border}`, marginBottom: 20 }}>
-                    <span style={{ fontSize: 11, fontWeight: 800, color: COLORS.muted, textTransform: 'uppercase' }}>
-                      {lang === 'hi' ? 'संबंधित मरीज़' : 'Associated Patient'}
-                    </span>
-                    <p style={{ margin: '4px 0 0', fontSize: 15, fontWeight: 800, color: COLORS.green }}>
-                      {getPatientSummary(patientId, lang)}
-                    </p>
-                  </div>
+                  {(selectedAlert.type === 'doctor_replied' || selectedAlert.kind === 'replied') ? (
+                    <>
+                      <div
+                        style={{
+                          margin: '12px 0 16px',
+                          padding: '14px 16px',
+                          borderRadius: 16,
+                          background: COLORS.page,
+                          border: `1px solid ${COLORS.border}`,
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                          <span style={{ fontSize: 12, fontWeight: 800, color: COLORS.muted, textTransform: 'uppercase' }}>
+                            {selectedAlert.doctorName || 'Dr. Rao'}
+                          </span>
+                          <span style={{ fontSize: 11.5, color: COLORS.muted }}>
+                            {getFormattedTime(selectedAlert.repliedAt || selectedAlert.createdAt)}
+                          </span>
+                        </div>
+                        <p style={{ margin: 0, fontSize: 15, fontWeight: 600, lineHeight: 1.45, whiteSpace: 'pre-wrap', color: COLORS.ink }}>
+                          {selectedAlert.advice || selectedAlert.text[lang]}
+                        </p>
+                      </div>
 
-                  <button
-                    type="button"
-                    onClick={() => onNavigate('/case')}
-                    style={{
-                      width: '100%',
-                      height: 52,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: 8,
-                      borderRadius: 16,
-                      border: 0,
-                      background: COLORS.green,
-                      color: '#FFFFFF',
-                      fontSize: 15,
-                      fontWeight: 800,
-                      cursor: 'pointer',
-                      boxShadow: '0 4px 14px rgba(40, 103, 73, 0.2)',
-                    }}
-                  >
-                    <span>{lang === 'hi' ? 'केस समयरेखा देखें' : 'View Case Timeline'}</span>
-                    <span>→</span>
-                  </button>
+                      <div style={{ marginBottom: 20 }}>
+                        <span
+                          style={{
+                            display: 'inline-block',
+                            padding: '4px 12px',
+                            borderRadius: 999,
+                            fontSize: 12.5,
+                            fontWeight: 800,
+                            background: KIND_STYLE.replied.tint,
+                            color: KIND_STYLE.replied.fg,
+                          }}
+                        >
+                          {selectedAlert.decision === 'send_to_hospital'
+                            ? (lang === 'hi' ? 'अस्पताल भेजें' : 'Send to hospital')
+                            : (lang === 'hi' ? 'स्थानीय स्तर पर इलाज करें' : 'Treat locally')}
+                        </span>
+                      </div>
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                        <button
+                          type="button"
+                          onClick={() => handleViewReply(selectedAlert)}
+                          style={{
+                            width: '100%',
+                            minHeight: 48,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: 8,
+                            borderRadius: 16,
+                            border: 0,
+                            background: COLORS.green,
+                            color: '#FFFFFF',
+                            fontSize: 15,
+                            fontWeight: 800,
+                            cursor: 'pointer',
+                            boxShadow: '0 4px 14px rgba(40, 103, 73, 0.2)',
+                          }}
+                        >
+                          <span>{lang === 'hi' ? 'जवाब देखें' : 'View reply'}</span>
+                          <span>→</span>
+                        </button>
+
+                        {selectedAlert.decision === 'send_to_hospital' && !hasReferral(selectedAlert.caseId, selectedAlert.patientId) && (
+                          <button
+                            type="button"
+                            onClick={() => handleSendToHospital(selectedAlert)}
+                            style={{
+                              width: '100%',
+                              minHeight: 48,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: 8,
+                              borderRadius: 16,
+                              border: '1.5px solid var(--ms-orange)',
+                              background: 'var(--ms-orange)',
+                              color: '#FFFFFF',
+                              fontSize: 15,
+                              fontWeight: 800,
+                              cursor: 'pointer',
+                            }}
+                          >
+                            <span>{lang === 'hi' ? 'अस्पताल भेजें' : 'Send to hospital'}</span>
+                            <span>→</span>
+                          </button>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            markAlertRead(selectedAlert.id);
+                            onNavigate('/case');
+                          }}
+                          style={{
+                            background: 'none',
+                            border: 0,
+                            padding: 8,
+                            fontSize: 13.5,
+                            fontWeight: 700,
+                            color: COLORS.muted,
+                            cursor: 'pointer',
+                            textDecoration: 'underline',
+                            textAlign: 'center',
+                          }}
+                        >
+                          {lang === 'hi' ? 'समयरेखा' : 'Timeline'}
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div style={{ padding: '16px', borderRadius: 18, background: COLORS.page, border: `1px solid ${COLORS.border}`, marginBottom: 20 }}>
+                        <span style={{ fontSize: 11, fontWeight: 800, color: COLORS.muted, textTransform: 'uppercase' }}>
+                          {lang === 'hi' ? 'संबंधित मरीज़' : 'Associated Patient'}
+                        </span>
+                        <p style={{ margin: '4px 0 0', fontSize: 15, fontWeight: 800, color: COLORS.green }}>
+                          {getPatientSummary(selectedAlert.patientId || patientId, lang)}
+                        </p>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          markAlertRead(selectedAlert.id);
+                          onNavigate('/case');
+                        }}
+                        style={{
+                          width: '100%',
+                          minHeight: 48,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: 8,
+                          borderRadius: 16,
+                          border: 0,
+                          background: COLORS.green,
+                          color: '#FFFFFF',
+                          fontSize: 15,
+                          fontWeight: 800,
+                          cursor: 'pointer',
+                          boxShadow: '0 4px 14px rgba(40, 103, 73, 0.2)',
+                        }}
+                      >
+                        <span>{lang === 'hi' ? 'केस समयरेखा देखें' : 'View Case Timeline'}</span>
+                        <span>→</span>
+                      </button>
+                    </>
+                  )}
                 </div>
               ) : null}
             </div>

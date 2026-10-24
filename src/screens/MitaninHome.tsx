@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import type { ScreenProps } from '../App';
 import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
@@ -36,13 +37,30 @@ function HeroLeaves() {
 
 export default function MitaninHome({ lang, online, onNavigate, onToggleOnline }: ScreenProps) {
   const t = COPY[lang];
-  const { getPriorityStats, waitingSyncCount } = useCaseStore();
+  const { state, getPriorityStats, setCurrentCaseId, selectScreeningPatient } = useCaseStore();
   const priorityStats = getPriorityStats();
   const priorityCounts = [
     priorityStats.overdueReferralsCount,
     priorityStats.followupsDueCount,
     priorityStats.awaitingDoctorCount,
   ];
+
+  const repliedCasesWithoutReferral = useMemo(() => {
+    return state.cases.filter((c) => {
+      if (c.state === 'OUTCOME_RECORDED' || c.state === 'REACHED_FACILITY') return false;
+      const con = state.consults.find((con) => con.caseId === c.id || con.patientId === c.patientId);
+      const isReplied = con?.status === 'replied' || c.state === 'CONSULT_REPLIED';
+      if (!isReplied) return false;
+      const hasRef = state.referrals.some((r) => r.caseId === c.id || r.patientId === c.patientId);
+      return !hasRef;
+    });
+  }, [state.cases, state.consults, state.referrals]);
+
+  const handleViewReply = (c: any) => {
+    if (c.id) setCurrentCaseId(c.id);
+    if (c.patientId) selectScreeningPatient(c.patientId);
+    onNavigate('/mitanin/consult');
+  };
 
   return (
     <div>
@@ -124,6 +142,71 @@ export default function MitaninHome({ lang, online, onNavigate, onToggleOnline }
             <h2 style={{ margin: 0, fontSize: 22, fontWeight: 800 }}>{t.prioTitle}</h2>
             <p style={{ margin: '2px 0 0', fontSize: 13.5, color: 'var(--ms-muted)' }}>{t.prioSub}</p>
           </div>
+
+          {repliedCasesWithoutReferral.length > 0 && (
+            <div style={{ padding: '16px 20px 0' }}>
+              <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 10 }}>
+                {repliedCasesWithoutReferral.map((c) => (
+                  <li
+                    key={c.id}
+                    style={{
+                      background: 'var(--ms-green-100)',
+                      borderRadius: 20,
+                      padding: '14px 16px',
+                      border: '1.5px solid var(--ms-green-500)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: 12,
+                    }}
+                  >
+                    <div style={{ minWidth: 0 }}>
+                      <span
+                        style={{
+                          display: 'inline-block',
+                          padding: '2px 8px',
+                          borderRadius: 999,
+                          fontSize: 11,
+                          fontWeight: 800,
+                          background: 'var(--ms-green-700)',
+                          color: '#fff',
+                          marginBottom: 4,
+                        }}
+                      >
+                        {lang === 'hi' ? 'डॉक्टर का जवाब' : 'Doctor replied'}
+                      </span>
+                      <span style={{ display: 'block', fontSize: 16, fontWeight: 800, color: 'var(--ms-green-900)' }}>
+                        {c.name[lang]}
+                      </span>
+                      <span style={{ display: 'block', fontSize: 12.5, color: 'var(--ms-green-800)', opacity: 0.9 }}>
+                        {typeof c.village === 'string' ? c.village : c.village[lang]}
+                      </span>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => handleViewReply(c)}
+                      style={{
+                        flexShrink: 0,
+                        minHeight: 48,
+                        padding: '0 16px',
+                        borderRadius: 14,
+                        border: 0,
+                        background: 'var(--ms-green-700)',
+                        color: '#fff',
+                        fontSize: 13.5,
+                        fontWeight: 800,
+                        cursor: 'pointer',
+                        boxShadow: '0 2px 8px rgba(43, 107, 82, 0.25)',
+                      }}
+                    >
+                      {lang === 'hi' ? 'जवाब देखें' : 'View reply'}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           <ul
             style={{
@@ -321,6 +404,89 @@ export default function MitaninHome({ lang, online, onNavigate, onToggleOnline }
         <div className="grid grid-cols-12 @md:grid-cols-12 @2xl:grid-cols-12 @4xl:grid-cols-12 gap-6" style={{ alignItems: 'start' }}>
           {/* Main Area: Priority cards & Visits in two columns (~65-70%) */}
           <div className="col-span-12 @2xl:col-span-8 @4xl:col-span-8" style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+            {repliedCasesWithoutReferral.length > 0 && (
+              <div
+                style={{
+                  background: 'var(--ms-surface)',
+                  borderRadius: 24,
+                  border: '1px solid var(--ms-green-500)',
+                  boxShadow: 'var(--ms-shadow-card)',
+                  padding: 22,
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                  <div>
+                    <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: 'var(--ms-ink)' }}>
+                      {lang === 'hi' ? 'डॉक्टर का जवाब आया है' : 'Doctor Replied - Action Required'}
+                    </h2>
+                    <p style={{ margin: '2px 0 0', fontSize: 13, color: 'var(--ms-muted)', fontWeight: 600 }}>
+                      {t.prioSub}
+                    </p>
+                  </div>
+                </div>
+
+                <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 10 }}>
+                  {repliedCasesWithoutReferral.map((c) => (
+                    <li
+                      key={c.id}
+                      style={{
+                        background: 'var(--ms-green-100)',
+                        borderRadius: 18,
+                        padding: '12px 18px',
+                        border: '1px solid var(--ms-green-500)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: 12,
+                      }}
+                    >
+                      <div>
+                        <span
+                          style={{
+                            display: 'inline-block',
+                            padding: '2px 8px',
+                            borderRadius: 999,
+                            fontSize: 11,
+                            fontWeight: 800,
+                            background: 'var(--ms-green-700)',
+                            color: '#fff',
+                            marginBottom: 4,
+                          }}
+                        >
+                          {lang === 'hi' ? 'डॉक्टर का जवाब' : 'Doctor replied'}
+                        </span>
+                        <span style={{ display: 'block', fontSize: 16, fontWeight: 800, color: 'var(--ms-green-900)' }}>
+                          {c.name[lang]}
+                        </span>
+                        <span style={{ display: 'block', fontSize: 12.5, color: 'var(--ms-green-800)', opacity: 0.9 }}>
+                          {typeof c.village === 'string' ? c.village : c.village[lang]}
+                        </span>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleViewReply(c)}
+                        style={{
+                          minHeight: 48,
+                          padding: '0 18px',
+                          borderRadius: 14,
+                          border: 0,
+                          background: 'var(--ms-green-700)',
+                          color: '#fff',
+                          fontSize: 14,
+                          fontWeight: 800,
+                          cursor: 'pointer',
+                          boxShadow: '0 2px 8px rgba(43, 107, 82, 0.25)',
+                        }}
+                      >
+                        {lang === 'hi' ? 'जवाब देखें' : 'View reply'}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 @md:grid-cols-2 @2xl:grid-cols-2 gap-6">
               {/* Column 1: Priority Cards */}
               <div

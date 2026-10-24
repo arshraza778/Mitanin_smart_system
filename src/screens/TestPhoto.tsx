@@ -11,7 +11,7 @@ import {
 
 const STEP = 3;
 type Result = 'positive' | 'negative' | 'invalid';
-type CamState = 'starting' | 'ready' | 'unavailable';
+type CamState = 'idle' | 'starting' | 'ready' | 'unavailable';
 type CamReason = 'permission_denied' | 'not_found' | 'insecure' | 'unknown' | null;
 
 const COPY = { en: enLocale.screens.TestPhoto, hi: hiLocale.screens.TestPhoto } as const;
@@ -95,10 +95,16 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const scratchRef = useRef<HTMLCanvasElement | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const mountedRef = useRef<boolean>(true);
 
-  const [cam, setCam] = useState<CamState>('starting');
+  const [activeStream, setActiveStream] = useState<MediaStream | null>(null);
+  const [cam, setCam] = useState<CamState>('idle');
   const [camReason, setCamReason] = useState<CamReason>(null);
+  const [camFeedbackMessage, setCamFeedbackMessage] = useState<string | null>(null);
+  const [cameraActive, setCameraActive] = useState<boolean>(false);
   const [quality, setQuality] = useState<[boolean, boolean, boolean]>([false, false, false]);
   const [photo, setPhoto] = useState<string | null>(() => {
     if (existingCase?.photoData) return existingCase.photoData;
@@ -107,31 +113,47 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
     }
     return null;
   });
+  const [isDemoPhoto, setIsDemoPhoto] = useState<boolean>(() => Boolean(existingCase?.photoIsDemo));
   const [result, setResult] = useState<Result | null>(() => existingCase?.testResult ?? 'positive');
   const [showDemoMenu, setShowDemoMenu] = useState<boolean>(false);
+  const [storageError, setStorageError] = useState<string | null>(null);
 
-  const handleNext = () => {
-    updateScreening(
-      {
-        patientId,
-        photo: Boolean(photo),
-        photoData: photo || undefined,
-        testResult: result || 'positive',
-        state: 'SCREENED',
-      },
-      online
-    );
-    onNavigate('/mitanin/screening/result');
-  };
+  const stopCameraStream = useCallback(() => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+    setActiveStream(null);
+    setCameraActive(false);
+  }, []);
 
   useEffect(() => {
-    if (photo) return;
-    let stream: MediaStream | null = null;
-    let cancelled = false;
-    setCam('starting');
-    setCamReason(null);
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      stopCameraStream();
+    };
+  }, [stopCameraStream]);
 
-    // Check secure context first (getUserMedia requires HTTPS or localhost)
+  // Set srcObject and play in effect (Item 12)
+  useEffect(() => {
+    const video = videoRef.current;
+    if (video && activeStream) {
+      video.srcObject = activeStream;
+      video.play().catch((err) => {
+        console.warn('Video play interrupted or prevented:', err);
+      });
+    }
+  }, [activeStream]);
+
+  const handleOpenCamera = async () => {
+    setStorageError(null);
+    setCamFeedbackMessage(null);
+
+    // Item 9: Check window.isSecureContext first
     if (
       typeof window !== 'undefined' &&
       window.isSecureContext === false &&
@@ -141,59 +163,83 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
     ) {
       setCam('unavailable');
       setCamReason('insecure');
+      setCamFeedbackMessage(t.insecurePage);
       return;
     }
 
-    if (!navigator.mediaDevices?.getUserMedia) {
+    if (typeof navigator === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
       setCam('unavailable');
       setCamReason('not_found');
+      setCamFeedbackMessage(t.noCameraFound);
       return;
     }
 
-    navigator.mediaDevices
-      .getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false })
-      .then((s) => {
-        if (cancelled) {
-          s.getTracks().forEach((tr) => tr.stop());
-          return;
-        }
-        stream = s;
-        const v = videoRef.current;
-        if (v) {
-          v.srcObject = s;
-          void v.play();
-        }
-        setCam('ready');
-        setCamReason(null);
-      })
-      .catch((err: any) => {
-        if (cancelled) return;
-        setCam('unavailable');
-        if (err?.name === 'NotAllowedError' || err?.name === 'PermissionDeniedError') {
-          setCamReason('permission_denied');
-        } else if (err?.name === 'NotFoundError' || err?.name === 'DevicesNotFoundError') {
-          setCamReason('not_found');
-        } else {
-          setCamReason('unknown');
-        }
-      });
+    setCam('starting');
+    stopCameraStream();
 
-    return () => {
-      cancelled = true;
-      stream?.getTracks().forEach((tr) => tr.stop());
-    };
-  }, [photo]);
+    let stream: MediaStream | null = null;
+    try {
+      try {
+        // Item 8: Request camera with { video: { facingMode: { ideal: 'environment' } }, audio: false }. Never use 'exact'.
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: 'environment' } },
+          audio: false,
+        });
+      } catch (err: any) {
+        // Item 8: If OverconstrainedError, retry with { video: true }
+        if (err?.name === 'OverconstrainedError') {
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: false,
+          });
+        } else {
+          throw err;
+        }
+      }
+
+      // Item 13: StrictMode safety (double mount)
+      if (!mountedRef.current) {
+        if (stream) {
+          stream.getTracks().forEach((track) => track.stop());
+        }
+        return;
+      }
+
+      streamRef.current = stream;
+      setActiveStream(stream);
+      setCam('ready');
+      setCameraActive(true);
+      setCamReason(null);
+      setCamFeedbackMessage(null);
+    } catch (err: any) {
+      // Item 10: Log raw error to console
+      console.error('Camera error:', err);
+
+      if (!mountedRef.current) {
+        if (stream) stream.getTracks().forEach((track) => track.stop());
+        return;
+      }
+
+      setCam('unavailable');
+      const errName = err?.name;
+      if (errName === 'NotAllowedError' || errName === 'PermissionDeniedError') {
+        setCamReason('permission_denied');
+        setCamFeedbackMessage(t.permissionBlocked);
+      } else if (errName === 'NotFoundError' || errName === 'DevicesNotFoundError') {
+        setCamReason('not_found');
+        setCamFeedbackMessage(t.noCameraFound);
+      } else if (errName === 'NotReadableError' || errName === 'TrackStartError') {
+        setCamReason('unknown');
+        setCamFeedbackMessage(t.cameraInUse);
+      } else {
+        setCamReason('unknown');
+        setCamFeedbackMessage(t.cameraCouldNotStart);
+      }
+    }
+  };
 
   useEffect(() => {
-    if (photo) return;
-    if (cam === 'unavailable') {
-      setQuality([false, false, false]);
-      return;
-    }
-    if (cam !== 'ready') {
-      setQuality([false, false, false]);
-      return;
-    }
+    if (!cameraActive || cam !== 'ready') return;
     scratchRef.current ??= document.createElement('canvas');
     const id = window.setInterval(() => {
       const v = videoRef.current;
@@ -202,26 +248,24 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
       if (!r) return;
       setQuality([r.sharp, r.light, r.sharp && r.light]);
     }, 700);
-    return () => window.clearInterval(id);
-  }, [cam, photo]);
 
-  const capture = useCallback(() => {
-    if (cam === 'unavailable') {
-      // In unavailable camera mode, shutter creates positive cassette demo JPEG
-      const demoJpeg = createCassetteJpeg('positive');
-      setPhoto(demoJpeg);
-      setQuality([true, true, true]);
-      setResult('positive');
+    return () => window.clearInterval(id);
+  }, [cameraActive, cam]);
+
+  const captureLive = useCallback(() => {
+    const v = videoRef.current;
+    if (!v || v.videoWidth <= 0 || v.videoHeight <= 0) {
+      setCamFeedbackMessage(t.cameraStillStarting);
       return;
     }
-    const v = videoRef.current;
-    if (!v || !v.videoWidth) return;
     const jpeg = downscaleImageToJpeg(v, v.videoWidth, v.videoHeight, 800, 0.7);
     if (jpeg) {
       setPhoto(jpeg);
+      setIsDemoPhoto(false);
       setQuality([true, true, true]);
+      stopCameraStream();
     }
-  }, [cam]);
+  }, [stopCameraStream, t.cameraStillStarting]);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -230,26 +274,55 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
       const jpeg = await readFileAsDownscaledJpeg(file, 800, 0.7);
       if (jpeg) {
         setPhoto(jpeg);
+        setIsDemoPhoto(false);
         setQuality([true, true, true]);
+        stopCameraStream();
+        setCamFeedbackMessage(null);
       }
     } catch {
-      // Fallback if reader fails
+      setStorageError(t.storageError);
     }
   };
 
   const handleSelectDemo = (type: 'positive' | 'negative' | 'invalid') => {
     const demoJpeg = createCassetteJpeg(type);
     setPhoto(demoJpeg);
+    setIsDemoPhoto(true);
     setQuality([true, true, true]);
     setResult(type);
     setShowDemoMenu(false);
+    stopCameraStream();
+    setCamFeedbackMessage(null);
   };
 
   const retake = () => {
     setPhoto(null);
+    setIsDemoPhoto(false);
     setResult(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+    setStorageError(null);
+    setCamFeedbackMessage(null);
+    stopCameraStream();
+    if (cameraInputRef.current) cameraInputRef.current.value = '';
+    if (galleryInputRef.current) galleryInputRef.current.value = '';
+  };
+
+  const handleNext = () => {
+    try {
+      stopCameraStream();
+      updateScreening(
+        {
+          patientId,
+          photo: Boolean(photo),
+          photoData: photo || undefined,
+          photoIsDemo: isDemoPhoto,
+          testResult: result || 'positive',
+          state: 'SCREENED',
+        },
+        online
+      );
+      onNavigate('/mitanin/screening/result');
+    } catch {
+      setStorageError(t.storageError);
     }
   };
 
@@ -281,7 +354,15 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
               background: '#12241b',
             }}
           />
-        ) : cam === 'unavailable' ? (
+        ) : cameraActive && cam === 'ready' ? (
+          <video
+            ref={videoRef}
+            playsInline
+            muted
+            autoPlay
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+        ) : camFeedbackMessage || cam === 'unavailable' ? (
           <div
             data-testid="camera-unavailable"
             style={{
@@ -314,8 +395,8 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
                 <line x1="2" y1="2" x2="22" y2="22" />
               </svg>
             </div>
-            <p style={{ margin: 0, fontSize: 16, fontWeight: 800, lineHeight: 1.35, maxWidth: 300 }}>
-              {t.cameraUnavailableMsg}
+            <p style={{ margin: 0, fontSize: 15.5, fontWeight: 800, lineHeight: 1.35, maxWidth: 300 }}>
+              {camFeedbackMessage || t.cameraUnavailableMsg}
             </p>
             {camReason && (
               <div
@@ -335,17 +416,67 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
                 <span>{t.reasons[camReason] || t.reasons.unknown}</span>
               </div>
             )}
+            <button
+              type="button"
+              onClick={handleOpenCamera}
+              style={{
+                marginTop: 6,
+                padding: '8px 20px',
+                borderRadius: 999,
+                border: 0,
+                background: '#fff',
+                color: 'var(--ms-ink)',
+                fontSize: 14,
+                fontWeight: 800,
+                cursor: 'pointer',
+                minHeight: 40,
+                boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+              }}
+            >
+              {t.tryAgain}
+            </button>
           </div>
         ) : (
-          <video
-            ref={videoRef}
-            playsInline
-            muted
-            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
-          />
+          /* Idle Frame placeholder before selecting an option */
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '24px 20px',
+              textAlign: 'center',
+              background: 'linear-gradient(180deg, #183324 0%, #0d1e15 100%)',
+              color: '#fff',
+              gap: 12,
+            }}
+          >
+            <div
+              style={{
+                width: 52,
+                height: 52,
+                borderRadius: '50%',
+                background: 'rgba(255,255,255,0.12)',
+                display: 'grid',
+                placeItems: 'center',
+                color: '#fff',
+              }}
+            >
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                <circle cx="12" cy="13" r="4" />
+              </svg>
+            </div>
+            <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: 'rgba(255,255,255,0.9)' }}>
+              {t.place}
+            </p>
+          </div>
         )}
 
-        {!photo && cam !== 'unavailable' && (
+        {/* Framing guide overlay when live camera is on */}
+        {!photo && cameraActive && cam === 'ready' && (
           <>
             <div
               aria-hidden
@@ -381,81 +512,199 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
         )}
       </div>
 
-      {/* Hidden file input for native camera / image upload */}
+      {/* Hidden file input 1: Camera capture fallback WITH capture="environment" */}
       <input
-        ref={fileInputRef}
+        ref={cameraInputRef}
         type="file"
         accept="image/*"
         capture="environment"
+        data-testid="camera-file-input"
         onChange={handleFileSelect}
         style={{ display: 'none' }}
       />
 
-      {/* Primary Take or Upload Photo button & Demo Menu */}
-      <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 10 }}>
-        <button
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-          disabled={!!photo}
-          data-testid="upload-button"
+      {/* Hidden file input 2: Choose from files or gallery WITHOUT capture attribute */}
+      <input
+        ref={galleryInputRef}
+        type="file"
+        accept="image/*"
+        data-testid="gallery-file-input"
+        onChange={handleFileSelect}
+        style={{ display: 'none' }}
+      />
+
+      {/* Storage Error Banner */}
+      {storageError && (
+        <div
+          role="alert"
           style={{
+            marginTop: 12,
+            padding: '12px 16px',
+            borderRadius: 16,
+            background: 'var(--ms-orange-100)',
+            color: 'var(--ms-orange-700)',
+            fontSize: 13.5,
+            fontWeight: 700,
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
+            justifyContent: 'space-between',
             gap: 10,
-            width: '100%',
-            minHeight: 52,
-            borderRadius: 18,
-            border: `2px solid ${photo ? 'var(--ms-border)' : 'var(--ms-orange)'}`,
-            background: photo ? 'var(--ms-bg)' : '#fff',
-            color: photo ? 'var(--ms-muted)' : 'var(--ms-orange)',
-            fontSize: 15.5,
-            fontWeight: 800,
-            cursor: photo ? 'default' : 'pointer',
-            boxShadow: photo ? 'none' : '0 4px 14px rgba(238, 123, 77, 0.15)',
-            transition: 'all 0.15s ease',
           }}
         >
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-            <circle cx="12" cy="13" r="4" />
-          </svg>
-          <span>{t.takeOrUpload}</span>
-        </button>
+          <span>{storageError}</span>
+          <button
+            type="button"
+            onClick={() => setStorageError(null)}
+            style={{ border: 0, background: 'none', cursor: 'pointer', fontSize: 16, fontWeight: 800, color: 'var(--ms-orange-700)' }}
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
-        {/* Demo photo menu toggle & three sample cassettes */}
-        {!photo && (
-          <div style={{ borderRadius: 18, border: '1px solid var(--ms-border)', background: 'var(--ms-surface)', padding: 12 }}>
+      {/* Three separate options when no photo is selected, one per row, >= 56px high */}
+      {!photo ? (
+        <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {/* Option 1: Open camera */}
+          <button
+            type="button"
+            onClick={handleOpenCamera}
+            data-testid="option-open-camera"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 14,
+              width: '100%',
+              minHeight: 56,
+              padding: '0 18px',
+              borderRadius: 18,
+              border: cameraActive ? '2px solid var(--ms-green-500)' : '2px solid var(--ms-orange)',
+              background: '#fff',
+              color: cameraActive ? 'var(--ms-forest)' : 'var(--ms-orange)',
+              fontSize: 16,
+              fontWeight: 800,
+              cursor: 'pointer',
+              boxShadow: '0 4px 14px rgba(238, 123, 77, 0.12)',
+              transition: 'all 0.15s ease',
+              textAlign: 'left',
+            }}
+          >
+            <span
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: '50%',
+                display: 'grid',
+                placeItems: 'center',
+                background: 'var(--ms-orange-100)',
+                color: 'var(--ms-orange)',
+                flexShrink: 0,
+              }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                <circle cx="12" cy="13" r="4" />
+              </svg>
+            </span>
+            <span style={{ flex: 1 }}>{t.openCamera}</span>
+            <span style={{ fontSize: 18, color: 'var(--ms-muted)' }}>→</span>
+          </button>
+
+          {/* Option 2: Choose from files or gallery */}
+          <button
+            type="button"
+            onClick={() => galleryInputRef.current?.click()}
+            data-testid="option-choose-gallery"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 14,
+              width: '100%',
+              minHeight: 56,
+              padding: '0 18px',
+              borderRadius: 18,
+              border: '1.5px solid var(--ms-border)',
+              background: '#fff',
+              color: 'var(--ms-ink)',
+              fontSize: 16,
+              fontWeight: 700,
+              cursor: 'pointer',
+              boxShadow: '0 2px 10px rgba(0,0,0,0.04)',
+              transition: 'all 0.15s ease',
+              textAlign: 'left',
+            }}
+          >
+            <span
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: '50%',
+                display: 'grid',
+                placeItems: 'center',
+                background: 'var(--ms-green-100)',
+                color: 'var(--ms-forest)',
+                flexShrink: 0,
+              }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <circle cx="8.5" cy="8.5" r="1.5" />
+                <polyline points="21 15 16 10 5 21" />
+              </svg>
+            </span>
+            <span style={{ flex: 1 }}>{t.chooseGallery}</span>
+            <span style={{ fontSize: 18, color: 'var(--ms-muted)' }}>→</span>
+          </button>
+
+          {/* Option 3: Use demo photo */}
+          <div style={{ borderRadius: 18, border: '1.5px solid var(--ms-border)', background: '#fff', overflow: 'hidden' }}>
             <button
               type="button"
               onClick={() => setShowDemoMenu((v) => !v)}
               aria-expanded={showDemoMenu}
-              data-testid="demo-menu-toggle"
+              data-testid="option-use-demo"
               style={{
                 width: '100%',
+                minHeight: 56,
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '4px 6px',
+                gap: 14,
+                padding: '0 18px',
                 border: 0,
                 background: 'none',
                 cursor: 'pointer',
                 color: 'var(--ms-forest)',
-                fontSize: 14,
+                fontSize: 16,
                 fontWeight: 800,
+                textAlign: 'left',
               }}
             >
-              <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--ms-orange)' }} />
-                <span>{t.useDemoPhoto}</span>
+              <span
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: '50%',
+                  display: 'grid',
+                  placeItems: 'center',
+                  background: 'var(--ms-mint)',
+                  color: 'var(--ms-forest)',
+                  flexShrink: 0,
+                }}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <rect x="2" y="7" width="20" height="10" rx="3" />
+                  <line x1="8" y1="7" x2="8" y2="17" />
+                  <line x1="12" y1="7" x2="12" y2="17" />
+                </svg>
               </span>
+              <span style={{ flex: 1 }}>{t.useDemoPhoto}</span>
               <span style={{ fontSize: 13, transform: showDemoMenu ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s ease' }}>
                 ▼
               </span>
             </button>
 
             {showDemoMenu && (
-              <div style={{ marginTop: 12, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+              <div style={{ padding: '0 14px 14px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
                 {(['positive', 'negative', 'invalid'] as const).map((key) => (
                   <button
                     key={key}
@@ -486,50 +735,52 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
               </div>
             )}
           </div>
-        )}
-      </div>
+        </div>
+      ) : null}
 
-      {/* Quality chips */}
-      <ul
-        aria-live="polite"
-        style={{ listStyle: 'none', margin: '14px 0 0', padding: 0, display: 'flex', flexWrap: 'wrap', gap: 8 }}
-      >
-        {t.chips.map((label, i) => {
-          const ok = quality[i];
-          return (
-            <li
-              key={label}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                padding: '6px 12px 6px 8px',
-                borderRadius: 999,
-                fontSize: 13,
-                fontWeight: 700,
-                background: ok ? 'var(--ms-green-100)' : 'var(--ms-orange-100)',
-                color: ok ? 'var(--ms-green-700)' : 'var(--ms-orange-700)',
-              }}
-            >
-              <span
-                aria-hidden
+      {/* Quality chips (shown when live camera is running or when photo is chosen) */}
+      {(cameraActive || photo) && (
+        <ul
+          aria-live="polite"
+          style={{ listStyle: 'none', margin: '14px 0 0', padding: 0, display: 'flex', flexWrap: 'wrap', gap: 8 }}
+        >
+          {t.chips.map((label, i) => {
+            const ok = quality[i];
+            return (
+              <li
+                key={label}
                 style={{
-                  width: 22,
-                  height: 22,
-                  borderRadius: '50%',
-                  display: 'grid',
-                  placeItems: 'center',
-                  background: ok ? 'var(--ms-green-500)' : 'var(--ms-orange)',
-                  color: '#fff',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '6px 12px 6px 8px',
+                  borderRadius: 999,
+                  fontSize: 13,
+                  fontWeight: 700,
+                  background: ok ? 'var(--ms-green-100)' : 'var(--ms-orange-100)',
+                  color: ok ? 'var(--ms-green-700)' : 'var(--ms-orange-700)',
                 }}
               >
-                {ok ? TickIcon : CrossIcon}
-              </span>
-              {label}
-            </li>
-          );
-        })}
-      </ul>
+                <span
+                  aria-hidden
+                  style={{
+                    width: 22,
+                    height: 22,
+                    borderRadius: '50%',
+                    display: 'grid',
+                    placeItems: 'center',
+                    background: ok ? 'var(--ms-green-500)' : 'var(--ms-orange)',
+                    color: '#fff',
+                  }}
+                >
+                  {ok ? TickIcon : CrossIcon}
+                </span>
+                {label}
+              </li>
+            );
+          })}
+        </ul>
+      )}
 
       {/* Retake and Shutter Button Controls */}
       <div style={{ margin: '16px 0 0', display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center' }}>
@@ -551,10 +802,12 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
         >
           {t.retake}
         </button>
+
+        {/* Live shutter capture button (enabled when live camera view is running) */}
         <button
           type="button"
-          onClick={capture}
-          disabled={!!photo}
+          onClick={captureLive}
+          disabled={!cameraActive || !!photo}
           aria-label={t.capture}
           data-testid="capture-button"
           style={{
@@ -564,8 +817,8 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
             padding: 0,
             display: 'grid',
             placeItems: 'center',
-            cursor: photo ? 'default' : 'pointer',
-            border: `4px solid ${photo ? 'var(--ms-border)' : 'var(--ms-orange)'}`,
+            cursor: cameraActive && !photo ? 'pointer' : 'default',
+            border: `4px solid ${cameraActive && !photo ? 'var(--ms-orange)' : 'var(--ms-border)'}`,
             background: 'var(--ms-surface)',
           }}
         >
@@ -575,7 +828,7 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
               width: 50,
               height: 50,
               borderRadius: '50%',
-              background: photo ? 'var(--ms-border)' : 'var(--ms-orange)',
+              background: cameraActive && !photo ? 'var(--ms-orange)' : 'var(--ms-border)',
             }}
           />
         </button>

@@ -98,6 +98,7 @@ function WebSidebar({
 }) {
   const t = lang === 'hi' ? hiLocale : enLocale;
   const tabs: Tab[] = role ? TABS[role] : [];
+  const { unreadAlertsCount } = useCaseStore();
 
   return (
     <aside className="ms-web-sidebar">
@@ -192,6 +193,7 @@ function WebSidebar({
                   >
                     <span
                       style={{
+                        position: 'relative',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -199,6 +201,28 @@ function WebSidebar({
                       }}
                     >
                       {tab.icon}
+                      {tab.id === 'alerts' && unreadAlertsCount > 0 && (
+                        <span
+                          style={{
+                            position: 'absolute',
+                            top: -6,
+                            right: -10,
+                            minWidth: 16,
+                            height: 16,
+                            padding: '0 4px',
+                            borderRadius: 999,
+                            background: 'var(--ms-danger)',
+                            color: '#fff',
+                            fontSize: 10,
+                            fontWeight: 800,
+                            display: 'grid',
+                            placeItems: 'center',
+                            lineHeight: 1,
+                          }}
+                        >
+                          {unreadAlertsCount > 9 ? '9+' : unreadAlertsCount}
+                        </span>
+                      )}
                     </span>
                     <span style={{ flex: 1 }}>{t.navigation[tab.labelKey]}</span>
                     {active && (
@@ -546,7 +570,7 @@ function AppContent() {
   const [online, setOnline] = useState<boolean>(true);
 
   const { isWeb, setMode } = useViewMode();
-  const { syncNow } = useCaseStore();
+  const { syncNow, demoDataResetNotice, dismissResetNotice } = useCaseStore();
   const prevOnline = useRef(online);
 
   useEffect(() => {
@@ -634,6 +658,39 @@ function AppContent() {
             onSwitchRole={onSwitchRole}
           />
 
+          {demoDataResetNotice && (
+            <div
+              role="alert"
+              style={{
+                background: 'var(--ms-orange-100)',
+                color: 'var(--ms-orange-700)',
+                borderBottom: '1px solid var(--ms-orange)',
+                padding: '8px 24px',
+                fontSize: 13,
+                fontWeight: 700,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              <span>{lang === 'hi' ? 'डेमो डेटा रीसेट किया गया था' : 'Demo data was reset'}</span>
+              <button
+                type="button"
+                onClick={dismissResetNotice}
+                style={{
+                  background: 'none',
+                  border: 0,
+                  fontSize: 16,
+                  cursor: 'pointer',
+                  color: 'inherit',
+                  fontWeight: 800,
+                }}
+              >
+                ×
+              </button>
+            </div>
+          )}
+
           {/* Content Area up to 1200px wide wrapped in @container */}
           <div className="ms-web-content-wrap">
             <div className="@container ms-container-wrap ms-web-container" style={{ width: '100%', maxWidth: 1200, margin: '0 auto' }}>
@@ -658,6 +715,38 @@ function AppContent() {
         </div>
 
         <div className="ms-phone-scroll-body">
+          {demoDataResetNotice && (
+            <div
+              role="alert"
+              style={{
+                background: 'var(--ms-orange-100)',
+                color: 'var(--ms-orange-700)',
+                borderBottom: '1px solid var(--ms-orange)',
+                padding: '8px 16px',
+                fontSize: 12.5,
+                fontWeight: 700,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              <span>{lang === 'hi' ? 'डेमो डेटा रीसेट किया गया था' : 'Demo data was reset'}</span>
+              <button
+                type="button"
+                onClick={dismissResetNotice}
+                style={{
+                  background: 'none',
+                  border: 0,
+                  fontSize: 15,
+                  cursor: 'pointer',
+                  color: 'inherit',
+                  fontWeight: 800,
+                }}
+              >
+                ×
+              </button>
+            </div>
+          )}
           <div className="@container ms-container-wrap ms-app-shell" style={{ width: '100%', maxWidth: 430, margin: '0 auto', paddingBottom: showNav ? 104 : 24 }}>
             <main className="ms-screen-content">
               {Screen ? <Screen {...props} /> : <Placeholder route={current} lang={lang} />}
