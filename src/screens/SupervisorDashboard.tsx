@@ -5,6 +5,7 @@ import hiLocale from '../i18n/hi.json';
 import { dataService } from '../services';
 import { useCaseStore } from '../store/CaseStore';
 import { priority } from '../domain';
+import { PhoneCall, Bell, AlertTriangle, ArrowRight } from 'lucide-react';
 
 type Lang = 'en' | 'hi';
 type StatusKey = 'overdue' | 'soon' | 'awaiting';
@@ -28,52 +29,38 @@ const ROWS = dataService.getSupervisorRows() as Row[];
 
 const COPY = { en: enLocale.screens.SupervisorDashboard, hi: hiLocale.screens.SupervisorDashboard } as const;
 
-const STAT_STYLE = dataService.getDashboardData().stats;
+const STRICT_STAT_STYLE = [
+  { bg: '#BA1A1A', blob: 'rgba(255, 255, 255, 0.15)' },
+  { bg: '#053C31', blob: 'rgba(255, 255, 255, 0.15)' },
+  { bg: '#235347', blob: 'rgba(255, 255, 255, 0.15)' },
+];
 
 const PILL: Record<StatusKey, { background: string; color: string }> = {
-  overdue: { background: 'var(--ms-orange-100)', color: 'var(--ms-orange-700)' },
-  soon: { background: 'var(--ms-violet-100)', color: 'var(--ms-violet-700)' },
-  awaiting: { background: 'var(--ms-green-100)', color: 'var(--ms-green-700)' },
+  overdue: { background: '#FFDAD6', color: '#BA1A1A' },
+  soon: { background: '#FFF1CC', color: '#8A5A00' },
+  awaiting: { background: '#DAF1DE', color: '#235347' },
 };
 
-const ai = {
-  width: 18,
-  height: 18,
-  viewBox: '0 0 24 24',
-  fill: 'none',
-  stroke: 'currentColor',
-  strokeWidth: 2.1,
-  strokeLinecap: 'round' as const,
-  strokeLinejoin: 'round' as const,
-  'aria-hidden': true,
-};
 const ACTION_ICONS = [
-  <svg key="c" {...ai}>
-    <path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z" />
-  </svg>,
-  <svg key="r" {...ai}>
-    <path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 21h4" />
-  </svg>,
-  <svg key="e" {...ai}>
-    <path d="M12 20V5M6 11l6-6 6 6" />
-  </svg>,
+  <PhoneCall key="c" size={15} />,
+  <Bell key="r" size={15} />,
+  <AlertTriangle key="e" size={15} />,
 ];
 
 const R = 54;
 const C = 2 * Math.PI * R;
-const DEMO_RATE = 0.72;
 
 const selectStyle = {
   width: '100%',
   height: 48,
   padding: '0 14px',
   borderRadius: 16,
-  border: '2px solid var(--ms-green-100)',
+  border: '1.5px solid #E3ECE7',
   font: 'inherit',
-  fontSize: 15,
+  fontSize: 14.5,
   fontWeight: 700,
-  color: 'var(--ms-ink)',
-  background: 'var(--ms-surface)',
+  color: '#00201C',
+  background: '#FFFFFF',
 } as const;
 
 export default function SupervisorDashboard({ lang, online = true, onNavigate, onToggleOnline }: ScreenProps) {
@@ -205,14 +192,14 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
     <div>
       {/* ===================== NARROW PHONE LAYOUT (@md and below) ===================== */}
       <div className="block @2xl:hidden">
-        <header style={{ position: 'relative', background: 'var(--ms-green-700)', color: '#fff', padding: 'calc(24px + env(safe-area-inset-top, 0px)) 20px 66px', overflow: 'hidden' }}>
+        <header style={{ position: 'relative', background: '#051F20', color: '#FFFFFF', padding: 'calc(24px + env(safe-area-inset-top, 0px)) 20px 66px', overflow: 'hidden' }}>
           <svg viewBox="0 0 120 160" width="120" height="160" aria-hidden style={{ position: 'absolute', right: -14, top: 8, opacity: 0.9 }}>
             <g transform="translate(70 90) rotate(18) scale(0.95)">
-              <path d="M0 84C-42 44-34-22 0-66C34-22 42 44 0 84Z" fill="var(--ms-green-500)" opacity="0.55" />
+              <path d="M0 84C-42 44-34-22 0-66C34-22 42 44 0 84Z" fill="#235347" opacity="0.55" />
             </g>
           </svg>
           <div style={{ position: 'relative', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
-            <h1 style={{ margin: 0, maxWidth: 220, fontSize: 24, fontWeight: 800, lineHeight: 1.2 }}>{t.title}</h1>
+            <h1 style={{ margin: 0, maxWidth: 220, fontSize: 24, fontWeight: 800, lineHeight: 1.2, color: '#FFFFFF' }}>{t.title}</h1>
             <button
               type="button"
               onClick={onToggleOnline}
@@ -221,15 +208,15 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 7,
-                padding: '6px 12px',
+                padding: '6px 14px',
                 minHeight: 48,
                 border: 0,
                 borderRadius: 999,
                 cursor: 'pointer',
                 fontSize: 13,
                 fontWeight: 700,
-                background: online ? 'var(--ms-green-100)' : 'var(--ms-orange-100)',
-                color: online ? 'var(--ms-green-900)' : 'var(--ms-orange-700)',
+                background: online ? '#DAF1DE' : '#FFF1CC',
+                color: online ? '#235347' : '#8A5A00',
               }}
             >
               <span
@@ -238,7 +225,7 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
                   width: 8,
                   height: 8,
                   borderRadius: '50%',
-                  background: online ? 'var(--ms-green-500)' : 'var(--ms-orange)',
+                  background: online ? '#2E7D4F' : '#8A5A00',
                 }}
               />
               {online ? (lang === 'hi' ? 'सिंक हो गया' : 'Synced') : (lang === 'hi' ? 'ऑफ़लाइन' : 'Offline')}
@@ -247,27 +234,27 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
 
           <div style={{ position: 'relative', marginTop: 20, display: 'flex', alignItems: 'center', gap: 18 }}>
             <svg width="144" height="144" viewBox="0 0 144 144" role="img" aria-label={`${t.ringTitle}: ${loopRate != null ? Math.round(loopRate * 100) + '%' : '--'}`}>
-              <circle cx="72" cy="72" r={R} fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="14" />
+              <circle cx="72" cy="72" r={R} fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="14" />
               <circle
                 cx="72"
                 cy="72"
                 r={R}
                 fill="none"
-                stroke="var(--ms-orange)"
+                stroke="#C0EACC"
                 strokeWidth="14"
                 strokeLinecap="round"
                 strokeDasharray={C}
                 strokeDashoffset={loopRate != null ? C * (1 - loopRate) : C}
                 transform="rotate(-90 72 72)"
               />
-              <text x="72" y="82" textAnchor="middle" fontSize="34" fontWeight="800" fill="#fff">
+              <text x="72" y="82" textAnchor="middle" fontSize="34" fontWeight="800" fill="#FFFFFF">
                 {loopRate != null ? `${Math.round(loopRate * 100)}%` : '--'}
               </text>
             </svg>
             <div>
-              <p style={{ margin: 0, fontSize: 20, fontWeight: 800, lineHeight: 1.2 }}>{t.ringTitle}</p>
+              <p style={{ margin: 0, fontSize: 20, fontWeight: 800, lineHeight: 1.2, color: '#FFFFFF' }}>{t.ringTitle}</p>
               {loopRate == null && (
-                <p style={{ margin: '4px 0 0', fontSize: 13, opacity: 0.9 }}>
+                <p style={{ margin: '4px 0 0', fontSize: 13, color: '#DAF1DE' }}>
                   {lang === 'hi' ? 'कोई केस नहीं' : 'No cases yet'}
                 </p>
               )}
@@ -279,8 +266,8 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
                   borderRadius: 999,
                   fontSize: 12.5,
                   fontWeight: 800,
-                  background: '#fff1c9',
-                  color: '#8a6200',
+                  background: '#FFF1CC',
+                  color: '#8A5A00',
                 }}
               >
                 {t.demo}
@@ -293,13 +280,13 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
           style={{
             marginTop: -36,
             position: 'relative',
-            background: 'var(--ms-surface)',
-            borderRadius: '36px 36px 0 0',
+            background: '#F4F9F6',
+            borderRadius: '32px 32px 0 0',
             padding: '24px 20px 28px',
           }}
         >
           <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
-            {STAT_STYLE.map((s, i) => (
+            {STRICT_STAT_STYLE.map((s, i) => (
               <li
                 key={i}
                 style={{
@@ -309,10 +296,11 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
                   padding: 12,
                   borderRadius: 20,
                   background: s.bg,
-                  color: '#fff',
+                  color: '#FFFFFF',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'flex-end',
+                  boxShadow: '0 2px 6px rgba(0, 32, 28, 0.08)',
                 }}
               >
                 <span aria-hidden style={{ position: 'absolute', top: -22, right: -18, width: 64, height: 64, borderRadius: '50%', background: s.blob, opacity: 0.55 }} />
@@ -322,7 +310,7 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
             ))}
           </ul>
 
-          <h2 style={{ margin: '24px 0 0', fontSize: 22, fontWeight: 800 }}>{t.listTitle}</h2>
+          <h2 style={{ margin: '24px 0 0', fontSize: 22, fontWeight: 800, color: '#00201C' }}>{t.listTitle}</h2>
 
           <div style={{ marginTop: 12, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             <select aria-label={t.villageLabel} value={village} onChange={(e) => setVillage(e.target.value)} style={selectStyle}>
@@ -340,31 +328,31 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
           </div>
 
           {rows.length === 0 ? (
-            <p style={{ margin: '32px 0', textAlign: 'center', color: 'var(--ms-muted)', fontSize: 14.5 }}>{t.empty}</p>
+            <p style={{ margin: '32px 0', textAlign: 'center', color: '#404945', fontSize: 14.5 }}>{t.empty}</p>
           ) : (
             <ul style={{ listStyle: 'none', margin: '14px 0 0', padding: 0, display: 'grid', gap: 12 }}>
               {rows.map((r) => (
                 <li
                   key={r.id}
-                  style={{ padding: 14, borderRadius: 22, border: '1px solid var(--ms-green-100)', background: 'var(--ms-bg)' }}
+                  style={{ padding: 14, borderRadius: 20, border: '1px solid #E3ECE7', background: '#FFFFFF', boxShadow: '0 2px 6px rgba(0, 32, 28, 0.04)' }}
                 >
                   <button
                     type="button"
                     onClick={() => onNavigate('/case')}
-                    style={{ display: 'block', width: '100%', padding: 0, textAlign: 'left', border: 0, background: 'none', cursor: 'pointer', color: 'var(--ms-ink)' }}
+                    style={{ display: 'block', width: '100%', padding: 0, textAlign: 'left', border: 0, background: 'none', cursor: 'pointer', color: '#00201C' }}
                   >
                     <span style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
-                      <span style={{ fontSize: 17, fontWeight: 800 }}>{r.name[lang]}</span>
+                      <span style={{ fontSize: 17, fontWeight: 800, color: '#00201C' }}>{r.name[lang]}</span>
                       <span style={{ flex: '0 0 auto', padding: '3px 12px', borderRadius: 999, fontSize: 12.5, fontWeight: 800, ...PILL[r.status] }}>
                         {t.status[r.status]}
                       </span>
                     </span>
-                    <span style={{ display: 'block', marginTop: 3, fontSize: 13, color: 'var(--ms-muted)' }}>
+                    <span style={{ display: 'block', marginTop: 3, fontSize: 13, color: '#404945' }}>
                       {lang === 'hi' ? VILLAGE_HI[r.village] : r.village}
                       {' / '}
                       {t.mitaninPrefix} {lang === 'hi' ? MITANIN_HI[r.mitanin] : r.mitanin}
                     </span>
-                    <span style={{ display: 'block', marginTop: 8, fontSize: 14.5, fontWeight: 700, lineHeight: 1.3 }}>{r.reason[lang]}</span>
+                    <span style={{ display: 'block', marginTop: 8, fontSize: 14.5, fontWeight: 700, lineHeight: 1.3, color: '#00201C' }}>{r.reason[lang]}</span>
                   </button>
                   <div style={{ marginTop: 12, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
                     {t.actions.map((label, i) => (
@@ -378,16 +366,17 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          gap: 4,
+                          gap: 6,
                           padding: '0 4px',
                           borderRadius: 14,
                           cursor: 'pointer',
                           fontSize: lang === 'hi' ? 11.5 : 13,
                           fontWeight: 800,
                           whiteSpace: 'nowrap',
-                          border: i === 2 ? 0 : '2px solid var(--ms-green-500)',
-                          background: i === 2 ? 'var(--ms-orange)' : 'var(--ms-surface)',
-                          color: i === 2 ? '#fff' : 'var(--ms-green-700)',
+                          border: i === 2 ? 0 : '1.5px solid #235347',
+                          background: i === 2 ? '#BA1A1A' : '#FFFFFF',
+                          color: i === 2 ? '#FFFFFF' : '#235347',
+                          transition: 'all 0.15s ease',
                         }}
                       >
                         {ACTION_ICONS[i]}
@@ -403,12 +392,12 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
       </div>
 
       {/* ===================== WIDE CONTAINER LAYOUT (@2xl and above) ===================== */}
-      <div className="hidden @2xl:block" style={{ padding: '24px 28px 40px' }}>
+      <div className="hidden @2xl:block" style={{ padding: '24px 28px 40px', background: '#F4F9F6', minHeight: '100vh' }}>
         {/* Wide Header / Title */}
         <header style={{ marginBottom: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <h1 style={{ margin: 0, fontSize: 28, fontWeight: 800, color: 'var(--ms-ink)', lineHeight: 1.2 }}>{t.title}</h1>
-            <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--ms-muted)', fontWeight: 600 }}>
+            <h1 style={{ margin: 0, fontSize: 28, fontWeight: 800, color: '#00201C', lineHeight: 1.2 }}>{t.title}</h1>
+            <p style={{ margin: '4px 0 0', fontSize: 14, color: '#404945', fontWeight: 600 }}>
               {lang === 'hi' ? 'पर्यवेक्षक अवलोकन एवं प्राथमिक केस प्रबंधन' : 'Supervisor Overview & Priority Case Management'}
             </p>
           </div>
@@ -427,8 +416,9 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
               cursor: 'pointer',
               fontSize: 13,
               fontWeight: 700,
-              background: online ? 'var(--ms-green-100)' : 'var(--ms-orange-100)',
-              color: online ? 'var(--ms-green-900)' : 'var(--ms-orange-700)',
+              background: online ? '#DAF1DE' : '#FFF1CC',
+              color: online ? '#235347' : '#8A5A00',
+              boxShadow: '0 2px 8px rgba(0, 32, 28, 0.04)',
             }}
           >
             <span
@@ -437,7 +427,7 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
                 width: 8,
                 height: 8,
                 borderRadius: '50%',
-                background: online ? 'var(--ms-green-500)' : 'var(--ms-orange)',
+                background: online ? '#2E7D4F' : '#8A5A00',
               }}
             />
             {online ? (lang === 'hi' ? 'सिंक हो गया' : 'Synced') : (lang === 'hi' ? 'ऑफ़लाइन' : 'Offline')}
@@ -449,14 +439,14 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
           {/* Loop Closure Rate Ring Card */}
           <div
             style={{
-              background: 'var(--ms-green-700)',
+              background: '#051F20',
               color: '#FFFFFF',
               borderRadius: 20,
               padding: '16px 18px',
               display: 'flex',
               alignItems: 'center',
               gap: 16,
-              boxShadow: 'var(--ms-shadow-card)',
+              boxShadow: '0 2px 10px rgba(0, 32, 28, 0.06)',
               position: 'relative',
               overflow: 'hidden',
             }}
@@ -469,31 +459,31 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
               style={{ position: 'absolute', right: -20, top: -20, opacity: 0.35, pointerEvents: 'none' }}
             >
               <g transform="translate(50 70) rotate(18) scale(0.8)">
-                <path d="M0 84C-42 44-34-22 0-66C34-22 42 44 0 84Z" fill="var(--ms-green-500)" />
+                <path d="M0 84C-42 44-34-22 0-66C34-22 42 44 0 84Z" fill="#235347" />
               </g>
             </svg>
             <svg width="80" height="80" viewBox="0 0 144 144" role="img" aria-label={`${t.ringTitle}: ${loopRate != null ? Math.round(loopRate * 100) + '%' : '--'}`}>
-              <circle cx="72" cy="72" r={R} fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="15" />
+              <circle cx="72" cy="72" r={R} fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="15" />
               <circle
                 cx="72"
                 cy="72"
                 r={R}
                 fill="none"
-                stroke="var(--ms-orange)"
+                stroke="#C0EACC"
                 strokeWidth="15"
                 strokeLinecap="round"
                 strokeDasharray={C}
                 strokeDashoffset={loopRate != null ? C * (1 - loopRate) : C}
                 transform="rotate(-90 72 72)"
               />
-              <text x="72" y="81" textAnchor="middle" fontSize="30" fontWeight="800" fill="#fff">
+              <text x="72" y="81" textAnchor="middle" fontSize="30" fontWeight="800" fill="#FFFFFF">
                 {loopRate != null ? `${Math.round(loopRate * 100)}%` : '--'}
               </text>
             </svg>
             <div style={{ position: 'relative', zIndex: 1, minWidth: 0 }}>
-              <p style={{ margin: 0, fontSize: 16, fontWeight: 800, lineHeight: 1.25 }}>{t.ringTitle}</p>
+              <p style={{ margin: 0, fontSize: 16, fontWeight: 800, lineHeight: 1.25, color: '#FFFFFF' }}>{t.ringTitle}</p>
               {loopRate == null && (
-                <p style={{ margin: '2px 0 0', fontSize: 12, opacity: 0.9 }}>
+                <p style={{ margin: '2px 0 0', fontSize: 12, color: '#DAF1DE' }}>
                   {lang === 'hi' ? 'कोई केस नहीं' : 'No cases yet'}
                 </p>
               )}
@@ -505,8 +495,8 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
                   borderRadius: 999,
                   fontSize: 11,
                   fontWeight: 800,
-                  background: '#fff1c9',
-                  color: '#8a6200',
+                  background: '#FFF1CC',
+                  color: '#8A5A00',
                 }}
               >
                 {t.demo}
@@ -515,7 +505,7 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
           </div>
 
           {/* Overdue, Due Soon, Awaiting Doctor Stat Cards */}
-          {STAT_STYLE.map((s, i) => (
+          {STRICT_STAT_STYLE.map((s, i) => (
             <div
               key={i}
               style={{
@@ -523,13 +513,13 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
                 overflow: 'hidden',
                 borderRadius: 20,
                 background: s.bg,
-                color: '#fff',
+                color: '#FFFFFF',
                 padding: '16px 18px',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'flex-end',
                 minHeight: 104,
-                boxShadow: 'var(--ms-shadow-card)',
+                boxShadow: '0 2px 10px rgba(0, 32, 28, 0.06)',
               }}
             >
               <span aria-hidden style={{ position: 'absolute', top: -20, right: -16, width: 70, height: 70, borderRadius: '50%', background: s.blob, opacity: 0.55 }} />
@@ -541,7 +531,7 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
 
         {/* Filters and Section Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, marginBottom: 16 }}>
-          <h2 style={{ margin: 0, fontSize: 22, fontWeight: 800, color: 'var(--ms-ink)' }}>{t.listTitle}</h2>
+          <h2 style={{ margin: 0, fontSize: 22, fontWeight: 800, color: '#00201C' }}>{t.listTitle}</h2>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%', maxWidth: 440 }}>
             <select aria-label={t.villageLabel} value={village} onChange={(e) => setVillage(e.target.value)} style={selectStyle}>
               <option value="all">{t.allVillages}</option>
@@ -560,26 +550,26 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
 
         {/* 2. Priority List Table on the left (~2/3) and Case Detail Panel on the right (~1/3) */}
         {rows.length === 0 ? (
-          <div style={{ padding: '64px 20px', textAlign: 'center', background: 'var(--ms-surface)', borderRadius: 20, border: '1px solid var(--ms-border)' }}>
-            <p style={{ margin: 0, color: 'var(--ms-muted)', fontSize: 16, fontWeight: 600 }}>{t.empty}</p>
+          <div style={{ padding: '64px 20px', textAlign: 'center', background: '#FFFFFF', borderRadius: 20, border: '1px solid #E3ECE7' }}>
+            <p style={{ margin: 0, color: '#404945', fontSize: 16, fontWeight: 600 }}>{t.empty}</p>
           </div>
         ) : (
           <div className="grid grid-cols-12 @2xl:grid-cols-12 @4xl:grid-cols-12 gap-6">
             {/* Priority List as a Table on the left (about two thirds) */}
-            <div className="col-span-8 @2xl:col-span-7 @4xl:col-span-8" style={{ background: 'var(--ms-surface)', borderRadius: 24, border: '1px solid var(--ms-border)', boxShadow: 'var(--ms-shadow-card)', overflow: 'hidden' }}>
+            <div className="col-span-8 @2xl:col-span-7 @4xl:col-span-8" style={{ background: '#FFFFFF', borderRadius: 24, border: '1px solid #E3ECE7', boxShadow: '0 2px 10px rgba(0, 32, 28, 0.04)', overflow: 'hidden' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                 <thead>
-                  <tr style={{ background: 'var(--ms-bg)', borderBottom: '1px solid var(--ms-border)' }}>
-                    <th style={{ padding: '14px 18px', fontSize: 12.5, fontWeight: 800, color: 'var(--ms-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  <tr style={{ background: '#F4F9F6', borderBottom: '1px solid #E3ECE7' }}>
+                    <th style={{ padding: '14px 18px', fontSize: 12.5, fontWeight: 800, color: '#404945', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                       {lang === 'hi' ? 'मरीज़ / केस' : 'Patient / Case'}
                     </th>
-                    <th style={{ padding: '14px 18px', fontSize: 12.5, fontWeight: 800, color: 'var(--ms-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                    <th style={{ padding: '14px 18px', fontSize: 12.5, fontWeight: 800, color: '#404945', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                       {lang === 'hi' ? 'गाँव / मितानिन' : 'Village / Mitanin'}
                     </th>
-                    <th style={{ padding: '14px 18px', fontSize: 12.5, fontWeight: 800, color: 'var(--ms-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                    <th style={{ padding: '14px 18px', fontSize: 12.5, fontWeight: 800, color: '#404945', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                       {lang === 'hi' ? 'कारण' : 'Reason'}
                     </th>
-                    <th style={{ padding: '14px 18px', fontSize: 12.5, fontWeight: 800, color: 'var(--ms-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                    <th style={{ padding: '14px 18px', fontSize: 12.5, fontWeight: 800, color: '#404945', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                       {lang === 'hi' ? 'स्थिति' : 'Status'}
                     </th>
                   </tr>
@@ -600,29 +590,29 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
                         }}
                         style={{
                           cursor: 'pointer',
-                          background: isSelected ? 'var(--ms-mint)' : 'transparent',
-                          borderBottom: '1px solid var(--ms-border)',
+                          background: isSelected ? '#DAF1DE' : 'transparent',
+                          borderBottom: '1px solid #E3ECE7',
                           transition: 'background 0.15s ease',
                           outline: 'none',
                         }}
                       >
                         <td style={{ padding: '14px 18px' }}>
-                          <span style={{ fontSize: 15, fontWeight: 800, color: isSelected ? 'var(--ms-forest)' : 'var(--ms-ink)', display: 'block' }}>
+                          <span style={{ fontSize: 15, fontWeight: 800, color: isSelected ? '#235347' : '#00201C', display: 'block' }}>
                             {r.name[lang]}
                           </span>
-                          <span style={{ fontSize: 12, color: 'var(--ms-muted)', fontWeight: 600 }}>
+                          <span style={{ fontSize: 12, color: '#404945', fontWeight: 600 }}>
                             {r.id.toUpperCase()}
                           </span>
                         </td>
                         <td style={{ padding: '14px 18px' }}>
-                          <span style={{ fontSize: 13.5, color: 'var(--ms-ink)', fontWeight: 700, display: 'block' }}>
+                          <span style={{ fontSize: 13.5, color: '#00201C', fontWeight: 700, display: 'block' }}>
                             {lang === 'hi' ? VILLAGE_HI[r.village] : r.village}
                           </span>
-                          <span style={{ fontSize: 12, color: 'var(--ms-muted)', fontWeight: 600 }}>
+                          <span style={{ fontSize: 12, color: '#404945', fontWeight: 600 }}>
                             {t.mitaninPrefix} {lang === 'hi' ? MITANIN_HI[r.mitanin] : r.mitanin}
                           </span>
                         </td>
-                        <td style={{ padding: '14px 18px', fontSize: 13.5, fontWeight: 600, color: 'var(--ms-ink)', maxWidth: 220 }}>
+                        <td style={{ padding: '14px 18px', fontSize: 13.5, fontWeight: 600, color: '#00201C', maxWidth: 220 }}>
                           {r.reason[lang]}
                         </td>
                         <td style={{ padding: '14px 18px' }}>
@@ -642,24 +632,24 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
               {selectedRow ? (
                 <div
                   style={{
-                    background: 'var(--ms-surface)',
+                    background: '#FFFFFF',
                     borderRadius: 24,
-                    border: '1px solid var(--ms-border)',
-                    boxShadow: 'var(--ms-shadow-card)',
+                    border: '1px solid #E3ECE7',
+                    boxShadow: '0 2px 10px rgba(0, 32, 28, 0.04)',
                     padding: '24px 22px',
                     position: 'sticky',
                     top: 88,
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10, paddingBottom: 16, borderBottom: '1px solid var(--ms-border)' }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10, paddingBottom: 16, borderBottom: '1px solid #E3ECE7' }}>
                     <div>
-                      <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--ms-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                      <span style={{ fontSize: 12, fontWeight: 800, color: '#404945', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                         {lang === 'hi' ? 'केस विवरण' : 'Case Details'}
                       </span>
-                      <h3 style={{ margin: '4px 0 0', fontSize: 20, fontWeight: 800, color: 'var(--ms-ink)' }}>
+                      <h3 style={{ margin: '4px 0 0', fontSize: 20, fontWeight: 800, color: '#00201C' }}>
                         {selectedRow.name[lang]}
                       </h3>
-                      <p style={{ margin: '2px 0 0', fontSize: 13, color: 'var(--ms-muted)' }}>
+                      <p style={{ margin: '2px 0 0', fontSize: 13, color: '#404945' }}>
                         {lang === 'hi' ? VILLAGE_HI[selectedRow.village] : selectedRow.village}
                         {' • '}
                         {t.mitaninPrefix} {lang === 'hi' ? MITANIN_HI[selectedRow.mitanin] : selectedRow.mitanin}
@@ -670,18 +660,18 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
                     </span>
                   </div>
 
-                  <div style={{ padding: '16px 0', borderBottom: '1px solid var(--ms-border)' }}>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--ms-muted)', textTransform: 'uppercase' }}>
+                  <div style={{ padding: '16px 0', borderBottom: '1px solid #E3ECE7' }}>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: '#404945', textTransform: 'uppercase' }}>
                       {lang === 'hi' ? 'आवश्यक कार्रवाई / कारण:' : 'Priority Reason:'}
                     </span>
-                    <p style={{ margin: '6px 0 0', fontSize: 14.5, fontWeight: 700, color: 'var(--ms-ink)', lineHeight: 1.4 }}>
+                    <p style={{ margin: '6px 0 0', fontSize: 14.5, fontWeight: 700, color: '#00201C', lineHeight: 1.4 }}>
                       {selectedRow.reason[lang]}
                     </p>
                   </div>
 
                   {/* Call, Remind, Escalate Actions */}
                   <div style={{ marginTop: 20 }}>
-                    <span style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--ms-muted)', textTransform: 'uppercase', marginBottom: 10 }}>
+                    <span style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#404945', textTransform: 'uppercase', marginBottom: 10 }}>
                       {lang === 'hi' ? 'त्वरित कार्रवाई' : 'Quick Actions'}
                     </span>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
@@ -700,9 +690,9 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
                             cursor: 'pointer',
                             fontSize: 13,
                             fontWeight: 800,
-                            border: i === 2 ? 0 : '2px solid var(--ms-green-500)',
-                            background: i === 2 ? 'var(--ms-orange)' : 'var(--ms-surface)',
-                            color: i === 2 ? '#fff' : 'var(--ms-green-700)',
+                            border: i === 2 ? 0 : '1.5px solid #235347',
+                            background: i === 2 ? '#BA1A1A' : '#FFFFFF',
+                            color: i === 2 ? '#FFFFFF' : '#235347',
                             transition: 'opacity 0.15s ease',
                           }}
                         >
@@ -724,16 +714,17 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
                         justifyContent: 'center',
                         gap: 8,
                         borderRadius: 14,
-                        border: '1.5px solid var(--ms-border)',
-                        background: 'var(--ms-bg)',
-                        color: 'var(--ms-forest)',
+                        border: '1.5px solid #CCD9D2',
+                        background: '#F4F9F6',
+                        color: '#235347',
                         fontSize: 13.5,
                         fontWeight: 800,
                         cursor: 'pointer',
+                        transition: 'background 0.15s ease',
                       }}
                     >
                       <span>{lang === 'hi' ? 'केस समयरेखा देखें' : 'View Full Case Timeline'}</span>
-                      <span>→</span>
+                      <ArrowRight size={15} />
                     </button>
                   </div>
                 </div>
@@ -758,8 +749,8 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
           borderRadius: 18,
           fontSize: 14.5,
           fontWeight: 700,
-          background: 'var(--ms-green-900)',
-          color: '#fff',
+          background: '#051F20',
+          color: '#FFFFFF',
           boxShadow: '0 12px 28px rgba(0, 0, 0, 0.25)',
           textAlign: 'center',
         }}

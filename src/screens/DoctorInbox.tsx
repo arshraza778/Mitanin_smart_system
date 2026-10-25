@@ -28,9 +28,9 @@ const COPY = {
 } as const;
 
 function waitStyle(min: number) {
-  if (min > 120) return { background: 'var(--ms-orange-100)', color: 'var(--ms-orange-700)' };
-  if (min >= 60) return { background: 'var(--ms-violet-100)', color: 'var(--ms-violet-700)' };
-  return { background: 'var(--ms-green-100)', color: 'var(--ms-green-700)' };
+  if (min > 120) return { background: '#FFDAD6', color: '#BA1A1A' };
+  if (min >= 60) return { background: '#FFF1CC', color: '#8A5A00' };
+  return { background: '#DAF1DE', color: '#235347' };
 }
 
 function Thumb({ has, src, alt, empty }: { has: boolean; src?: string; alt: string; empty: string }) {
@@ -48,8 +48,9 @@ function Thumb({ has, src, alt, empty }: { has: boolean; src?: string; alt: stri
           fontSize: 10.5,
           fontWeight: 700,
           lineHeight: 1.2,
-          border: '2px dashed var(--ms-border)',
-          color: 'var(--ms-muted)',
+          border: '1.5px dashed #CCD9D2',
+          background: '#F4F9F6',
+          color: '#404945',
         }}
       >
         {empty}
@@ -67,12 +68,12 @@ function Thumb({ has, src, alt, empty }: { has: boolean; src?: string; alt: stri
   }
   return (
     <svg viewBox="0 0 60 60" width="60" height="60" role="img" aria-label={alt} style={{ flex: '0 0 60px', borderRadius: 14 }}>
-      <rect width="60" height="60" rx="14" fill="#1c3a2b" />
-      <rect x="8" y="22" width="44" height="16" rx="4" fill="#f1f5f2" />
-      <rect x="13" y="26" width="9" height="8" rx="2" fill="#d9e2dc" />
-      <rect x="26" y="25" width="22" height="10" rx="2" fill="#fff" />
-      <rect x="33" y="25" width="1.6" height="10" fill="#d9534f" />
-      <rect x="40" y="25" width="1.6" height="10" fill="#d9534f" />
+      <rect width="60" height="60" rx="14" fill="#051F20" />
+      <rect x="8" y="22" width="44" height="16" rx="4" fill="#F4F9F6" />
+      <rect x="13" y="26" width="9" height="8" rx="2" fill="#DAF1DE" />
+      <rect x="26" y="25" width="22" height="10" rx="2" fill="#FFFFFF" />
+      <rect x="33" y="25" width="1.6" height="10" fill="#BA1A1A" />
+      <rect x="40" y="25" width="1.6" height="10" fill="#BA1A1A" />
     </svg>
   );
 }
@@ -303,20 +304,20 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
 
       {/* ===================== NARROW PHONE LAYOUT (@md and below) ===================== */}
       <div className="block @2xl:hidden">
-        <header style={{ position: 'relative', height: 210, color: '#fff' }}>
+        <header style={{ position: 'relative', height: 210, color: '#FFFFFF' }}>
           <svg viewBox="0 0 430 210" preserveAspectRatio="xMaxYMid slice" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} aria-hidden>
-            <rect width="430" height="210" fill="var(--ms-green-700)" />
-            <circle cx="335" cy="90" r="70" fill="#3f8a63" opacity="0.7" />
+            <rect width="430" height="210" fill="#002111" />
+            <circle cx="335" cy="90" r="70" fill="#051F20" opacity="0.7" />
             <g transform="translate(335 100) rotate(14) scale(1.3)">
-              <path d="M0 84C-42 44-34-22 0-66C34-22 42 44 0 84Z" fill="var(--ms-green-500)" />
-              <path d="M0 84L0-52M0 40L-16 18M0 16L16-6M0-8L-12-26" stroke="#d3ecd9" strokeWidth="2" strokeLinecap="round" fill="none" />
+              <path d="M0 84C-42 44-34-22 0-66C34-22 42 44 0 84Z" fill="#235347" />
+              <path d="M0 84L0-52M0 40L-16 18M0 16L16-6M0-8L-12-26" stroke="#DAF1DE" strokeWidth="2" strokeLinecap="round" fill="none" />
             </g>
             <g transform="translate(275 128) rotate(-38) scale(0.75)">
-              <path d="M0 84C-42 44-34-22 0-66C34-22 42 44 0 84Z" fill="#8cc79d" />
+              <path d="M0 84C-42 44-34-22 0-66C34-22 42 44 0 84Z" fill="#8EB69B" />
             </g>
           </svg>
           <div style={{ position: 'absolute', left: 20, bottom: 56 }}>
-            <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800, lineHeight: 1.15 }}>{t.greeting}</h1>
+            <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800, lineHeight: 1.15, color: '#FFFFFF' }}>{t.greeting}</h1>
             <button
               type="button"
               onClick={onToggleOnline}
@@ -333,11 +334,11 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                 cursor: 'pointer',
                 fontSize: 13,
                 fontWeight: 700,
-                background: online ? 'var(--ms-green-100)' : 'var(--ms-orange-100)',
-                color: online ? 'var(--ms-green-900)' : 'var(--ms-orange-700)',
+                background: online ? '#DAF1DE' : '#FFF1CC',
+                color: online ? '#235347' : '#8A5A00',
               }}
             >
-              <span aria-hidden style={{ width: 8, height: 8, borderRadius: '50%', background: online ? 'var(--ms-green-500)' : 'var(--ms-orange)' }} />
+              <span aria-hidden style={{ width: 8, height: 8, borderRadius: '50%', background: online ? '#2E7D4F' : '#8A5A00' }} />
               {online ? t.synced : t.offline}
             </button>
           </div>
@@ -347,14 +348,14 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
           style={{
             marginTop: -36,
             position: 'relative',
-            background: 'var(--ms-surface)',
-            borderRadius: '36px 36px 0 0',
+            background: '#F4F9F6',
+            borderRadius: '32px 32px 0 0',
             padding: '26px 0 28px',
             minHeight: 420,
           }}
         >
           <div style={{ padding: '0 20px', display: 'flex', alignItems: 'center', gap: 10 }}>
-            <h2 style={{ margin: 0, fontSize: 22, fontWeight: 800 }}>{t.title}</h2>
+            <h2 style={{ margin: 0, fontSize: 22, fontWeight: 800, color: '#00201C' }}>{t.title}</h2>
             <span
               aria-live="polite"
               style={{
@@ -362,10 +363,10 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                 padding: '3px 10px',
                 borderRadius: 999,
                 textAlign: 'center',
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight: 800,
-                background: 'var(--ms-orange)',
-                color: '#fff',
+                background: '#235347',
+                color: '#FFFFFF',
               }}
             >
               {list.length}
@@ -396,9 +397,10 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                     fontSize: 14,
                     fontWeight: 800,
                     whiteSpace: 'nowrap',
-                    border: `2px solid ${on ? 'var(--ms-green-700)' : 'var(--ms-green-100)'}`,
-                    background: on ? 'var(--ms-green-700)' : 'var(--ms-surface)',
-                    color: on ? '#fff' : 'var(--ms-green-700)',
+                    border: `2px solid ${on ? '#235347' : '#E3ECE7'}`,
+                    background: on ? '#235347' : '#FFFFFF',
+                    color: on ? '#FFFFFF' : '#235347',
+                    transition: 'all 0.15s ease',
                   }}
                 >
                   {t.filters[key]}
@@ -408,7 +410,7 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
           </div>
 
           {waitingList.length === 0 ? (
-            <p style={{ margin: '30px 20px', textAlign: 'center', color: 'var(--ms-muted)', fontSize: 14.5 }}>{t.empty}</p>
+            <p style={{ margin: '30px 20px', textAlign: 'center', color: '#404945', fontSize: 14.5 }}>{t.empty}</p>
           ) : (
             <ul style={{ listStyle: 'none', margin: 0, padding: '12px 20px 0', display: 'grid', gap: 12 }}>
               {waitingList.map((c) => (
@@ -423,18 +425,19 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                       gap: 12,
                       padding: 14,
                       textAlign: 'left',
-                      borderRadius: 22,
+                      borderRadius: 20,
                       cursor: 'pointer',
-                      border: '1px solid var(--ms-green-100)',
-                      background: 'var(--ms-bg)',
-                      color: 'var(--ms-ink)',
+                      border: '1px solid #E3ECE7',
+                      background: '#FFFFFF',
+                      color: '#00201C',
+                      boxShadow: '0 2px 6px rgba(0, 32, 28, 0.04)',
                     }}
                   >
                     <Thumb has={c.photo} src={c.photoData} alt={t.photoAlt} empty={t.noPhoto} />
                     <span style={{ flex: 1, minWidth: 0 }}>
-                      <span style={{ display: 'block', fontSize: 17, fontWeight: 800 }}>{c.name[lang]}</span>
-                      <span style={{ display: 'block', marginTop: 1, fontSize: 13, color: 'var(--ms-muted)' }}>{c.village[lang]}</span>
-                      <span style={{ display: 'block', marginTop: 6, fontSize: 14, fontWeight: 600, lineHeight: 1.3 }}>{c.symptoms[lang]}</span>
+                      <span style={{ display: 'block', fontSize: 17, fontWeight: 800, color: '#00201C' }}>{c.name[lang]}</span>
+                      <span style={{ display: 'block', marginTop: 1, fontSize: 13, color: '#404945' }}>{c.village[lang]}</span>
+                      <span style={{ display: 'block', marginTop: 6, fontSize: 14, fontWeight: 600, lineHeight: 1.3, color: '#00201C' }}>{c.symptoms[lang]}</span>
                       <span
                         style={{
                           display: 'inline-block',
@@ -457,7 +460,7 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
 
           {repliedList.length > 0 && (
             <div style={{ marginTop: 24, padding: '0 20px' }}>
-              <h2 style={{ margin: '0 0 12px', fontSize: 16, fontWeight: 800, color: 'var(--ms-ink)' }}>
+              <h2 style={{ margin: '0 0 12px', fontSize: 16, fontWeight: 800, color: '#00201C' }}>
                 {lang === 'hi' ? 'उत्तर दिए गए' : 'Replied'} ({repliedList.length})
               </h2>
               <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 12 }}>
@@ -473,17 +476,18 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                         gap: 12,
                         padding: 14,
                         textAlign: 'left',
-                        borderRadius: 22,
+                        borderRadius: 20,
                         cursor: 'pointer',
-                        border: '1px solid var(--ms-border)',
-                        background: 'var(--ms-surface)',
-                        color: 'var(--ms-ink)',
+                        border: '1px solid #E3ECE7',
+                        background: '#FFFFFF',
+                        color: '#00201C',
+                        boxShadow: '0 2px 6px rgba(0, 32, 28, 0.04)',
                       }}
                     >
                       <Thumb has={c.photo} src={c.photoData} alt={t.photoAlt} empty={t.noPhoto} />
                       <span style={{ flex: 1, minWidth: 0 }}>
-                        <span style={{ display: 'block', fontSize: 17, fontWeight: 800 }}>{c.name[lang]}</span>
-                        <span style={{ display: 'block', marginTop: 1, fontSize: 13, color: 'var(--ms-muted)' }}>{c.village[lang]}</span>
+                        <span style={{ display: 'block', fontSize: 17, fontWeight: 800, color: '#00201C' }}>{c.name[lang]}</span>
+                        <span style={{ display: 'block', marginTop: 1, fontSize: 13, color: '#404945' }}>{c.village[lang]}</span>
                         <span
                           style={{
                             display: 'inline-block',
@@ -492,8 +496,8 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                             borderRadius: 999,
                             fontSize: 12,
                             fontWeight: 800,
-                            background: 'var(--ms-green-100)',
-                            color: 'var(--ms-green-700)',
+                            background: '#DAF1DE',
+                            color: '#235347',
                           }}
                         >
                           ✓ {lang === 'hi' ? 'उत्तर दिया' : 'Replied'}
@@ -509,12 +513,12 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
       </div>
 
       {/* ===================== WIDE SPLIT LAYOUT (@2xl and above) ===================== */}
-      <div className="hidden @2xl:block" style={{ padding: '24px 28px 40px' }}>
+      <div className="hidden @2xl:block" style={{ padding: '24px 28px 40px', background: '#F4F9F6', minHeight: '100vh' }}>
         {/* Top Header */}
         <header style={{ marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800, color: 'var(--ms-ink)', lineHeight: 1.2 }}>{t.greeting}</h1>
-            <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--ms-muted)', fontWeight: 600 }}>
+            <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800, color: '#00201C', lineHeight: 1.2 }}>{t.greeting}</h1>
+            <p style={{ margin: '4px 0 0', fontSize: 14, color: '#404945', fontWeight: 600 }}>
               {lang === 'hi' ? 'चिकित्सक इनबॉक्स एवं केस समीक्षा' : 'Doctor Inbox & Clinical Case Review'}
             </p>
           </div>
@@ -532,12 +536,12 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
               cursor: 'pointer',
               fontSize: 13.5,
               fontWeight: 700,
-              background: online ? 'var(--ms-green-100)' : 'var(--ms-orange-100)',
-              color: online ? 'var(--ms-green-900)' : 'var(--ms-orange-700)',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+              background: online ? '#DAF1DE' : '#FFF1CC',
+              color: online ? '#235347' : '#8A5A00',
+              boxShadow: '0 2px 8px rgba(0, 32, 28, 0.06)',
             }}
           >
-            <span aria-hidden style={{ width: 8, height: 8, borderRadius: '50%', background: online ? 'var(--ms-green-500)' : 'var(--ms-orange)' }} />
+            <span aria-hidden style={{ width: 8, height: 8, borderRadius: '50%', background: online ? '#2E7D4F' : '#8A5A00' }} />
             {online ? t.synced : t.offline}
           </button>
         </header>
@@ -545,10 +549,10 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
         {/* Split View: Case list (about 35%) on left, Review panel on right */}
         <div className="grid grid-cols-12 @md:grid-cols-12 @2xl:grid-cols-12 @4xl:grid-cols-12 gap-6" style={{ alignItems: 'start' }}>
           {/* Left Panel: Case List (about 35%) */}
-          <div className="col-span-12 @2xl:col-span-4 @4xl:col-span-4" style={{ background: 'var(--ms-surface)', borderRadius: 24, border: '1px solid var(--ms-border)', boxShadow: 'var(--ms-shadow-card)', padding: '20px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div className="col-span-12 @2xl:col-span-4 @4xl:col-span-4" style={{ background: '#FFFFFF', borderRadius: 24, border: '1px solid #E3ECE7', boxShadow: '0 2px 10px rgba(0, 32, 28, 0.04)', padding: '20px', display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800 }}>{t.title}</h2>
+                <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: '#00201C' }}>{t.title}</h2>
                 <span
                   aria-live="polite"
                   style={{
@@ -556,8 +560,8 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                     borderRadius: 999,
                     fontSize: 13,
                     fontWeight: 800,
-                    background: 'var(--ms-orange)',
-                    color: '#fff',
+                    background: '#235347',
+                    color: '#FFFFFF',
                   }}
                 >
                   {list.length}
@@ -576,14 +580,15 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                     aria-pressed={on}
                     onClick={() => setFilter(key)}
                     style={{
-                      padding: '6px 12px',
+                      padding: '6px 14px',
                       borderRadius: 999,
                       cursor: 'pointer',
                       fontSize: 12.5,
                       fontWeight: 800,
-                      border: `1.5px solid ${on ? 'var(--ms-green-700)' : 'var(--ms-green-100)'}`,
-                      background: on ? 'var(--ms-green-700)' : 'var(--ms-surface)',
-                      color: on ? '#fff' : 'var(--ms-green-700)',
+                      border: `1.5px solid ${on ? '#235347' : '#DAF1DE'}`,
+                      background: on ? '#235347' : '#FFFFFF',
+                      color: on ? '#FFFFFF' : '#235347',
+                      transition: 'all 0.15s ease',
                     }}
                   >
                     {t.filters[key]}
@@ -594,7 +599,7 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
 
             {/* Cases list */}
             {waitingList.length === 0 ? (
-              <p style={{ margin: '20px 0', textAlign: 'center', color: 'var(--ms-muted)', fontSize: 14 }}>{t.empty}</p>
+              <p style={{ margin: '20px 0', textAlign: 'center', color: '#404945', fontSize: 14 }}>{t.empty}</p>
             ) : (
               <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 10, maxHeight: 'calc(100vh - 350px)', overflowY: 'auto' }}>
                 {waitingList.map((c) => {
@@ -613,16 +618,16 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                           textAlign: 'left',
                           borderRadius: 18,
                           cursor: 'pointer',
-                          border: isSelected ? '2px solid var(--ms-forest)' : '1px solid var(--ms-green-100)',
-                          background: isSelected ? 'var(--ms-mint)' : 'var(--ms-bg)',
-                          color: 'var(--ms-ink)',
+                          border: isSelected ? '2px solid #235347' : '1px solid #E3ECE7',
+                          background: isSelected ? '#DAF1DE' : '#FFFFFF',
+                          color: '#00201C',
                           transition: 'all 0.15s ease',
                         }}
                       >
                         <Thumb has={c.photo} src={c.photoData} alt={t.photoAlt} empty={t.noPhoto} />
                         <span style={{ flex: 1, minWidth: 0 }}>
                           <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
-                            <span style={{ fontSize: 15.5, fontWeight: 800, color: isSelected ? 'var(--ms-forest)' : 'var(--ms-ink)' }}>{c.name[lang]}</span>
+                            <span style={{ fontSize: 15.5, fontWeight: 800, color: isSelected ? '#235347' : '#00201C' }}>{c.name[lang]}</span>
                             <span
                               style={{
                                 padding: '2px 8px',
@@ -636,8 +641,8 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                               {c.waitingMin >= 60 ? `${Math.floor(c.waitingMin / 60)} ${t.hourUnit}` : `${c.waitingMin} ${t.minuteUnit}`}
                             </span>
                           </span>
-                          <span style={{ display: 'block', marginTop: 2, fontSize: 12.5, color: 'var(--ms-muted)' }}>{c.village[lang]}</span>
-                          <span style={{ display: 'block', marginTop: 4, fontSize: 13, fontWeight: 600, color: 'var(--ms-ink)', lineHeight: 1.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          <span style={{ display: 'block', marginTop: 2, fontSize: 12.5, color: '#404945' }}>{c.village[lang]}</span>
+                          <span style={{ display: 'block', marginTop: 4, fontSize: 13, fontWeight: 600, color: '#00201C', lineHeight: 1.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                             {c.symptoms[lang]}
                           </span>
                         </span>
@@ -650,7 +655,7 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
 
             {repliedList.length > 0 && (
               <div style={{ marginTop: 20 }}>
-                <h3 style={{ margin: '0 0 10px', fontSize: 15, fontWeight: 800, color: 'var(--ms-ink)' }}>
+                <h3 style={{ margin: '0 0 10px', fontSize: 15, fontWeight: 800, color: '#00201C' }}>
                   {lang === 'hi' ? 'उत्तर दिए गए' : 'Replied'} ({repliedList.length})
                 </h3>
                 <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 10 }}>
@@ -670,15 +675,15 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                             textAlign: 'left',
                             borderRadius: 16,
                             cursor: 'pointer',
-                            border: isSelected ? '2px solid var(--ms-forest)' : '1px solid var(--ms-border)',
-                            background: isSelected ? 'var(--ms-mint)' : 'var(--ms-surface)',
-                            color: 'var(--ms-ink)',
+                            border: isSelected ? '2px solid #235347' : '1px solid #E3ECE7',
+                            background: isSelected ? '#DAF1DE' : '#FFFFFF',
+                            color: '#00201C',
                           }}
                         >
                           <Thumb has={c.photo} src={c.photoData} alt={t.photoAlt} empty={t.noPhoto} />
                           <span style={{ flex: 1, minWidth: 0 }}>
-                            <span style={{ fontSize: 15, fontWeight: 800 }}>{c.name[lang]}</span>
-                            <span style={{ display: 'block', marginTop: 1, fontSize: 12, color: 'var(--ms-muted)' }}>{c.village[lang]}</span>
+                            <span style={{ fontSize: 15, fontWeight: 800, color: '#00201C' }}>{c.name[lang]}</span>
+                            <span style={{ display: 'block', marginTop: 1, fontSize: 12, color: '#404945' }}>{c.village[lang]}</span>
                             <span
                               style={{
                                 display: 'inline-block',
@@ -687,8 +692,8 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                                 borderRadius: 999,
                                 fontSize: 11,
                                 fontWeight: 800,
-                                background: 'var(--ms-green-100)',
-                                color: 'var(--ms-green-700)',
+                                background: '#DAF1DE',
+                                color: '#235347',
                               }}
                             >
                               ✓ {lang === 'hi' ? 'उत्तर दिया' : 'Replied'}
@@ -704,19 +709,19 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
           </div>
 
           {/* Right Panel: Review Panel (about 65%) */}
-          <div className="col-span-12 @2xl:col-span-8 @4xl:col-span-8" style={{ background: 'var(--ms-surface)', borderRadius: 24, border: '1px solid var(--ms-border)', boxShadow: 'var(--ms-shadow-card)', padding: '26px 28px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+          <div className="col-span-12 @2xl:col-span-8 @4xl:col-span-8" style={{ background: '#FFFFFF', borderRadius: 24, border: '1px solid #E3ECE7', boxShadow: '0 2px 10px rgba(0, 32, 28, 0.04)', padding: '26px 28px', display: 'flex', flexDirection: 'column', gap: 20 }}>
             {selectedCase ? (
               <>
                 {/* Review Header */}
-                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', borderBottom: '1px solid var(--ms-border)', paddingBottom: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', borderBottom: '1px solid #E3ECE7', paddingBottom: 16 }}>
                   <div>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--ms-forest)', letterSpacing: '0.04em' }}>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: '#235347', letterSpacing: '0.04em' }}>
                       {tReview.caseLabel} {selectedCase.id.toUpperCase()}
                     </span>
-                    <h2 style={{ margin: '4px 0 0', fontSize: 24, fontWeight: 800, color: 'var(--ms-ink)' }}>
+                    <h2 style={{ margin: '4px 0 0', fontSize: 24, fontWeight: 800, color: '#00201C' }}>
                       {getPatientSummary(selectedCase.patientId, lang) || selectedCase.name[lang]}
                     </h2>
-                    <p style={{ margin: '4px 0 0', fontSize: 13.5, color: 'var(--ms-muted)', fontWeight: 600 }}>
+                    <p style={{ margin: '4px 0 0', fontSize: 13.5, color: '#404945', fontWeight: 600 }}>
                       {selectedCase.village[lang]} • {selectedCase.symptoms[lang]}
                     </p>
                   </div>
@@ -739,8 +744,8 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                           borderRadius: 999,
                           fontSize: 12,
                           fontWeight: 800,
-                          background: 'var(--ms-orange-100)',
-                          color: 'var(--ms-orange-700)',
+                          background: '#FFDAD6',
+                          color: '#BA1A1A',
                         }}
                       >
                         {tReview.late}
@@ -757,15 +762,15 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                         position: 'relative',
                         aspectRatio: '4 / 3.2',
                         borderRadius: 22,
-                        background: 'var(--ms-bg)',
-                        border: '2px dashed var(--ms-border)',
+                        background: '#F4F9F6',
+                        border: '1.5px dashed #CCD9D2',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
                         justifyContent: 'center',
                         padding: '24px 20px',
                         textAlign: 'center',
-                        color: 'var(--ms-muted)',
+                        color: '#404945',
                       }}
                     >
                       <p style={{ margin: 0, fontSize: 15, fontWeight: 700, lineHeight: 1.4 }}>
@@ -778,19 +783,19 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                         position: 'relative',
                         aspectRatio: '4 / 3.2',
                         borderRadius: 22,
-                        background: 'var(--ms-bg)',
-                        border: '2px dashed var(--ms-border)',
+                        background: '#F4F9F6',
+                        border: '1.5px dashed #CCD9D2',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
                         justifyContent: 'center',
                         padding: '24px 20px',
                         textAlign: 'center',
-                        color: 'var(--ms-muted)',
+                        color: '#404945',
                         gap: 12,
                       }}
                     >
-                      <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: 'var(--ms-danger)' }}>
+                      <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#BA1A1A' }}>
                         {tReview.photoCouldNotOpen}
                       </p>
                       <button
@@ -799,9 +804,9 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                         style={{
                           padding: '8px 20px',
                           borderRadius: 999,
-                          border: '1px solid var(--ms-border)',
-                          background: 'var(--ms-surface)',
-                          color: 'var(--ms-ink)',
+                          border: '1px solid #E3ECE7',
+                          background: '#FFFFFF',
+                          color: '#00201C',
                           fontSize: 14,
                           fontWeight: 800,
                           cursor: 'pointer',
@@ -818,7 +823,7 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                         overflow: 'hidden',
                         aspectRatio: '4 / 3.2',
                         borderRadius: 22,
-                        background: '#12241b',
+                        background: '#051F20',
                       }}
                     >
                       <img
@@ -846,8 +851,8 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                             borderRadius: 999,
                             fontSize: 11,
                             fontWeight: 800,
-                            background: 'rgba(0, 0, 0, 0.7)',
-                            color: '#fff',
+                            background: 'rgba(5, 31, 32, 0.85)',
+                            color: '#FFFFFF',
                             zIndex: 2,
                           }}
                         >
@@ -865,8 +870,8 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                             cursor: 'pointer',
                             fontSize: 12.5,
                             fontWeight: 700,
-                            background: 'rgba(10, 30, 20, 0.75)',
-                            color: '#fff',
+                            background: 'rgba(5, 31, 32, 0.85)',
+                            color: '#FFFFFF',
                           }}
                         >
                           🔍 {tReview.zoomIn}
@@ -880,15 +885,15 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                     style={{
                       padding: 16,
                       borderRadius: 20,
-                      background: 'var(--ms-bg)',
-                      border: '1px solid var(--ms-border)',
+                      background: '#F4F9F6',
+                      border: '1px solid #E3ECE7',
                       display: 'flex',
                       flexDirection: 'column',
                       gap: 12,
                     }}
                   >
                     <div>
-                      <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--ms-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                      <span style={{ fontSize: 11, fontWeight: 800, color: '#404945', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                         {lang === 'hi' ? 'मितानिन की जाँच' : 'Mitanin Reading'}
                       </span>
                       <div style={{ marginTop: 4 }}>
@@ -899,8 +904,18 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                             borderRadius: 999,
                             fontSize: 13.5,
                             fontWeight: 800,
-                            background: 'var(--ms-orange-100)',
-                            color: 'var(--ms-orange-700)',
+                            background:
+                              selectedCase.testResult === 'positive'
+                                ? '#FFDAD6'
+                                : selectedCase.testResult === 'negative'
+                                ? '#DAF1DE'
+                                : '#FFF1CC',
+                            color:
+                              selectedCase.testResult === 'positive'
+                                ? '#BA1A1A'
+                                : selectedCase.testResult === 'negative'
+                                ? '#2E7D4F'
+                                : '#8A5A00',
                           }}
                         >
                           {tReview.mitaninReadPrefix} {tReview.results[selectedCase.testResult || 'positive'] || selectedCase.testResult || 'Positive'}
@@ -908,14 +923,14 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                       </div>
                     </div>
 
-                    <div style={{ paddingTop: 8, borderTop: '1px solid var(--ms-border)' }}>
-                      <span id="doc-read-split" style={{ display: 'block', fontSize: 13, fontWeight: 800, color: 'var(--ms-ink)', marginBottom: 8 }}>
+                    <div style={{ paddingTop: 8, borderTop: '1px solid #E3ECE7' }}>
+                      <span id="doc-read-split" style={{ display: 'block', fontSize: 13, fontWeight: 800, color: '#00201C', marginBottom: 8 }}>
                         {tReview.myRead}
                       </span>
                       <div
                         role="radiogroup"
                         aria-labelledby="doc-read-split"
-                        style={{ display: 'flex', padding: 3, borderRadius: 999, background: 'var(--ms-green-100)' }}
+                        style={{ display: 'flex', padding: 3, borderRadius: 999, background: '#DAF1DE' }}
                       >
                         {(['agree', 'disagree'] as const).map((key) => {
                           const on = read === key;
@@ -942,8 +957,8 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                                 borderRadius: 999,
                                 fontSize: 14,
                                 fontWeight: 800,
-                                background: on ? (key === 'agree' ? 'var(--ms-green-500)' : 'var(--ms-orange)') : 'transparent',
-                                color: on ? '#fff' : 'var(--ms-green-700)',
+                                background: on ? (key === 'agree' ? '#2E7D4F' : '#BA1A1A') : 'transparent',
+                                color: on ? '#FFFFFF' : '#235347',
                                 transition: 'all 0.15s ease',
                               }}
                             >
@@ -953,7 +968,7 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                         })}
                       </div>
                     </div>
-                    <p style={{ margin: 0, fontSize: 11.5, color: 'var(--ms-muted)' }}>
+                    <p style={{ margin: 0, fontSize: 11.5, color: '#404945' }}>
                       {tReview.recorded} {readingAgreement?.total > 0 ? `(${readingAgreement.agreed}/${readingAgreement.total})` : ''}
                     </p>
                   </div>
@@ -961,7 +976,7 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
 
                 {/* Symptoms */}
                 <div>
-                  <h3 style={{ margin: '0 0 8px', fontSize: 16, fontWeight: 800, color: 'var(--ms-ink)' }}>{tReview.symptomsTitle}</h3>
+                  <h3 style={{ margin: '0 0 8px', fontSize: 16, fontWeight: 800, color: '#00201C' }}>{tReview.symptomsTitle}</h3>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                     <span
                       style={{
@@ -972,8 +987,9 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                         borderRadius: 12,
                         fontSize: 14,
                         fontWeight: 600,
-                        background: 'var(--ms-bg)',
-                        border: '1px solid var(--ms-border)',
+                        background: '#FFFFFF',
+                        border: '1px solid #E3ECE7',
+                        color: '#00201C',
                       }}
                     >
                       <span
@@ -984,8 +1000,8 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                           borderRadius: '50%',
                           display: 'grid',
                           placeItems: 'center',
-                          background: 'var(--ms-green-500)',
-                          color: '#fff',
+                          background: '#2E7D4F',
+                          color: '#FFFFFF',
                           fontSize: 11,
                         }}
                       >
@@ -998,7 +1014,7 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
 
                 {/* Advice Field with Quick-Reply Chips */}
                 <div>
-                  <label htmlFor="split-advice" style={{ display: 'block', marginBottom: 8, fontSize: 16, fontWeight: 800 }}>
+                  <label htmlFor="split-advice" style={{ display: 'block', marginBottom: 8, fontSize: 16, fontWeight: 800, color: '#00201C' }}>
                     {tReview.advice}
                   </label>
                   <ul
@@ -1017,9 +1033,10 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                             fontSize: 12.5,
                             fontWeight: 700,
                             textAlign: 'left',
-                            border: '1.5px solid var(--ms-green-100)',
-                            background: 'var(--ms-bg)',
-                            color: 'var(--ms-green-700)',
+                            border: '1.5px solid #CCD9D2',
+                            background: '#F4F9F6',
+                            color: '#235347',
+                            transition: 'all 0.15s ease',
                           }}
                         >
                           + {chip}
@@ -1038,24 +1055,25 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                       resize: 'none',
                       padding: '10px 14px',
                       borderRadius: 16,
-                      border: '2px solid var(--ms-border)',
+                      border: '2px solid #E3ECE7',
                       font: 'inherit',
                       fontSize: 14.5,
-                      color: 'var(--ms-ink)',
-                      background: 'var(--ms-bg)',
+                      color: '#00201C',
+                      background: '#FFFFFF',
                     }}
                   />
                 </div>
 
                 {/* Decision Selector and Send Reply */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 16, alignItems: 'end', paddingTop: 8, borderTop: '1px solid var(--ms-border)' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 16, alignItems: 'end', paddingTop: 8, borderTop: '1px solid #E3ECE7' }}>
                   <div>
-                    <h3 id="split-decision" style={{ margin: '0 0 8px', fontSize: 15, fontWeight: 800 }}>
+                    <h3 id="split-decision" style={{ margin: '0 0 8px', fontSize: 15, fontWeight: 800, color: '#00201C' }}>
                       {tReview.decisionTitle}
                     </h3>
                     <div role="radiogroup" aria-labelledby="split-decision" style={{ display: 'flex', gap: 10 }}>
                       {(['local', 'refer'] as const).map((key) => {
                         const on = decision === key;
+                        const isRefer = key === 'refer';
                         return (
                           <button
                             key={key}
@@ -1072,9 +1090,9 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                               cursor: 'pointer',
                               fontSize: 15,
                               fontWeight: 800,
-                              border: `2px solid ${on ? 'var(--ms-green-700)' : 'var(--ms-border)'}`,
-                              background: on ? 'var(--ms-green-700)' : 'var(--ms-surface)',
-                              color: on ? '#fff' : 'var(--ms-ink)',
+                              border: `2px solid ${on ? (isRefer ? '#BA1A1A' : '#235347') : '#E3ECE7'}`,
+                              background: on ? (isRefer ? '#BA1A1A' : '#235347') : '#FFFFFF',
+                              color: on ? '#FFFFFF' : '#00201C',
                               transition: 'all 0.15s ease',
                             }}
                           >
@@ -1098,9 +1116,9 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                       cursor: ready ? 'pointer' : 'default',
                       fontSize: 16,
                       fontWeight: 800,
-                      background: sent ? 'var(--ms-green-500)' : ready ? 'var(--ms-orange)' : '#e3e9e5',
-                      color: sent || ready ? '#fff' : '#9aa7a0',
-                      boxShadow: ready ? '0 8px 20px rgba(240, 121, 75, 0.35)' : 'none',
+                      background: sent ? '#2E7D4F' : ready ? '#235347' : '#E3ECE7',
+                      color: sent || ready ? '#FFFFFF' : '#707975',
+                      boxShadow: ready ? '0 4px 14px rgba(35, 83, 71, 0.3)' : 'none',
                       transition: 'all 0.2s ease',
                     }}
                   >
@@ -1109,7 +1127,7 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                 </div>
 
                 {validationError && (
-                  <div role="alert" style={{ color: 'var(--ms-danger)', fontSize: 14, fontWeight: 700, marginTop: 4 }}>
+                  <div role="alert" style={{ color: '#BA1A1A', fontSize: 14, fontWeight: 700, marginTop: 4 }}>
                     {validationError}
                   </div>
                 )}

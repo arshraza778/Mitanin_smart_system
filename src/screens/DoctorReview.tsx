@@ -30,9 +30,9 @@ const COPY = {
 } as const;
 
 function waitStyle(min: number) {
-  if (min > 120) return { background: 'var(--ms-orange-100)', color: 'var(--ms-orange-700)' };
-  if (min > 60) return { background: '#fef3c7', color: '#92400e' };
-  return { background: 'var(--ms-green-100)', color: 'var(--ms-green-700)' };
+  if (min > 120) return { background: '#FFDAD6', color: '#BA1A1A' };
+  if (min > 60) return { background: '#FFF1CC', color: '#8A5A00' };
+  return { background: '#DAF1DE', color: '#235347' };
 }
 
 function Thumb({ has, src, alt, empty }: { has: boolean; src?: string; alt: string; empty: string }) {
@@ -50,8 +50,9 @@ function Thumb({ has, src, alt, empty }: { has: boolean; src?: string; alt: stri
           fontSize: 10.5,
           fontWeight: 700,
           lineHeight: 1.2,
-          border: '2px dashed var(--ms-border)',
-          color: 'var(--ms-muted)',
+          border: '1.5px dashed #CCD9D2',
+          background: '#F4F9F6',
+          color: '#404945',
         }}
       >
         {empty}
@@ -69,12 +70,12 @@ function Thumb({ has, src, alt, empty }: { has: boolean; src?: string; alt: stri
   }
   return (
     <svg viewBox="0 0 60 60" width="60" height="60" role="img" aria-label={alt} style={{ flex: '0 0 60px', borderRadius: 14 }}>
-      <rect width="60" height="60" rx="14" fill="#1c3a2b" />
-      <rect x="8" y="22" width="44" height="16" rx="4" fill="#f1f5f2" />
-      <rect x="13" y="25" width="8" height="10" rx="2" fill="#d9e2dc" />
-      <rect x="25" y="25" width="22" height="10" rx="2" fill="#fff" stroke="var(--ms-border)" />
-      <rect x="33" y="25" width="1.6" height="10" fill="#d9534f" />
-      <rect x="40" y="25" width="1.6" height="10" fill="#d9534f" />
+      <rect width="60" height="60" rx="14" fill="#051F20" />
+      <rect x="8" y="22" width="44" height="16" rx="4" fill="#F4F9F6" />
+      <rect x="13" y="25" width="8" height="10" rx="2" fill="#DAF1DE" />
+      <rect x="25" y="25" width="22" height="10" rx="2" fill="#FFFFFF" stroke="#CCD9D2" />
+      <rect x="33" y="25" width="1.6" height="10" fill="#BA1A1A" />
+      <rect x="40" y="25" width="1.6" height="10" fill="#BA1A1A" />
     </svg>
   );
 }
@@ -345,16 +346,16 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
       <div className="block @2xl:hidden">
         <header
           style={{
-            background: 'var(--ms-green-700)',
-            color: '#fff',
+            background: '#051F20',
+            color: '#FFFFFF',
             borderRadius: '0 0 32px 32px',
             padding: 'calc(22px + env(safe-area-inset-top, 0px)) 20px 24px',
           }}
         >
-          <p style={{ margin: 0, fontSize: 13.5, fontWeight: 700, opacity: 0.85 }}>
+          <p style={{ margin: 0, fontSize: 13.5, fontWeight: 700, color: '#C0EACC' }}>
             {t.caseLabel} {selectedCase?.id?.toUpperCase()}
           </p>
-          <h1 style={{ margin: '4px 0 0', fontSize: 28, fontWeight: 800, lineHeight: 1.15 }}>
+          <h1 style={{ margin: '4px 0 0', fontSize: 28, fontWeight: 800, lineHeight: 1.15, color: '#FFFFFF' }}>
             {getPatientSummary(selectedCase?.patientId, lang) || selectedCase?.name[lang]}
           </h1>
           <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -378,8 +379,8 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                   borderRadius: 999,
                   fontSize: 12,
                   fontWeight: 800,
-                  background: 'var(--ms-orange-100)',
-                  color: 'var(--ms-orange-700)',
+                  background: '#FFDAD6',
+                  color: '#BA1A1A',
                 }}
               >
                 {t.late}
@@ -388,7 +389,7 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
           </div>
         </header>
 
-        <section style={{ padding: '18px 20px 0', display: 'grid', gap: 16 }}>
+        <section style={{ padding: '18px 20px 0', display: 'grid', gap: 16, background: '#F4F9F6' }}>
           <div
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
@@ -397,8 +398,8 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
               position: 'relative',
               overflow: 'hidden',
               aspectRatio: '4 / 3.4',
-              borderRadius: 26,
-              background: '#12241b',
+              borderRadius: 24,
+              background: '#051F20',
               touchAction: 'pan-y',
             }}
           >
@@ -413,10 +414,10 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                   justifyContent: 'center',
                   padding: '24px 20px',
                   textAlign: 'center',
-                  background: 'var(--ms-bg)',
-                  color: 'var(--ms-muted)',
-                  border: '2px dashed var(--ms-border)',
-                  borderRadius: 26,
+                  background: '#F4F9F6',
+                  color: '#404945',
+                  border: '1.5px dashed #CCD9D2',
+                  borderRadius: 24,
                 }}
               >
                 <p style={{ margin: 0, fontSize: 15, fontWeight: 700, lineHeight: 1.4 }}>
@@ -434,14 +435,14 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                   justifyContent: 'center',
                   padding: '24px 20px',
                   textAlign: 'center',
-                  background: 'var(--ms-bg)',
-                  color: 'var(--ms-muted)',
-                  border: '2px dashed var(--ms-border)',
-                  borderRadius: 26,
+                  background: '#F4F9F6',
+                  color: '#404945',
+                  border: '1.5px dashed #CCD9D2',
+                  borderRadius: 24,
                   gap: 12,
                 }}
               >
-                <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: 'var(--ms-danger)' }}>
+                <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#BA1A1A' }}>
                   {t.photoCouldNotOpen}
                 </p>
                 <button
@@ -450,9 +451,9 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                   style={{
                     padding: '8px 20px',
                     borderRadius: 999,
-                    border: '1px solid var(--ms-border)',
-                    background: 'var(--ms-surface)',
-                    color: 'var(--ms-ink)',
+                    border: '1px solid #E3ECE7',
+                    background: '#FFFFFF',
+                    color: '#00201C',
                     fontSize: 14,
                     fontWeight: 800,
                     cursor: 'pointer',
@@ -489,8 +490,8 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                       borderRadius: 999,
                       fontSize: 11,
                       fontWeight: 800,
-                      background: 'rgba(0, 0, 0, 0.7)',
-                      color: '#fff',
+                      background: 'rgba(5, 31, 32, 0.85)',
+                      color: '#FFFFFF',
                       zIndex: 2,
                     }}
                   >
@@ -513,8 +514,8 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                     cursor: 'pointer',
                     fontSize: 12.5,
                     fontWeight: 700,
-                    background: 'rgba(10, 30, 20, 0.75)',
-                    color: '#fff',
+                    background: 'rgba(5, 31, 32, 0.85)',
+                    color: '#FFFFFF',
                     zIndex: 2,
                   }}
                 >
@@ -528,8 +529,9 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
             style={{
               padding: 16,
               borderRadius: 24,
-              background: 'var(--ms-surface)',
-              boxShadow: '0 4px 16px rgba(31, 77, 56, 0.07)',
+              background: '#FFFFFF',
+              border: '1px solid #E3ECE7',
+              boxShadow: '0 2px 8px rgba(0, 32, 28, 0.04)',
             }}
           >
             <span
@@ -539,18 +541,28 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                 borderRadius: 999,
                 fontSize: 14.5,
                 fontWeight: 800,
-                background: 'var(--ms-orange-100)',
-                color: 'var(--ms-orange-700)',
+                background:
+                  selectedCase.testResult === 'positive'
+                    ? '#FFDAD6'
+                    : selectedCase.testResult === 'negative'
+                    ? '#DAF1DE'
+                    : '#FFF1CC',
+                color:
+                  selectedCase.testResult === 'positive'
+                    ? '#BA1A1A'
+                    : selectedCase.testResult === 'negative'
+                    ? '#2E7D4F'
+                    : '#8A5A00',
               }}
             >
               {t.mitaninReadPrefix} {t.results[selectedCase.testResult || 'positive'] || selectedCase.testResult || 'Positive'}
             </span>
             <div style={{ marginTop: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
-              <span id="my-read" style={{ fontSize: 15.5, fontWeight: 800 }}>{t.myRead}</span>
+              <span id="my-read" style={{ fontSize: 15.5, fontWeight: 800, color: '#00201C' }}>{t.myRead}</span>
               <div
                 role="radiogroup"
                 aria-labelledby="my-read"
-                style={{ display: 'flex', padding: 3, borderRadius: 999, background: 'var(--ms-green-100)' }}
+                style={{ display: 'flex', padding: 3, borderRadius: 999, background: '#DAF1DE' }}
               >
                 {(['agree', 'disagree'] as const).map((key) => {
                   const on = read === key;
@@ -579,8 +591,9 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                         borderRadius: 999,
                         fontSize: 15,
                         fontWeight: 800,
-                        background: on ? (key === 'agree' ? 'var(--ms-green-500)' : 'var(--ms-orange)') : 'transparent',
-                        color: on ? '#fff' : 'var(--ms-green-700)',
+                        background: on ? (key === 'agree' ? '#2E7D4F' : '#BA1A1A') : 'transparent',
+                        color: on ? '#FFFFFF' : '#235347',
+                        transition: 'all 0.15s ease',
                       }}
                     >
                       {t.reads[key]}
@@ -589,13 +602,13 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                 })}
               </div>
             </div>
-            <p style={{ margin: '12px 2px 0', fontSize: 12.5, color: 'var(--ms-muted)' }}>
+            <p style={{ margin: '12px 2px 0', fontSize: 12.5, color: '#404945' }}>
               {t.recorded} {readingAgreement?.total > 0 ? `(${readingAgreement.agreed}/${readingAgreement.total})` : ''}
             </p>
           </div>
 
           <div>
-            <h2 style={{ margin: '2px 0 8px', fontSize: 18, fontWeight: 800 }}>{t.symptomsTitle}</h2>
+            <h2 style={{ margin: '2px 0 8px', fontSize: 18, fontWeight: 800, color: '#00201C' }}>{t.symptomsTitle}</h2>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
               <span
                 style={{
@@ -606,7 +619,9 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                   borderRadius: 16,
                   fontSize: 15.5,
                   fontWeight: 600,
-                  background: 'var(--ms-surface)',
+                  background: '#FFFFFF',
+                  border: '1px solid #E3ECE7',
+                  color: '#00201C',
                   width: '100%',
                 }}
               >
@@ -618,8 +633,8 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                     borderRadius: '50%',
                     display: 'grid',
                     placeItems: 'center',
-                    background: 'var(--ms-green-500)',
-                    color: '#fff',
+                    background: '#2E7D4F',
+                    color: '#FFFFFF',
                   }}
                 >
                   ✓
@@ -634,10 +649,10 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
               style={{
                 padding: '24px 16px',
                 borderRadius: 20,
-                background: '#f8f9fa',
-                border: '1.5px dashed var(--ms-border)',
+                background: '#FFFFFF',
+                border: '1.5px dashed #CCD9D2',
                 textAlign: 'center',
-                color: 'var(--ms-muted)',
+                color: '#404945',
                 fontSize: 15,
                 fontWeight: 700,
               }}
@@ -651,9 +666,9 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
               style={{
                 padding: 18,
                 borderRadius: 20,
-                background: 'var(--ms-green-100)',
-                border: '1px solid var(--ms-green-500)',
-                color: 'var(--ms-green-900)',
+                background: '#DAF1DE',
+                border: '1px solid #C0EACC',
+                color: '#0B2B26',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
@@ -677,8 +692,8 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                   borderRadius: 999,
                   fontSize: 12.5,
                   fontWeight: 800,
-                  background: 'var(--ms-green-700)',
-                  color: '#fff',
+                  background: '#235347',
+                  color: '#FFFFFF',
                 }}
               >
                 {consult?.decision === 'send_to_hospital' || decision === 'refer'
@@ -689,7 +704,7 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
           ) : (
             <>
               <div>
-                <label htmlFor="advice" style={{ display: 'block', marginBottom: 8, fontSize: 18, fontWeight: 800 }}>
+                <label htmlFor="advice" style={{ display: 'block', marginBottom: 8, fontSize: 18, fontWeight: 800, color: '#00201C' }}>
                   {t.advice}
                 </label>
                 <ul
@@ -711,9 +726,10 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                           fontSize: 13.5,
                           fontWeight: 700,
                           textAlign: 'left',
-                          border: '2px solid var(--ms-green-100)',
-                          background: 'var(--ms-surface)',
-                          color: 'var(--ms-green-700)',
+                          border: '1.5px solid #CCD9D2',
+                          background: '#FFFFFF',
+                          color: '#235347',
+                          transition: 'all 0.15s ease',
                         }}
                       >
                         {chip}
@@ -732,22 +748,23 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                     resize: 'none',
                     padding: '12px 16px',
                     borderRadius: 20,
-                    border: '2px solid var(--ms-border)',
+                    border: '2px solid #E3ECE7',
                     font: 'inherit',
                     fontSize: 16,
-                    color: 'var(--ms-ink)',
-                    background: 'var(--ms-bg)',
+                    color: '#00201C',
+                    background: '#FFFFFF',
                   }}
                 />
               </div>
 
               <div>
-                <h2 id="decision" style={{ margin: '0 0 8px', fontSize: 18, fontWeight: 800 }}>
+                <h2 id="decision" style={{ margin: '0 0 8px', fontSize: 18, fontWeight: 800, color: '#00201C' }}>
                   {t.decisionTitle}
                 </h2>
                 <div role="radiogroup" aria-labelledby="decision" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                   {(['local', 'refer'] as const).map((key) => {
                     const on = decision === key;
+                    const isRefer = key === 'refer';
                     return (
                       <button
                         key={key}
@@ -765,9 +782,10 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                           fontSize: 16,
                           fontWeight: 800,
                           minHeight: 48,
-                          border: `2px solid ${on ? 'var(--ms-green-700)' : 'var(--ms-border)'}`,
-                          background: on ? 'var(--ms-green-700)' : 'var(--ms-surface)',
-                          color: on ? '#fff' : 'var(--ms-ink)',
+                          border: `2px solid ${on ? (isRefer ? '#BA1A1A' : '#235347') : '#E3ECE7'}`,
+                          background: on ? (isRefer ? '#BA1A1A' : '#235347') : '#FFFFFF',
+                          color: on ? '#FFFFFF' : '#00201C',
+                          transition: 'all 0.15s ease',
                         }}
                       >
                         {t.decisions[key]}
@@ -778,7 +796,7 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
               </div>
 
               {validationError && (
-                <div role="alert" style={{ color: 'var(--ms-danger)', fontSize: 14, fontWeight: 700 }}>
+                <div role="alert" style={{ color: '#BA1A1A', fontSize: 14, fontWeight: 700 }}>
                   {validationError}
                 </div>
               )}
@@ -794,9 +812,10 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                   cursor: ready ? 'pointer' : 'default',
                   fontSize: 17,
                   fontWeight: 800,
-                  background: sent ? 'var(--ms-green-500)' : ready ? 'var(--ms-orange)' : '#e3e9e5',
-                  color: sent || ready ? '#fff' : '#9aa7a0',
-                  boxShadow: ready ? '0 8px 24px rgba(240, 121, 75, 0.4)' : 'none',
+                  background: sent ? '#2E7D4F' : ready ? '#235347' : '#E3ECE7',
+                  color: sent || ready ? '#FFFFFF' : '#707975',
+                  boxShadow: ready ? '0 4px 14px rgba(35, 83, 71, 0.3)' : 'none',
+                  transition: 'all 0.2s ease',
                 }}
               >
                 {sent ? t.sent : t.send}
@@ -807,13 +826,13 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
       </div>
 
       {/* ===================== WIDE SPLIT VIEW (@2xl and above) ===================== */}
-      <div className="hidden @2xl:block" style={{ padding: '24px 28px', maxWidth: 1400, margin: '0 auto' }}>
+      <div className="hidden @2xl:block" style={{ padding: '24px 28px 40px', maxWidth: 1400, margin: '0 auto', background: '#F4F9F6', minHeight: '100vh' }}>
         <div className="grid grid-cols-12 gap-6" style={{ alignItems: 'start' }}>
           {/* Left Panel: Cases List (about 35%) */}
-          <div className="col-span-12 @2xl:col-span-4 @4xl:col-span-4" style={{ background: 'var(--ms-surface)', borderRadius: 24, border: '1px solid var(--ms-border)', boxShadow: 'var(--ms-shadow-card)', padding: '20px 22px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div className="col-span-12 @2xl:col-span-4 @4xl:col-span-4" style={{ background: '#FFFFFF', borderRadius: 24, border: '1px solid #E3ECE7', boxShadow: '0 2px 10px rgba(0, 32, 28, 0.04)', padding: '20px 22px', display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <h1 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: 'var(--ms-ink)' }}>{tInbox.title}</h1>
-              <span style={{ fontSize: 13, fontWeight: 800, background: 'var(--ms-green-100)', color: 'var(--ms-green-700)', padding: '4px 10px', borderRadius: 999 }}>
+              <h1 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: '#00201C' }}>{tInbox.title}</h1>
+              <span style={{ fontSize: 13, fontWeight: 800, background: '#DAF1DE', color: '#235347', padding: '4px 10px', borderRadius: 999 }}>
                 {list.length}
               </span>
             </div>
@@ -830,14 +849,14 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                     aria-selected={on}
                     onClick={() => setFilter(key)}
                     style={{
-                      border: 0,
+                      border: on ? '2px solid #235347' : '1.5px solid #DAF1DE',
                       cursor: 'pointer',
                       padding: '8px 14px',
                       borderRadius: 999,
                       fontSize: 13,
                       fontWeight: 800,
-                      background: on ? 'var(--ms-forest)' : 'var(--ms-bg)',
-                      color: on ? '#fff' : 'var(--ms-muted)',
+                      background: on ? '#235347' : '#FFFFFF',
+                      color: on ? '#FFFFFF' : '#235347',
                       transition: 'all 0.15s ease',
                     }}
                   >
@@ -849,7 +868,7 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
 
             {/* List */}
             {list.length === 0 ? (
-              <p style={{ margin: '20px 0', textAlign: 'center', color: 'var(--ms-muted)', fontSize: 14 }}>
+              <p style={{ margin: '20px 0', textAlign: 'center', color: '#404945', fontSize: 14 }}>
                 {tInbox.empty}
               </p>
             ) : (
@@ -871,8 +890,9 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                             borderRadius: 18,
                             textAlign: 'left',
                             cursor: 'pointer',
-                            border: `2px solid ${isSelected ? 'var(--ms-green-700)' : 'transparent'}`,
-                            background: isSelected ? 'var(--ms-mint)' : 'var(--ms-bg)',
+                            border: `2px solid ${isSelected ? '#235347' : 'transparent'}`,
+                            background: isSelected ? '#DAF1DE' : '#FFFFFF',
+                            boxShadow: isSelected ? 'none' : '0 1px 4px rgba(0, 32, 28, 0.04)',
                             transition: 'all 0.15s ease',
                           }}
                         >
@@ -884,7 +904,7 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                           />
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
-                              <p style={{ margin: 0, fontSize: 15, fontWeight: 800, color: 'var(--ms-ink)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              <p style={{ margin: 0, fontSize: 15, fontWeight: 800, color: isSelected ? '#235347' : '#00201C', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                 {getPatientSummary(c.patientId, lang) || c.name[lang]}
                               </p>
                               <span
@@ -900,10 +920,10 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                                 {c.waitingMin >= 60 ? `${Math.floor(c.waitingMin / 60)} ${tInbox.hourUnit} ${c.waitingMin % 60} ${tInbox.minuteUnit}` : `${c.waitingMin} ${tInbox.minuteUnit}`}
                               </span>
                             </div>
-                            <p style={{ margin: '2px 0 0', fontSize: 13, color: 'var(--ms-muted)', fontWeight: 600 }}>
+                            <p style={{ margin: '2px 0 0', fontSize: 13, color: '#404945', fontWeight: 600 }}>
                               {c.village[lang]}
                             </p>
-                            <p style={{ margin: '2px 0 0', fontSize: 12.5, color: 'var(--ms-ink)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            <p style={{ margin: '2px 0 0', fontSize: 12.5, color: '#00201C', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                               {c.symptoms[lang]}
                             </p>
                           </div>
@@ -917,19 +937,19 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
           </div>
 
           {/* Right Panel: Review Panel (about 65%) */}
-          <div className="col-span-12 @2xl:col-span-8 @4xl:col-span-8" style={{ background: 'var(--ms-surface)', borderRadius: 24, border: '1px solid var(--ms-border)', boxShadow: 'var(--ms-shadow-card)', padding: '26px 28px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+          <div className="col-span-12 @2xl:col-span-8 @4xl:col-span-8" style={{ background: '#FFFFFF', borderRadius: 24, border: '1px solid #E3ECE7', boxShadow: '0 2px 10px rgba(0, 32, 28, 0.04)', padding: '26px 28px', display: 'flex', flexDirection: 'column', gap: 20 }}>
             {selectedCase ? (
               <>
                 {/* Review Header */}
-                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', borderBottom: '1px solid var(--ms-border)', paddingBottom: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', borderBottom: '1px solid #E3ECE7', paddingBottom: 16 }}>
                   <div>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--ms-forest)', letterSpacing: '0.04em' }}>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: '#235347', letterSpacing: '0.04em' }}>
                       {t.caseLabel} {selectedCase.id.toUpperCase()}
                     </span>
-                    <h2 style={{ margin: '4px 0 0', fontSize: 24, fontWeight: 800, color: 'var(--ms-ink)' }}>
+                    <h2 style={{ margin: '4px 0 0', fontSize: 24, fontWeight: 800, color: '#00201C' }}>
                       {getPatientSummary(selectedCase.patientId, lang) || selectedCase.name[lang]}
                     </h2>
-                    <p style={{ margin: '4px 0 0', fontSize: 13.5, color: 'var(--ms-muted)', fontWeight: 600 }}>
+                    <p style={{ margin: '4px 0 0', fontSize: 13.5, color: '#404945', fontWeight: 600 }}>
                       {selectedCase.village[lang]} • {selectedCase.symptoms[lang]}
                     </p>
                   </div>
@@ -952,8 +972,8 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                           borderRadius: 999,
                           fontSize: 12,
                           fontWeight: 800,
-                          background: 'var(--ms-orange-100)',
-                          color: 'var(--ms-orange-700)',
+                          background: '#FFDAD6',
+                          color: '#BA1A1A',
                         }}
                       >
                         {t.late}
@@ -970,15 +990,15 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                         position: 'relative',
                         aspectRatio: '4 / 3.2',
                         borderRadius: 22,
-                        background: 'var(--ms-bg)',
-                        border: '2px dashed var(--ms-border)',
+                        background: '#F4F9F6',
+                        border: '1.5px dashed #CCD9D2',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
                         justifyContent: 'center',
                         padding: '24px 20px',
                         textAlign: 'center',
-                        color: 'var(--ms-muted)',
+                        color: '#404945',
                       }}
                     >
                       <p style={{ margin: 0, fontSize: 15, fontWeight: 700, lineHeight: 1.4 }}>
@@ -991,19 +1011,19 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                         position: 'relative',
                         aspectRatio: '4 / 3.2',
                         borderRadius: 22,
-                        background: 'var(--ms-bg)',
-                        border: '2px dashed var(--ms-border)',
+                        background: '#F4F9F6',
+                        border: '1.5px dashed #CCD9D2',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
                         justifyContent: 'center',
                         padding: '24px 20px',
                         textAlign: 'center',
-                        color: 'var(--ms-muted)',
+                        color: '#404945',
                         gap: 12,
                       }}
                     >
-                      <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: 'var(--ms-danger)' }}>
+                      <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#BA1A1A' }}>
                         {t.photoCouldNotOpen}
                       </p>
                       <button
@@ -1012,9 +1032,9 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                         style={{
                           padding: '8px 20px',
                           borderRadius: 999,
-                          border: '1px solid var(--ms-border)',
-                          background: 'var(--ms-surface)',
-                          color: 'var(--ms-ink)',
+                          border: '1px solid #E3ECE7',
+                          background: '#FFFFFF',
+                          color: '#00201C',
                           fontSize: 14,
                           fontWeight: 800,
                           cursor: 'pointer',
@@ -1031,7 +1051,7 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                         overflow: 'hidden',
                         aspectRatio: '4 / 3.2',
                         borderRadius: 22,
-                        background: '#12241b',
+                        background: '#051F20',
                       }}
                     >
                       <img
@@ -1059,8 +1079,8 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                             borderRadius: 999,
                             fontSize: 11,
                             fontWeight: 800,
-                            background: 'rgba(0, 0, 0, 0.7)',
-                            color: '#fff',
+                            background: 'rgba(5, 31, 32, 0.85)',
+                            color: '#FFFFFF',
                             zIndex: 2,
                           }}
                         >
@@ -1078,8 +1098,8 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                             cursor: 'pointer',
                             fontSize: 12.5,
                             fontWeight: 700,
-                            background: 'rgba(10, 30, 20, 0.75)',
-                            color: '#fff',
+                            background: 'rgba(5, 31, 32, 0.85)',
+                            color: '#FFFFFF',
                           }}
                         >
                           🔍 {t.zoomIn}
@@ -1093,15 +1113,15 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                     style={{
                       padding: 16,
                       borderRadius: 20,
-                      background: 'var(--ms-bg)',
-                      border: '1px solid var(--ms-border)',
+                      background: '#F4F9F6',
+                      border: '1px solid #E3ECE7',
                       display: 'flex',
                       flexDirection: 'column',
                       gap: 12,
                     }}
                   >
                     <div>
-                      <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--ms-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                      <span style={{ fontSize: 11, fontWeight: 800, color: '#404945', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                         {lang === 'hi' ? 'मितानिन की जाँच' : 'Mitanin Reading'}
                       </span>
                       <div style={{ marginTop: 4 }}>
@@ -1112,8 +1132,18 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                             borderRadius: 999,
                             fontSize: 13.5,
                             fontWeight: 800,
-                            background: 'var(--ms-orange-100)',
-                            color: 'var(--ms-orange-700)',
+                            background:
+                              selectedCase.testResult === 'positive'
+                                ? '#FFDAD6'
+                                : selectedCase.testResult === 'negative'
+                                ? '#DAF1DE'
+                                : '#FFF1CC',
+                            color:
+                              selectedCase.testResult === 'positive'
+                                ? '#BA1A1A'
+                                : selectedCase.testResult === 'negative'
+                                ? '#2E7D4F'
+                                : '#8A5A00',
                           }}
                         >
                           {t.mitaninReadPrefix} {t.results[selectedCase.testResult || 'positive'] || selectedCase.testResult || 'Positive'}
@@ -1121,14 +1151,14 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                       </div>
                     </div>
 
-                    <div style={{ paddingTop: 8, borderTop: '1px solid var(--ms-border)' }}>
-                      <span id="doc-read-review-split" style={{ display: 'block', fontSize: 13, fontWeight: 800, color: 'var(--ms-ink)', marginBottom: 8 }}>
+                    <div style={{ paddingTop: 8, borderTop: '1px solid #E3ECE7' }}>
+                      <span id="doc-read-review-split" style={{ display: 'block', fontSize: 13, fontWeight: 800, color: '#00201C', marginBottom: 8 }}>
                         {t.myRead}
                       </span>
                       <div
                         role="radiogroup"
                         aria-labelledby="doc-read-review-split"
-                        style={{ display: 'flex', padding: 3, borderRadius: 999, background: 'var(--ms-green-100)' }}
+                        style={{ display: 'flex', padding: 3, borderRadius: 999, background: '#DAF1DE' }}
                       >
                         {(['agree', 'disagree'] as const).map((key) => {
                           const on = read === key;
@@ -1155,8 +1185,8 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                                 borderRadius: 999,
                                 fontSize: 14,
                                 fontWeight: 800,
-                                background: on ? (key === 'agree' ? 'var(--ms-green-500)' : 'var(--ms-orange)') : 'transparent',
-                                color: on ? '#fff' : 'var(--ms-green-700)',
+                                background: on ? (key === 'agree' ? '#2E7D4F' : '#BA1A1A') : 'transparent',
+                                color: on ? '#FFFFFF' : '#235347',
                                 transition: 'all 0.15s ease',
                               }}
                             >
@@ -1166,7 +1196,7 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                         })}
                       </div>
                     </div>
-                    <p style={{ margin: 0, fontSize: 11.5, color: 'var(--ms-muted)' }}>
+                    <p style={{ margin: 0, fontSize: 11.5, color: '#404945' }}>
                       {t.recorded} {readingAgreement?.total > 0 ? `(${readingAgreement.agreed}/${readingAgreement.total})` : ''}
                     </p>
                   </div>
@@ -1174,7 +1204,7 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
 
                 {/* Symptoms */}
                 <div>
-                  <h3 style={{ margin: '0 0 8px', fontSize: 16, fontWeight: 800, color: 'var(--ms-ink)' }}>{t.symptomsTitle}</h3>
+                  <h3 style={{ margin: '0 0 8px', fontSize: 16, fontWeight: 800, color: '#00201C' }}>{t.symptomsTitle}</h3>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                     <span
                       style={{
@@ -1185,8 +1215,9 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                         borderRadius: 12,
                         fontSize: 14,
                         fontWeight: 600,
-                        background: 'var(--ms-bg)',
-                        border: '1px solid var(--ms-border)',
+                        background: '#FFFFFF',
+                        border: '1px solid #E3ECE7',
+                        color: '#00201C',
                       }}
                     >
                       <span
@@ -1197,8 +1228,8 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                           borderRadius: '50%',
                           display: 'grid',
                           placeItems: 'center',
-                          background: 'var(--ms-green-500)',
-                          color: '#fff',
+                          background: '#2E7D4F',
+                          color: '#FFFFFF',
                           fontSize: 11,
                         }}
                       >
@@ -1214,10 +1245,10 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                     style={{
                       padding: '32px 20px',
                       borderRadius: 20,
-                      background: '#f8f9fa',
-                      border: '1.5px dashed var(--ms-border)',
+                      background: '#FFFFFF',
+                      border: '1.5px dashed #CCD9D2',
                       textAlign: 'center',
-                      color: 'var(--ms-muted)',
+                      color: '#404945',
                       fontSize: 15,
                       fontWeight: 700,
                     }}
@@ -1231,9 +1262,9 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                     style={{
                       padding: 20,
                       borderRadius: 20,
-                      background: 'var(--ms-green-100)',
-                      border: '1px solid var(--ms-green-500)',
-                      color: 'var(--ms-green-900)',
+                      background: '#DAF1DE',
+                      border: '1px solid #C0EACC',
+                      color: '#0B2B26',
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
@@ -1257,8 +1288,8 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                         borderRadius: 999,
                         fontSize: 13,
                         fontWeight: 800,
-                        background: 'var(--ms-green-700)',
-                        color: '#fff',
+                        background: '#235347',
+                        color: '#FFFFFF',
                       }}
                     >
                       {consult?.decision === 'send_to_hospital' || decision === 'refer'
@@ -1270,7 +1301,7 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                   <>
                     {/* Advice Field with Quick-Reply Chips */}
                     <div>
-                      <label htmlFor="review-split-advice" style={{ display: 'block', marginBottom: 8, fontSize: 16, fontWeight: 800 }}>
+                      <label htmlFor="review-split-advice" style={{ display: 'block', marginBottom: 8, fontSize: 16, fontWeight: 800, color: '#00201C' }}>
                         {t.advice}
                       </label>
                       <ul
@@ -1289,9 +1320,10 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                                 fontSize: 12.5,
                                 fontWeight: 700,
                                 textAlign: 'left',
-                                border: '1.5px solid var(--ms-green-100)',
-                                background: 'var(--ms-bg)',
-                                color: 'var(--ms-green-700)',
+                                border: '1.5px solid #CCD9D2',
+                                background: '#F4F9F6',
+                                color: '#235347',
+                                transition: 'all 0.15s ease',
                               }}
                             >
                               + {chip}
@@ -1310,24 +1342,25 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                           resize: 'none',
                           padding: '10px 14px',
                           borderRadius: 16,
-                          border: '2px solid var(--ms-border)',
+                          border: '2px solid #E3ECE7',
                           font: 'inherit',
                           fontSize: 14.5,
-                          color: 'var(--ms-ink)',
-                          background: 'var(--ms-bg)',
+                          color: '#00201C',
+                          background: '#FFFFFF',
                         }}
                       />
                     </div>
 
                     {/* Decision Selector and Send Reply */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 16, alignItems: 'end', paddingTop: 8, borderTop: '1px solid var(--ms-border)' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 16, alignItems: 'end', paddingTop: 8, borderTop: '1px solid #E3ECE7' }}>
                       <div>
-                        <h3 id="review-split-decision" style={{ margin: '0 0 8px', fontSize: 15, fontWeight: 800 }}>
+                        <h3 id="review-split-decision" style={{ margin: '0 0 8px', fontSize: 15, fontWeight: 800, color: '#00201C' }}>
                           {t.decisionTitle}
                         </h3>
                         <div role="radiogroup" aria-labelledby="review-split-decision" style={{ display: 'flex', gap: 10 }}>
                           {(['local', 'refer'] as const).map((key) => {
                             const on = decision === key;
+                            const isRefer = key === 'refer';
                             return (
                               <button
                                 key={key}
@@ -1344,9 +1377,9 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                                   cursor: 'pointer',
                                   fontSize: 15,
                                   fontWeight: 800,
-                                  border: `2px solid ${on ? 'var(--ms-green-700)' : 'var(--ms-border)'}`,
-                                  background: on ? 'var(--ms-green-700)' : 'var(--ms-surface)',
-                                  color: on ? '#fff' : 'var(--ms-ink)',
+                                  border: `2px solid ${on ? (isRefer ? '#BA1A1A' : '#235347') : '#E3ECE7'}`,
+                                  background: on ? (isRefer ? '#BA1A1A' : '#235347') : '#FFFFFF',
+                                  color: on ? '#FFFFFF' : '#00201C',
                                   transition: 'all 0.15s ease',
                                 }}
                               >
@@ -1370,9 +1403,9 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                           cursor: ready ? 'pointer' : 'default',
                           fontSize: 16,
                           fontWeight: 800,
-                          background: sent ? 'var(--ms-green-500)' : ready ? 'var(--ms-orange)' : '#e3e9e5',
-                          color: sent || ready ? '#fff' : '#9aa7a0',
-                          boxShadow: ready ? '0 8px 20px rgba(240, 121, 75, 0.35)' : 'none',
+                          background: sent ? '#2E7D4F' : ready ? '#235347' : '#E3ECE7',
+                          color: sent || ready ? '#FFFFFF' : '#707975',
+                          boxShadow: ready ? '0 4px 14px rgba(35, 83, 71, 0.3)' : 'none',
                           transition: 'all 0.2s ease',
                         }}
                       >
@@ -1381,7 +1414,7 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                     </div>
 
                     {validationError && (
-                      <div role="alert" style={{ color: 'var(--ms-danger)', fontSize: 14, fontWeight: 700, marginTop: 4 }}>
+                      <div role="alert" style={{ color: '#BA1A1A', fontSize: 14, fontWeight: 700, marginTop: 4 }}>
                         {validationError}
                       </div>
                     )}
