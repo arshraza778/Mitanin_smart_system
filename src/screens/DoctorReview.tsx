@@ -120,7 +120,13 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
 
   // Wide mode split view state
   const [filter, setFilter] = useState<Filter>('all');
-  const [selectedCaseId, setSelectedCaseId] = useState<string>(() => CASES[0]?.id ?? 'c1');
+  const [selectedCaseId, setSelectedCaseId] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('ms_selected_doctor_case');
+      if (stored) return stored;
+    }
+    return CASES[0]?.id ?? 'c1';
+  });
 
   // Review form state
   const [scale, setScale] = useState(1);
@@ -199,6 +205,9 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
 
   const handleSelectCase = (id: string) => {
     setSelectedCaseId(id);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('ms_selected_doctor_case', id);
+    }
     setScale(1);
     setRead(null);
     setAdvice(draftAdviceMap[id] || '');

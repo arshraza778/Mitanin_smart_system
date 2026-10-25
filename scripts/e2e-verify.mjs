@@ -167,13 +167,22 @@ async function main() {
     assert.equal(consultText1.includes('Waiting for doctor') || consultText1.includes('डॉक्टर का इंतज़ार') || consultText1.includes('Now'), true);
 
     // Switch to Doctor and reply
-    await page.goto(`${baseUrl}/doctor/inbox`, { waitUntil: 'networkidle' });
+    await page.evaluate(() => {
+      window.history.pushState(null, '', '/doctor/inbox');
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    });
+    await page.waitForTimeout(300);
+
     const caseCard = page.locator('button:has-text("Ramesh"), button:has-text("रमेश")').first();
     if (await caseCard.count() > 0) {
       await caseCard.click();
-      await page.waitForURL('**/doctor/review');
+      await page.waitForTimeout(300);
     } else {
-      await page.goto(`${baseUrl}/doctor/review`, { waitUntil: 'networkidle' });
+      await page.evaluate(() => {
+        window.history.pushState(null, '', '/doctor/review');
+        window.dispatchEvent(new PopStateEvent('popstate'));
+      });
+      await page.waitForTimeout(300);
     }
 
     // Agree / Disagree + advice
@@ -183,14 +192,24 @@ async function main() {
     if (await adviceBox.count() > 0) {
       await adviceBox.fill('Refer patient to district hospital for treatment');
     }
+    const referDecisionBtn = page.locator('button[role="radio"]:has-text("Refer"), button[role="radio"]:has-text("रेफ़र")').first();
+    if (await referDecisionBtn.count() > 0) {
+      await referDecisionBtn.click();
+      await page.waitForTimeout(200);
+    }
     const sendReplyBtn = page.locator('button:has-text("Send reply"), button:has-text("जवाब भेजें")').first();
     if (await sendReplyBtn.count() > 0) {
       await sendReplyBtn.click();
-      await page.waitForTimeout(400);
+      await page.waitForTimeout(500);
     }
 
     // Return to ConsultStatus and verify timeline shows real formatted times
-    await page.goto(`${baseUrl}/mitanin/consult`, { waitUntil: 'networkidle' });
+    await page.evaluate(() => {
+      window.history.pushState(null, '', '/mitanin/consult');
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    });
+    await page.waitForTimeout(400);
+
     const timelineStepTimes = await page.evaluate(() => {
       const items = [...document.querySelectorAll('ol li p')].map((el) => el.textContent?.trim());
       return items;
@@ -202,7 +221,11 @@ async function main() {
     assert.equal(hasRealTime, true, 'Consult timeline must show real times');
 
     // Check CaseTimeline (/case)
-    await page.goto(`${baseUrl}/case`, { waitUntil: 'networkidle' });
+    await page.evaluate(() => {
+      window.history.pushState(null, '', '/case');
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    });
+    await page.waitForTimeout(400);
     const caseTimelineText = await page.evaluate(() => document.body.innerText);
     assert.equal(/\d{1,2}:\d{2}/.test(caseTimelineText), true, 'Case timeline must show real times');
     assert.equal(caseTimelineText.includes('Invalid Date'), false, 'Case timeline must not have Invalid Date');

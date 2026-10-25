@@ -417,7 +417,12 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                 <li key={c.id}>
                   <button
                     type="button"
-                    onClick={() => onNavigate('/doctor/review')}
+                    onClick={() => {
+                      if (typeof window !== 'undefined') {
+                        localStorage.setItem('ms_selected_doctor_case', c.id);
+                      }
+                      onNavigate('/doctor/review');
+                    }}
                     style={{
                       width: '100%',
                       display: 'flex',
@@ -468,7 +473,12 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                   <li key={c.id}>
                     <button
                       type="button"
-                      onClick={() => onNavigate('/doctor/review')}
+                      onClick={() => {
+                        if (typeof window !== 'undefined') {
+                          localStorage.setItem('ms_selected_doctor_case', c.id);
+                        }
+                        onNavigate('/doctor/review');
+                      }}
                       style={{
                         width: '100%',
                         display: 'flex',
