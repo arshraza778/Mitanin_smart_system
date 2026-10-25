@@ -1,4 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  AlertCircle,
+  ArrowLeft,
+  ArrowRight,
+  Camera,
+  Check,
+  ChevronDown,
+  FileCheck,
+  Image as ImageIcon,
+  User,
+  X,
+} from 'lucide-react';
 import type { ScreenProps } from '../App';
 import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
@@ -16,10 +28,10 @@ type CamReason = 'permission_denied' | 'not_found' | 'insecure' | 'unknown' | nu
 
 const COPY = { en: enLocale.screens.TestPhoto, hi: hiLocale.screens.TestPhoto } as const;
 
-const RESULT_STYLE: Record<Result, { bg: string; glyph: string }> = {
-  positive: { bg: 'var(--ms-orange)', glyph: '+' },
-  negative: { bg: 'var(--ms-green-500)', glyph: '−' },
-  invalid: { bg: 'var(--ms-violet)', glyph: '!' },
+const RESULT_STYLE: Record<Result, { bg: string; text: string; activeBg: string; glyph: string }> = {
+  positive: { bg: '#FFDAD6', text: '#BA1A1A', activeBg: '#BA1A1A', glyph: '+' },
+  negative: { bg: '#DAF1DE', text: '#235347', activeBg: '#2E7D4F', glyph: '−' },
+  invalid: { bg: '#FFF1CC', text: '#8A5A00', activeBg: '#8A5A00', glyph: '!' },
 };
 
 function analyseFrame(video: HTMLVideoElement, canvas: HTMLCanvasElement) {
@@ -58,34 +70,23 @@ function analyseFrame(video: HTMLVideoElement, canvas: HTMLCanvasElement) {
 export function CassetteDemo({ type = 'positive' }: { type?: 'positive' | 'negative' | 'invalid' }) {
   return (
     <svg viewBox="0 0 300 200" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} aria-hidden>
-      <rect width="300" height="200" fill="#1c3a2b" />
-      <rect x="60" y="72" width="180" height="56" rx="10" fill="#f1f5f2" />
-      <rect x="76" y="86" width="34" height="28" rx="6" fill="#d9e2dc" />
-      <rect x="122" y="84" width="104" height="32" rx="6" fill="#fff" stroke="var(--ms-border)" />
+      <rect width="300" height="200" fill="#053C31" />
+      <rect x="60" y="72" width="180" height="56" rx="10" fill="#F8FAF9" />
+      <rect x="76" y="86" width="34" height="28" rx="6" fill="#CCD9D2" />
+      <rect x="122" y="84" width="104" height="32" rx="6" fill="#FFFFFF" stroke="#CCD9D2" />
       {/* Control line C (present in positive and negative; absent in invalid) */}
       {(type === 'positive' || type === 'negative') && (
-        <rect x="150" y="84" width="3" height="32" fill="#d9534f" />
+        <rect x="150" y="84" width="3" height="32" fill="#BA1A1A" />
       )}
       {/* Test line T (present in positive and invalid) */}
       {(type === 'positive' || type === 'invalid') && (
-        <rect x="176" y="84" width="3" height="32" fill="#d9534f" />
+        <rect x="176" y="84" width="3" height="32" fill="#BA1A1A" />
       )}
-      <text x="151.5" y="80" fontSize="8" fontWeight="bold" textAnchor="middle" fill="#6b7770">C</text>
-      <text x="177.5" y="80" fontSize="8" fontWeight="bold" textAnchor="middle" fill="#6b7770">T</text>
+      <text x="151.5" y="80" fontSize="8" fontWeight="bold" textAnchor="middle" fill="#707975">C</text>
+      <text x="177.5" y="80" fontSize="8" fontWeight="bold" textAnchor="middle" fill="#707975">T</text>
     </svg>
   );
 }
-
-const TickIcon = (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-    <path d="m5 12.5 4.5 4.5L19 7.5" />
-  </svg>
-);
-const CrossIcon = (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" aria-hidden>
-    <path d="m6 6 12 12M18 6 6 18" />
-  </svg>
-);
 
 export default function TestPhoto({ lang, online = true, onNavigate }: ScreenProps) {
   const t = COPY[lang];
@@ -138,7 +139,7 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
     };
   }, [stopCameraStream]);
 
-  // Set srcObject and play in effect (Item 12)
+  // Set srcObject and play in effect
   useEffect(() => {
     const video = videoRef.current;
     if (video && activeStream) {
@@ -153,7 +154,6 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
     setStorageError(null);
     setCamFeedbackMessage(null);
 
-    // Item 9: Check window.isSecureContext first
     if (
       typeof window !== 'undefined' &&
       window.isSecureContext === false &&
@@ -180,13 +180,11 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
     let stream: MediaStream | null = null;
     try {
       try {
-        // Item 8: Request camera with { video: { facingMode: { ideal: 'environment' } }, audio: false }. Never use 'exact'.
         stream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: { ideal: 'environment' } },
           audio: false,
         });
       } catch (err: any) {
-        // Item 8: If OverconstrainedError, retry with { video: true }
         if (err?.name === 'OverconstrainedError') {
           stream = await navigator.mediaDevices.getUserMedia({
             video: true,
@@ -197,7 +195,6 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
         }
       }
 
-      // Item 13: StrictMode safety (double mount)
       if (!mountedRef.current) {
         if (stream) {
           stream.getTracks().forEach((track) => track.stop());
@@ -212,7 +209,6 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
       setCamReason(null);
       setCamFeedbackMessage(null);
     } catch (err: any) {
-      // Item 10: Log raw error to console
       console.error('Camera error:', err);
 
       if (!mountedRef.current) {
@@ -328,6 +324,131 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
 
   const canNext = result === 'positive' || result === 'negative';
 
+  const renderStepper = () => (
+    <div
+      role="progressbar"
+      aria-valuemin={1}
+      aria-valuemax={4}
+      aria-valuenow={STEP}
+      aria-valuetext={`${t.stepOf}: ${t.steps[STEP - 1]}`}
+      style={{
+        background: '#FFFFFF',
+        borderRadius: 14,
+        padding: '12px 14px',
+        border: '1px solid #E3ECE7',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        {t.steps.map((label, i) => {
+          const stepNum = i + 1;
+          const isActive = stepNum === STEP;
+          const isDone = stepNum < STEP;
+
+          return (
+            <div key={label} style={{ display: 'flex', alignItems: 'center', flex: i < 3 ? 1 : 'none' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 48 }}>
+                <div
+                  style={{
+                    width: 28,
+                    height: 28,
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 12,
+                    fontWeight: 700,
+                    background: isActive ? '#053C31' : isDone ? '#2E7D4F' : '#E3ECE7',
+                    color: isActive || isDone ? '#FFFFFF' : '#404945',
+                    boxShadow: isActive ? '0 0 0 4px rgba(142, 182, 155, 0.4)' : 'none',
+                  }}
+                >
+                  {isDone ? <Check size={14} strokeWidth={3} /> : stepNum}
+                </div>
+                <span
+                  style={{
+                    marginTop: 4,
+                    fontSize: 11,
+                    fontWeight: isActive ? 700 : 500,
+                    color: isActive ? '#053C31' : isDone ? '#2E7D4F' : '#404945',
+                    textAlign: 'center',
+                  }}
+                >
+                  {label}
+                </span>
+              </div>
+              {i < 3 && (
+                <div
+                  style={{
+                    height: 2,
+                    flex: 1,
+                    margin: '0 4px',
+                    marginBottom: 16,
+                    background: isDone ? '#2E7D4F' : '#E3ECE7',
+                  }}
+                />
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
+  const renderPatientSummaryBar = () => (
+    <div
+      style={{
+        marginTop: 12,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 12,
+        padding: '10px 14px',
+        borderRadius: 14,
+        background: '#DAF1DE',
+        border: '1px solid rgba(142, 182, 155, 0.4)',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+        <div
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: 10,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: '#235347',
+            color: '#FFFFFF',
+            flexShrink: 0,
+          }}
+        >
+          <User size={18} />
+        </div>
+        <p style={{ margin: 0, fontSize: 14.5, fontWeight: 700, color: '#0B2B26', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {getPatientSummary(patientId, lang)}
+        </p>
+      </div>
+      <button
+        type="button"
+        onClick={() => onNavigate('/mitanin/screening/patient')}
+        style={{
+          border: 0,
+          background: 'none',
+          color: '#235347',
+          fontSize: 12.5,
+          fontWeight: 700,
+          textDecoration: 'underline',
+          cursor: 'pointer',
+          padding: '4px 6px',
+          flexShrink: 0,
+        }}
+      >
+        {lang === 'hi' ? hiLocale.common.changePatient : enLocale.common.changePatient}
+      </button>
+    </div>
+  );
+
   const renderCameraSection = () => (
     <>
       <div
@@ -335,9 +456,10 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
         style={{
           position: 'relative',
           overflow: 'hidden',
-          aspectRatio: '4 / 3.4',
-          borderRadius: 26,
-          background: '#12241b',
+          aspectRatio: '4 / 3.2',
+          borderRadius: 20,
+          background: '#051F20',
+          border: '2px solid #163832',
         }}
       >
         {photo ? (
@@ -351,7 +473,7 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
               width: '100%',
               height: '100%',
               objectFit: 'contain',
-              background: '#12241b',
+              background: '#051F20',
             }}
           />
         ) : cameraActive && cam === 'ready' ? (
@@ -374,28 +496,26 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
               justifyContent: 'center',
               padding: '24px 20px',
               textAlign: 'center',
-              background: 'linear-gradient(180deg, #183324 0%, #0d1e15 100%)',
-              color: '#fff',
+              background: '#051F20',
+              color: '#FFFFFF',
               gap: 12,
             }}
           >
             <div
               style={{
-                width: 52,
-                height: 52,
+                width: 48,
+                height: 48,
                 borderRadius: '50%',
-                background: 'rgba(255,255,255,0.12)',
-                display: 'grid',
-                placeItems: 'center',
-                color: '#EE7B4D',
+                background: 'rgba(255,255,255,0.1)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#FFDAD6',
               }}
             >
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" />
-                <line x1="2" y1="2" x2="22" y2="22" />
-              </svg>
+              <AlertCircle size={24} color="#FFDAD6" />
             </div>
-            <p style={{ margin: 0, fontSize: 15.5, fontWeight: 800, lineHeight: 1.35, maxWidth: 300 }}>
+            <p style={{ margin: 0, fontSize: 14.5, fontWeight: 700, lineHeight: 1.35, maxWidth: 300, color: '#FFFFFF' }}>
               {camFeedbackMessage || t.cameraUnavailableMsg}
             </p>
             {camReason && (
@@ -404,13 +524,13 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: 6,
-                  padding: '5px 12px',
+                  padding: '4px 12px',
                   borderRadius: 999,
-                  background: 'rgba(238, 123, 77, 0.18)',
-                  border: '1px solid rgba(238, 123, 77, 0.35)',
-                  fontSize: 12.5,
+                  background: '#FFF1CC',
+                  border: '1px solid #FFF1CC',
+                  fontSize: 12,
                   fontWeight: 700,
-                  color: '#ffb594',
+                  color: '#8A5A00',
                 }}
               >
                 <span>{t.reasons[camReason] || t.reasons.unknown}</span>
@@ -424,20 +544,19 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
                 padding: '8px 20px',
                 borderRadius: 999,
                 border: 0,
-                background: '#fff',
-                color: 'var(--ms-ink)',
-                fontSize: 14,
-                fontWeight: 800,
+                background: '#FFFFFF',
+                color: '#00201C',
+                fontSize: 13.5,
+                fontWeight: 700,
                 cursor: 'pointer',
-                minHeight: 40,
-                boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+                minHeight: 38,
               }}
             >
               {t.tryAgain}
             </button>
           </div>
         ) : (
-          /* Idle Frame placeholder before selecting an option */
+          /* Idle Frame placeholder */
           <div
             style={{
               position: 'absolute',
@@ -448,71 +567,80 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
               justifyContent: 'center',
               padding: '24px 20px',
               textAlign: 'center',
-              background: 'linear-gradient(180deg, #183324 0%, #0d1e15 100%)',
-              color: '#fff',
+              background: '#051F20',
+              color: '#FFFFFF',
               gap: 12,
             }}
           >
             <div
               style={{
-                width: 52,
-                height: 52,
+                width: 50,
+                height: 50,
                 borderRadius: '50%',
-                background: 'rgba(255,255,255,0.12)',
-                display: 'grid',
-                placeItems: 'center',
-                color: '#fff',
+                background: 'rgba(255,255,255,0.1)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#FFFFFF',
               }}
             >
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-                <circle cx="12" cy="13" r="4" />
-              </svg>
+              <Camera size={26} color="#FFFFFF" />
             </div>
-            <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: 'rgba(255,255,255,0.9)' }}>
+            <p style={{ margin: 0, fontSize: 14.5, fontWeight: 600, color: '#DAF1DE' }}>
               {t.place}
             </p>
           </div>
         )}
 
-        {/* Framing guide overlay when live camera is on */}
+        {/* Viewfinder Alignment Guide Box (Overlay) */}
         {!photo && cameraActive && cam === 'ready' && (
-          <>
-            <div
-              aria-hidden
-              style={{
-                position: 'absolute',
-                left: '50%',
-                top: '46%',
-                width: '80%',
-                height: '32%',
-                transform: 'translate(-50%, -50%)',
-                borderRadius: 22,
-                border: '3px dashed #fff',
-                boxShadow: '0 0 0 999px rgba(10, 30, 20, 0.45)',
-              }}
-            />
-            <p
-              style={{
-                position: 'absolute',
-                left: 16,
-                right: 16,
-                bottom: 16,
-                margin: 0,
-                textAlign: 'center',
-                fontSize: 15.5,
-                fontWeight: 800,
-                color: '#fff',
-                textShadow: '0 1px 6px rgba(0,0,0,0.6)',
-              }}
-            >
-              {t.place}
-            </p>
-          </>
+          <div
+            aria-hidden
+            style={{
+              position: 'absolute',
+              inset: '16px 24px',
+              pointerEvents: 'none',
+              border: '2px solid #8EB69B',
+              borderRadius: 14,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              padding: 10,
+              boxShadow: '0 0 0 9999px rgba(5, 31, 32, 0.45)',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ width: 14, height: 14, borderTop: '2px solid #FFFFFF', borderLeft: '2px solid #FFFFFF' }} />
+              <span style={{ width: 14, height: 14, borderTop: '2px solid #FFFFFF', borderRight: '2px solid #FFFFFF' }} />
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <div
+                style={{
+                  display: 'inline-flex',
+                  gap: 10,
+                  padding: '4px 10px',
+                  borderRadius: 6,
+                  background: 'rgba(0,0,0,0.75)',
+                  border: '1px solid #8EB69B',
+                  fontSize: 11,
+                  fontFamily: 'monospace',
+                  fontWeight: 700,
+                  color: '#DAF1DE',
+                }}
+              >
+                <span>[ C ] Control</span>
+                <span>[ T ] Test</span>
+              </div>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ width: 14, height: 14, borderBottom: '2px solid #FFFFFF', borderLeft: '2px solid #FFFFFF' }} />
+              <span style={{ width: 14, height: 14, borderBottom: '2px solid #FFFFFF', borderRight: '2px solid #FFFFFF' }} />
+            </div>
+          </div>
         )}
       </div>
 
-      {/* Hidden file input 1: Camera capture fallback WITH capture="environment" */}
+      {/* Hidden file input 1 */}
       <input
         ref={cameraInputRef}
         type="file"
@@ -523,7 +651,7 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
         style={{ display: 'none' }}
       />
 
-      {/* Hidden file input 2: Choose from files or gallery WITHOUT capture attribute */}
+      {/* Hidden file input 2 */}
       <input
         ref={galleryInputRef}
         type="file"
@@ -539,11 +667,11 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
           role="alert"
           style={{
             marginTop: 12,
-            padding: '12px 16px',
-            borderRadius: 16,
-            background: 'var(--ms-orange-100)',
-            color: 'var(--ms-orange-700)',
-            fontSize: 13.5,
+            padding: '10px 14px',
+            borderRadius: 12,
+            background: '#FFDAD6',
+            color: '#BA1A1A',
+            fontSize: 13,
             fontWeight: 700,
             display: 'flex',
             alignItems: 'center',
@@ -555,17 +683,17 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
           <button
             type="button"
             onClick={() => setStorageError(null)}
-            style={{ border: 0, background: 'none', cursor: 'pointer', fontSize: 16, fontWeight: 800, color: 'var(--ms-orange-700)' }}
+            style={{ border: 0, background: 'none', cursor: 'pointer', fontSize: 16, fontWeight: 700, color: '#BA1A1A' }}
           >
             ✕
           </button>
         </div>
       )}
 
-      {/* Three separate options when no photo is selected, one per row, >= 56px high */}
+      {/* 3 Photo Source Options */}
       {!photo ? (
-        <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {/* Option 1: Open camera */}
+        <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {/* Option 1: Live Camera */}
           <button
             type="button"
             onClick={handleOpenCamera}
@@ -573,44 +701,41 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: 14,
+              gap: 12,
               width: '100%',
-              minHeight: 56,
-              padding: '0 18px',
-              borderRadius: 18,
-              border: cameraActive ? '2px solid var(--ms-green-500)' : '2px solid var(--ms-orange)',
-              background: '#fff',
-              color: cameraActive ? 'var(--ms-forest)' : 'var(--ms-orange)',
-              fontSize: 16,
-              fontWeight: 800,
+              minHeight: 52,
+              padding: '0 16px',
+              borderRadius: 14,
+              border: `2px solid ${cameraActive ? '#235347' : '#E3ECE7'}`,
+              background: '#FFFFFF',
+              color: '#00201C',
+              fontSize: 14.5,
+              fontWeight: 700,
               cursor: 'pointer',
-              boxShadow: '0 4px 14px rgba(238, 123, 77, 0.12)',
-              transition: 'all 0.15s ease',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
               textAlign: 'left',
             }}
           >
-            <span
+            <div
               style={{
-                width: 36,
-                height: 36,
-                borderRadius: '50%',
-                display: 'grid',
-                placeItems: 'center',
-                background: 'var(--ms-orange-100)',
-                color: 'var(--ms-orange)',
+                width: 34,
+                height: 34,
+                borderRadius: 8,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: '#DAF1DE',
+                color: '#235347',
                 flexShrink: 0,
               }}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-                <circle cx="12" cy="13" r="4" />
-              </svg>
-            </span>
+              <Camera size={18} />
+            </div>
             <span style={{ flex: 1 }}>{t.openCamera}</span>
-            <span style={{ fontSize: 18, color: 'var(--ms-muted)' }}>→</span>
+            <span style={{ fontSize: 16, color: '#707975' }}>→</span>
           </button>
 
-          {/* Option 2: Choose from files or gallery */}
+          {/* Option 2: Gallery */}
           <button
             type="button"
             onClick={() => galleryInputRef.current?.click()}
@@ -618,46 +743,42 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: 14,
+              gap: 12,
               width: '100%',
-              minHeight: 56,
-              padding: '0 18px',
-              borderRadius: 18,
-              border: '1.5px solid var(--ms-border)',
-              background: '#fff',
-              color: 'var(--ms-ink)',
-              fontSize: 16,
+              minHeight: 52,
+              padding: '0 16px',
+              borderRadius: 14,
+              border: '1px solid #E3ECE7',
+              background: '#FFFFFF',
+              color: '#00201C',
+              fontSize: 14.5,
               fontWeight: 700,
               cursor: 'pointer',
-              boxShadow: '0 2px 10px rgba(0,0,0,0.04)',
-              transition: 'all 0.15s ease',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
               textAlign: 'left',
             }}
           >
-            <span
+            <div
               style={{
-                width: 36,
-                height: 36,
-                borderRadius: '50%',
-                display: 'grid',
-                placeItems: 'center',
-                background: 'var(--ms-green-100)',
-                color: 'var(--ms-forest)',
+                width: 34,
+                height: 34,
+                borderRadius: 8,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: '#E7F0EA',
+                color: '#163832',
                 flexShrink: 0,
               }}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                <circle cx="8.5" cy="8.5" r="1.5" />
-                <polyline points="21 15 16 10 5 21" />
-              </svg>
-            </span>
+              <ImageIcon size={18} />
+            </div>
             <span style={{ flex: 1 }}>{t.chooseGallery}</span>
-            <span style={{ fontSize: 18, color: 'var(--ms-muted)' }}>→</span>
+            <span style={{ fontSize: 16, color: '#707975' }}>→</span>
           </button>
 
-          {/* Option 3: Use demo photo */}
-          <div style={{ borderRadius: 18, border: '1.5px solid var(--ms-border)', background: '#fff', overflow: 'hidden' }}>
+          {/* Option 3: Demo Photo */}
+          <div style={{ borderRadius: 14, border: '1px solid #E3ECE7', background: '#FFFFFF', overflow: 'hidden' }}>
             <button
               type="button"
               onClick={() => setShowDemoMenu((v) => !v)}
@@ -665,46 +786,48 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
               data-testid="option-use-demo"
               style={{
                 width: '100%',
-                minHeight: 56,
+                minHeight: 52,
                 display: 'flex',
                 alignItems: 'center',
-                gap: 14,
-                padding: '0 18px',
+                gap: 12,
+                padding: '0 16px',
                 border: 0,
                 background: 'none',
                 cursor: 'pointer',
-                color: 'var(--ms-forest)',
-                fontSize: 16,
-                fontWeight: 800,
+                color: '#00201C',
+                fontSize: 14.5,
+                fontWeight: 700,
                 textAlign: 'left',
               }}
             >
-              <span
+              <div
                 style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: '50%',
-                  display: 'grid',
-                  placeItems: 'center',
-                  background: 'var(--ms-mint)',
-                  color: 'var(--ms-forest)',
+                  width: 34,
+                  height: 34,
+                  borderRadius: 8,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: '#DAF1DE',
+                  color: '#2E7D4F',
                   flexShrink: 0,
                 }}
               >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                  <rect x="2" y="7" width="20" height="10" rx="3" />
-                  <line x1="8" y1="7" x2="8" y2="17" />
-                  <line x1="12" y1="7" x2="12" y2="17" />
-                </svg>
-              </span>
+                <FileCheck size={18} />
+              </div>
               <span style={{ flex: 1 }}>{t.useDemoPhoto}</span>
-              <span style={{ fontSize: 13, transform: showDemoMenu ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s ease' }}>
-                ▼
-              </span>
+              <ChevronDown
+                size={18}
+                color="#707975"
+                style={{
+                  transform: showDemoMenu ? 'rotate(180deg)' : 'none',
+                  transition: 'transform 0.15s ease',
+                }}
+              />
             </button>
 
             {showDemoMenu && (
-              <div style={{ padding: '0 14px 14px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+              <div style={{ padding: '0 12px 12px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
                 {(['positive', 'negative', 'invalid'] as const).map((key) => (
                   <button
                     key={key}
@@ -717,17 +840,17 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
                       alignItems: 'center',
                       gap: 6,
                       padding: '8px 4px',
-                      borderRadius: 14,
-                      border: '1.5px solid var(--ms-border)',
-                      background: 'var(--ms-bg)',
+                      borderRadius: 12,
+                      border: '1px solid #E3ECE7',
+                      background: '#F8FAF9',
                       cursor: 'pointer',
                       transition: 'all 0.15s ease',
                     }}
                   >
-                    <div style={{ position: 'relative', width: '100%', height: 42, borderRadius: 8, overflow: 'hidden' }}>
+                    <div style={{ position: 'relative', width: '100%', height: 38, borderRadius: 6, overflow: 'hidden' }}>
                       <CassetteDemo type={key} />
                     </div>
-                    <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--ms-ink)', textAlign: 'center' }}>
+                    <span style={{ fontSize: 11.5, fontWeight: 700, color: '#00201C', textAlign: 'center' }}>
                       {t.demoCassettes[key]}
                     </span>
                   </button>
@@ -738,11 +861,11 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
         </div>
       ) : null}
 
-      {/* Quality chips (shown when live camera is running or when photo is chosen) */}
+      {/* Quality chips */}
       {(cameraActive || photo) && (
         <ul
           aria-live="polite"
-          style={{ listStyle: 'none', margin: '14px 0 0', padding: 0, display: 'flex', flexWrap: 'wrap', gap: 8 }}
+          style={{ listStyle: 'none', margin: '12px 0 0', padding: 0, display: 'flex', flexWrap: 'wrap', gap: 8 }}
         >
           {t.chips.map((label, i) => {
             const ok = quality[i];
@@ -753,27 +876,29 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: 6,
-                  padding: '6px 12px 6px 8px',
+                  padding: '5px 12px 5px 8px',
                   borderRadius: 999,
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: 700,
-                  background: ok ? 'var(--ms-green-100)' : 'var(--ms-orange-100)',
-                  color: ok ? 'var(--ms-green-700)' : 'var(--ms-orange-700)',
+                  background: ok ? '#DAF1DE' : '#FFDAD6',
+                  color: ok ? '#235347' : '#BA1A1A',
+                  border: `1px solid ${ok ? 'rgba(142, 182, 155, 0.4)' : '#FFDAD6'}`,
                 }}
               >
                 <span
                   aria-hidden
                   style={{
-                    width: 22,
-                    height: 22,
+                    width: 18,
+                    height: 18,
                     borderRadius: '50%',
-                    display: 'grid',
-                    placeItems: 'center',
-                    background: ok ? 'var(--ms-green-500)' : 'var(--ms-orange)',
-                    color: '#fff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: ok ? '#2E7D4F' : '#BA1A1A',
+                    color: '#FFFFFF',
                   }}
                 >
-                  {ok ? TickIcon : CrossIcon}
+                  {ok ? <Check size={12} strokeWidth={3} /> : <X size={12} strokeWidth={3} />}
                 </span>
                 {label}
               </li>
@@ -783,7 +908,7 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
       )}
 
       {/* Retake and Shutter Button Controls */}
-      <div style={{ margin: '16px 0 0', display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center' }}>
+      <div style={{ margin: '14px 0 0', display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center' }}>
         <button
           type="button"
           onClick={retake}
@@ -791,19 +916,19 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
           data-testid="retake-button"
           style={{
             justifySelf: 'start',
-            padding: '12px 6px',
+            padding: '10px 4px',
             border: 0,
             background: 'none',
             cursor: photo ? 'pointer' : 'default',
-            fontSize: 16.5,
-            fontWeight: 800,
-            color: photo ? 'var(--ms-green-700)' : '#b9c4bd',
+            fontSize: 15,
+            fontWeight: 700,
+            color: photo ? '#235347' : '#CCD9D2',
           }}
         >
           {t.retake}
         </button>
 
-        {/* Live shutter capture button (enabled when live camera view is running) */}
+        {/* Live shutter capture button */}
         <button
           type="button"
           onClick={captureLive}
@@ -811,24 +936,25 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
           aria-label={t.capture}
           data-testid="capture-button"
           style={{
-            width: 70,
-            height: 70,
+            width: 64,
+            height: 64,
             borderRadius: '50%',
             padding: 0,
-            display: 'grid',
-            placeItems: 'center',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             cursor: cameraActive && !photo ? 'pointer' : 'default',
-            border: `4px solid ${cameraActive && !photo ? 'var(--ms-orange)' : 'var(--ms-border)'}`,
-            background: 'var(--ms-surface)',
+            border: `3px solid ${cameraActive && !photo ? '#235347' : '#CCD9D2'}`,
+            background: '#FFFFFF',
           }}
         >
           <span
             aria-hidden
             style={{
-              width: 50,
-              height: 50,
+              width: 48,
+              height: 48,
               borderRadius: '50%',
-              background: cameraActive && !photo ? 'var(--ms-orange)' : 'var(--ms-border)',
+              background: cameraActive && !photo ? '#235347' : '#CCD9D2',
             }}
           />
         </button>
@@ -836,9 +962,9 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
       </div>
 
       {photo && (
-        <div style={{ marginTop: 20 }}>
-          <h2 style={{ margin: 0, fontSize: 19, fontWeight: 800 }}>{t.choose}</h2>
-          <div role="radiogroup" aria-label={t.choose} style={{ marginTop: 12, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+        <div style={{ marginTop: 18 }}>
+          <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#00201C' }}>{t.choose}</h2>
+          <div role="radiogroup" aria-label={t.choose} style={{ marginTop: 10, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
             {(['positive', 'negative', 'invalid'] as const).map((key) => {
               const on = result === key;
               const st = RESULT_STYLE[key];
@@ -850,36 +976,38 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
                   aria-checked={on}
                   onClick={() => setResult(key)}
                   style={{
-                    minHeight: 90,
+                    minHeight: 82,
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: 6,
                     padding: '10px 4px',
-                    borderRadius: 20,
+                    borderRadius: 16,
                     cursor: 'pointer',
-                    fontSize: 14.5,
-                    fontWeight: 800,
-                    border: `2px solid ${on ? st.bg : 'transparent'}`,
-                    background: on ? st.bg : 'var(--ms-bg)',
-                    color: on ? '#fff' : 'var(--ms-ink)',
-                    boxShadow: '0 4px 16px rgba(31, 77, 56, 0.07)',
+                    fontSize: 13.5,
+                    fontWeight: 700,
+                    border: `2px solid ${on ? st.activeBg : '#E3ECE7'}`,
+                    background: on ? st.activeBg : '#FFFFFF',
+                    color: on ? '#FFFFFF' : '#00201C',
+                    boxShadow: on ? '0 2px 10px rgba(0,0,0,0.1)' : '0 1px 3px rgba(0,0,0,0.03)',
                     transition: 'all 0.15s ease',
                   }}
                 >
                   <span
                     aria-hidden
                     style={{
-                      width: 34,
-                      height: 34,
+                      width: 30,
+                      height: 30,
                       borderRadius: '50%',
-                      display: 'grid',
-                      placeItems: 'center',
-                      fontSize: 20,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 18,
+                      fontWeight: 800,
                       lineHeight: 1,
-                      background: on ? 'rgba(255,255,255,0.28)' : st.bg,
-                      color: '#fff',
+                      background: on ? 'rgba(255,255,255,0.25)' : st.bg,
+                      color: on ? '#FFFFFF' : st.text,
                     }}
                   >
                     {st.glyph}
@@ -894,13 +1022,14 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
             <div
               role="alert"
               style={{
-                marginTop: 14,
-                padding: '14px 16px',
-                borderRadius: 18,
-                fontSize: 15,
-                fontWeight: 800,
-                background: 'var(--ms-orange-100)',
-                color: 'var(--ms-orange-700)',
+                marginTop: 12,
+                padding: '12px 14px',
+                borderRadius: 14,
+                fontSize: 13.5,
+                fontWeight: 700,
+                background: '#FFF1CC',
+                color: '#8A5A00',
+                border: '1px solid #FFF1CC',
               }}
             >
               {t.repeat}
@@ -909,18 +1038,16 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
 
           <p
             style={{
-              margin: '14px 2px 0',
+              margin: '12px 2px 0',
               display: 'flex',
               alignItems: 'center',
               gap: 8,
-              fontSize: 13,
-              color: 'var(--ms-muted)',
+              fontSize: 12.5,
+              color: '#707975',
+              fontWeight: 500,
             }}
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-              <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z" />
-              <circle cx="12" cy="12" r="2.8" />
-            </svg>
+            <AlertCircle size={16} color="#707975" style={{ flexShrink: 0 }} />
             {t.note}
           </p>
         </div>
@@ -932,219 +1059,208 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
     <div>
       {/* ===================== NARROW PHONE LAYOUT (@md and below) ===================== */}
       <div className="block @2xl:hidden">
+        {/* Header bar */}
         <header
           style={{
-            background: 'var(--ms-surface)',
-            borderRadius: '0 0 32px 32px',
-            padding: 'calc(20px + env(safe-area-inset-top, 0px)) 20px 20px',
+            background: '#FFFFFF',
+            borderBottom: '1px solid #E3ECE7',
+            position: 'sticky',
+            top: 0,
+            zIndex: 30,
+            padding: 'calc(12px + env(safe-area-inset-top, 0px)) 16px 12px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
           }}
         >
-          <div
-            role="progressbar"
-            aria-valuemin={1}
-            aria-valuemax={4}
-            aria-valuenow={STEP}
-            aria-valuetext={`${t.stepOf}: ${t.steps[STEP - 1]}`}
-          >
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
-              {t.steps.map((_, i) => (
-                <span
-                  key={i}
-                  style={{ height: 8, borderRadius: 4, background: i < STEP ? 'var(--ms-orange)' : 'var(--ms-green-100)' }}
-                />
-              ))}
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6, marginTop: 8 }}>
-              {t.steps.map((label, i) => (
-                <span
-                  key={label}
-                  style={{
-                    fontSize: 12.5,
-                    fontWeight: i === STEP - 1 ? 800 : 600,
-                    color: i === STEP - 1 ? 'var(--ms-ink)' : 'var(--ms-muted)',
-                  }}
-                >
-                  {label}
-                </span>
-              ))}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <button
+              type="button"
+              onClick={() => onNavigate('/mitanin/screening/symptoms')}
+              aria-label={lang === 'hi' ? 'पीछे' : 'Back'}
+              style={{
+                width: 38,
+                height: 38,
+                borderRadius: 10,
+                background: '#F8FAF9',
+                border: '1px solid #E3ECE7',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#051F20',
+                cursor: 'pointer',
+              }}
+            >
+              <ArrowLeft size={18} />
+            </button>
+            <div>
+              <h1 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#051F20', lineHeight: 1.2 }}>
+                {t.takeOrUpload}
+              </h1>
+              <p style={{ margin: '2px 0 0', fontSize: 12, color: '#707975', fontWeight: 500 }}>
+                {t.stepOf}: {t.steps[STEP - 1]}
+              </p>
             </div>
           </div>
         </header>
 
-        <section style={{ padding: '18px 20px 0' }}>
-          {renderCameraSection()}
+        <section style={{ padding: '16px 16px 100px' }}>
+          {renderStepper()}
+          {renderPatientSummaryBar()}
+
+          <div style={{ marginTop: 16 }}>
+            {renderCameraSection()}
+          </div>
         </section>
 
+        {/* Sticky Bottom Actions */}
         <div
           style={{
             position: 'sticky',
-            bottom: 'calc(96px + env(safe-area-inset-bottom, 0px))',
-            marginTop: 18,
-            padding: '14px 20px 6px',
-            background: 'linear-gradient(to top, var(--ms-bg) 70%, rgba(246,248,245,0))',
+            bottom: 0,
+            padding: '12px 16px calc(14px + env(safe-area-inset-bottom, 0px))',
+            display: 'flex',
+            gap: 12,
+            background: '#FFFFFF',
+            borderTop: '1px solid #E3ECE7',
+            boxShadow: '0 -2px 10px rgba(0,0,0,0.05)',
+            zIndex: 25,
           }}
         >
           <button
             type="button"
-            disabled={!canNext}
-            onClick={handleNext}
+            onClick={() => onNavigate('/mitanin/screening/symptoms')}
             style={{
-              width: '100%',
-              height: 62,
-              border: 0,
-              borderRadius: 22,
-              cursor: canNext ? 'pointer' : 'default',
-              fontSize: 19,
-              fontWeight: 800,
-              background: canNext ? 'var(--ms-orange)' : '#e3e9e5',
-              color: canNext ? '#fff' : '#9aa7a0',
-              boxShadow: canNext ? '0 10px 22px rgba(240, 121, 75, 0.35)' : 'none',
+              padding: '0 16px',
+              height: 56,
+              borderRadius: 14,
+              border: '1px solid #CCD9D2',
+              background: '#F8FAF9',
+              cursor: 'pointer',
+              fontSize: 15,
+              fontWeight: 700,
+              color: '#235347',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
             }}
           >
-            {t.next}
+            <ArrowLeft size={18} />
+            <span>{lang === 'hi' ? 'पीछे' : 'Back'}</span>
+          </button>
+          <button
+            type="button"
+            disabled={!canNext}
+            onClick={handleNext}
+            className="ms-btn-primary"
+            style={{
+              flex: 1,
+              height: 56,
+              border: 0,
+              borderRadius: 14,
+              cursor: canNext ? 'pointer' : 'default',
+              fontSize: 16,
+              fontWeight: 700,
+              background: canNext ? '#235347' : '#CCD9D2',
+              color: canNext ? '#FFFFFF' : '#707975',
+              boxShadow: canNext ? '0 4px 14px rgba(35, 83, 71, 0.25)' : 'none',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+              transition: 'all 0.15s ease',
+            }}
+          >
+            <span>{t.next}</span>
+            <ArrowRight size={18} />
           </button>
         </div>
       </div>
 
       {/* ===================== WIDE CONTAINER LAYOUT (@2xl and above) ===================== */}
       <div className="hidden @2xl:block" style={{ padding: '32px 24px 48px' }}>
-        <div style={{ maxWidth: 1040, margin: '0 auto', display: 'flex', gap: 32, alignItems: 'flex-start', justifyContent: 'center' }}>
-          {/* Side Progress & Patient Card */}
-          <div style={{ width: 280, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 20 }}>
-            <div
-              style={{
-                background: 'var(--ms-surface)',
-                borderRadius: 24,
-                border: '1px solid var(--ms-border)',
-                padding: '22px',
-                boxShadow: 'var(--ms-shadow-card)',
-              }}
-            >
-              <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--ms-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                {t.stepOf}
-              </span>
-              <h3 style={{ margin: '6px 0 16px', fontSize: 18, fontWeight: 800, color: 'var(--ms-ink)' }}>
-                {t.steps[STEP - 1]}
-              </h3>
-
-              <ol style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 14 }}>
-                {t.steps.map((label, i) => {
-                  const isCurrent = i === STEP - 1;
-                  const isDone = i < STEP - 1;
-                  return (
-                    <li key={label} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <span
-                        style={{
-                          width: 28,
-                          height: 28,
-                          borderRadius: '50%',
-                          display: 'grid',
-                          placeItems: 'center',
-                          fontSize: 13,
-                          fontWeight: 800,
-                          background: isCurrent ? 'var(--ms-orange)' : isDone ? 'var(--ms-green-500)' : 'var(--ms-green-100)',
-                          color: isCurrent || isDone ? '#fff' : 'var(--ms-green-700)',
-                        }}
-                      >
-                        {isDone ? '✓' : i + 1}
-                      </span>
-                      <span style={{ fontSize: 14, fontWeight: isCurrent ? 800 : 600, color: isCurrent ? 'var(--ms-ink)' : 'var(--ms-muted)' }}>
-                        {label}
-                      </span>
-                    </li>
-                  );
-                })}
-              </ol>
-            </div>
-
-            {/* Patient Info Card */}
-            <div
-              style={{
-                background: 'var(--ms-green-100)',
-                borderRadius: 24,
-                padding: '18px 20px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 12,
-              }}
-            >
-              <span
-                aria-hidden
-                style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: 14,
-                  display: 'grid',
-                  placeItems: 'center',
-                  background: 'var(--ms-green-500)',
-                  color: '#fff',
-                  flexShrink: 0,
-                }}
-              >
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
-                  <circle cx="12" cy="8" r="3.6" />
-                  <path d="M5 20a7 7 0 0 1 14 0" />
-                </svg>
-              </span>
-              <p style={{ margin: 0, fontSize: 16, fontWeight: 800, color: 'var(--ms-green-900)' }}>
-                {getPatientSummary(patientId, lang)}
+        <div style={{ maxWidth: 860, margin: '0 auto' }}>
+          <header
+            style={{
+              background: '#FFFFFF',
+              borderRadius: 20,
+              border: '1px solid #E3ECE7',
+              padding: '24px 28px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+              marginBottom: 20,
+            }}
+          >
+            {renderStepper()}
+            {renderPatientSummaryBar()}
+            <div style={{ marginTop: 18 }}>
+              <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: '#00201C' }}>{t.takeOrUpload}</h1>
+              <p style={{ margin: '4px 0 0', fontSize: 14, color: '#707975', fontWeight: 500 }}>
+                {t.stepOf}: {t.steps[STEP - 1]}
               </p>
             </div>
-          </div>
+          </header>
 
-          {/* Centred Form Card up to about 640px */}
-          <div
+          <main
             style={{
-              width: '100%',
-              maxWidth: 640,
-              background: 'var(--ms-surface)',
-              borderRadius: 28,
-              border: '1px solid var(--ms-border)',
-              boxShadow: 'var(--ms-shadow-card)',
-              padding: '32px 36px',
+              background: '#FFFFFF',
+              borderRadius: 20,
+              border: '1px solid #E3ECE7',
+              padding: '28px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
             }}
           >
             {renderCameraSection()}
 
-            <div style={{ marginTop: 28, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, borderTop: '1px solid var(--ms-border)', paddingTop: 20 }}>
+            <div style={{ marginTop: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, borderTop: '1px solid #E3ECE7', paddingTop: 20 }}>
               <button
                 type="button"
                 onClick={() => onNavigate('/mitanin/screening/symptoms')}
                 style={{
                   padding: '12px 20px',
-                  border: '1.5px solid var(--ms-border)',
-                  borderRadius: 16,
-                  background: 'var(--ms-bg)',
+                  borderRadius: 12,
+                  border: '1px solid #CCD9D2',
+                  background: '#F8FAF9',
                   cursor: 'pointer',
                   fontSize: 15,
-                  fontWeight: 800,
-                  color: 'var(--ms-green-700)',
+                  fontWeight: 700,
+                  color: '#235347',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
                 }}
               >
-                ← {lang === 'hi' ? 'पीछे' : 'Back'}
+                <ArrowLeft size={18} />
+                <span>{lang === 'hi' ? 'पीछे' : 'Back'}</span>
               </button>
               <button
                 type="button"
                 disabled={!canNext}
                 onClick={handleNext}
+                className="ms-btn-primary"
                 style={{
-                  padding: '14px 32px',
+                  padding: '0 32px',
+                  height: 52,
                   border: 0,
-                  borderRadius: 18,
+                  borderRadius: 14,
                   cursor: canNext ? 'pointer' : 'default',
-                  fontSize: 17,
-                  fontWeight: 800,
-                  background: canNext ? 'var(--ms-orange)' : '#e3e9e5',
-                  color: canNext ? '#fff' : '#9aa7a0',
-                  boxShadow: canNext ? '0 8px 20px rgba(240, 121, 75, 0.35)' : 'none',
+                  fontSize: 16,
+                  fontWeight: 700,
+                  background: canNext ? '#235347' : '#CCD9D2',
+                  color: canNext ? '#FFFFFF' : '#707975',
+                  boxShadow: canNext ? '0 4px 14px rgba(35, 83, 71, 0.25)' : 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
                 }}
               >
-                {t.next} →
+                <span>{t.next}</span>
+                <ArrowRight size={18} />
               </button>
             </div>
-          </div>
+          </main>
         </div>
       </div>
     </div>
   );
 }
+

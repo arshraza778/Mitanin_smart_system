@@ -1,44 +1,32 @@
 import { useEffect, useState, type ReactElement } from 'react';
+import {
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  Droplets,
+  Hand,
+  Moon,
+  Thermometer,
+  User,
+  Volume2,
+  VolumeX,
+  Zap,
+} from 'lucide-react';
 import type { ScreenProps } from '../App';
 import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
-import { dataService } from '../services';
 import { useCaseStore } from '../store/CaseStore';
 
 const STEP = 2;
 
 const COPY = { en: enLocale.screens.ScreeningSymptoms, hi: hiLocale.screens.ScreeningSymptoms } as const;
 
-const s = {
-  width: 26,
-  height: 26,
-  viewBox: '0 0 24 24',
-  fill: 'none',
-  stroke: 'currentColor',
-  strokeWidth: 1.8,
-  strokeLinecap: 'round' as const,
-  strokeLinejoin: 'round' as const,
-  'aria-hidden': true,
-};
-
-const ICONS: ReactElement[] = [
-  <svg key="fever" {...s}>
-    <path d="M10 14.5V5a2 2 0 0 1 4 0v9.5a4 4 0 1 1-4 0z" />
-    <path d="M12 9v7" />
-  </svg>,
-  <svg key="drink" {...s}>
-    <path d="M6 4h12l-1.2 14a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8z" />
-    <path d="M7 9h10" />
-  </svg>,
-  <svg key="fits" {...s}>
-    <path d="M13 3 6 13h5l-1 8 8-11h-5z" />
-  </svg>,
-  <svg key="sleepy" {...s}>
-    <path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" />
-  </svg>,
-  <svg key="palm" {...s}>
-    <path d="M8 13V6a1.2 1.2 0 0 1 2.4 0v5M10.4 11V4.5a1.2 1.2 0 0 1 2.4 0V11M12.8 11V5.5a1.2 1.2 0 0 1 2.4 0V12M15.2 10a1.2 1.2 0 0 1 2.4 0v4.5A6 6 0 0 1 11.6 20h-.6a5 5 0 0 1-4-2l-2-3a1.3 1.3 0 0 1 2-1.6L8 14" />
-  </svg>,
+const SYMPTOM_ICONS: ReactElement[] = [
+  <Thermometer key="fever" size={22} color="#235347" />,
+  <Droplets key="drink" size={22} color="#235347" />,
+  <Zap key="fits" size={22} color="#235347" />,
+  <Moon key="sleepy" size={22} color="#235347" />,
+  <Hand key="palm" size={22} color="#235347" />,
 ];
 
 export default function ScreeningSymptoms({ lang, online = true, onNavigate }: ScreenProps) {
@@ -108,8 +96,133 @@ export default function ScreeningSymptoms({ lang, online = true, onNavigate }: S
     synth.speak(u);
   };
 
+  const renderStepper = () => (
+    <div
+      role="progressbar"
+      aria-valuemin={1}
+      aria-valuemax={4}
+      aria-valuenow={STEP}
+      aria-valuetext={`${t.stepOf}: ${t.steps[STEP - 1]}`}
+      style={{
+        background: '#FFFFFF',
+        borderRadius: 14,
+        padding: '12px 14px',
+        border: '1px solid #E3ECE7',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        {t.steps.map((label, i) => {
+          const stepNum = i + 1;
+          const isActive = stepNum === STEP;
+          const isDone = stepNum < STEP;
+
+          return (
+            <div key={label} style={{ display: 'flex', alignItems: 'center', flex: i < 3 ? 1 : 'none' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 48 }}>
+                <div
+                  style={{
+                    width: 28,
+                    height: 28,
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 12,
+                    fontWeight: 700,
+                    background: isActive ? '#053C31' : isDone ? '#2E7D4F' : '#E3ECE7',
+                    color: isActive || isDone ? '#FFFFFF' : '#404945',
+                    boxShadow: isActive ? '0 0 0 4px rgba(142, 182, 155, 0.4)' : 'none',
+                  }}
+                >
+                  {isDone ? <Check size={14} strokeWidth={3} /> : stepNum}
+                </div>
+                <span
+                  style={{
+                    marginTop: 4,
+                    fontSize: 11,
+                    fontWeight: isActive ? 700 : 500,
+                    color: isActive ? '#053C31' : isDone ? '#2E7D4F' : '#404945',
+                    textAlign: 'center',
+                  }}
+                >
+                  {label}
+                </span>
+              </div>
+              {i < 3 && (
+                <div
+                  style={{
+                    height: 2,
+                    flex: 1,
+                    margin: '0 4px',
+                    marginBottom: 16,
+                    background: isDone ? '#2E7D4F' : '#E3ECE7',
+                  }}
+                />
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
+  const renderPatientSummaryBar = () => (
+    <div
+      style={{
+        marginTop: 12,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 12,
+        padding: '10px 14px',
+        borderRadius: 14,
+        background: '#DAF1DE',
+        border: '1px solid rgba(142, 182, 155, 0.4)',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+        <div
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: 10,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: '#235347',
+            color: '#FFFFFF',
+            flexShrink: 0,
+          }}
+        >
+          <User size={18} />
+        </div>
+        <p style={{ margin: 0, fontSize: 14.5, fontWeight: 700, color: '#0B2B26', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {getPatientSummary(patientId, lang)}
+        </p>
+      </div>
+      <button
+        type="button"
+        onClick={() => onNavigate('/mitanin/screening/patient')}
+        style={{
+          border: 0,
+          background: 'none',
+          color: '#235347',
+          fontSize: 12.5,
+          fontWeight: 700,
+          textDecoration: 'underline',
+          cursor: 'pointer',
+          padding: '4px 6px',
+          flexShrink: 0,
+        }}
+      >
+        {lang === 'hi' ? hiLocale.common.changePatient : enLocale.common.changePatient}
+      </button>
+    </div>
+  );
+
   const renderSymptomsList = () => (
-    <ul style={{ listStyle: 'none', margin: '16px 0 0', padding: 0, display: 'grid', gap: 12 }}>
+    <ul style={{ listStyle: 'none', margin: '14px 0 0', padding: 0, display: 'grid', gap: 10 }}>
       {t.items.map((label, i) => {
         const on = checked[i];
         return (
@@ -118,10 +231,11 @@ export default function ScreeningSymptoms({ lang, online = true, onNavigate }: S
             style={{
               display: 'flex',
               alignItems: 'stretch',
-              borderRadius: 22,
-              background: on ? '#fff3ec' : 'var(--ms-surface)',
-              border: `2px solid ${on ? 'var(--ms-orange)' : 'transparent'}`,
-              boxShadow: '0 4px 16px rgba(31, 77, 56, 0.07)',
+              borderRadius: 16,
+              background: on ? 'linear-gradient(to right, #FFFFFF, rgba(218, 241, 222, 0.25))' : '#FFFFFF',
+              border: `2px solid ${on ? '#235347' : '#E3ECE7'}`,
+              boxShadow: on ? '0 2px 10px rgba(35, 83, 71, 0.08)' : '0 1px 3px rgba(0,0,0,0.03)',
+              transition: 'all 0.15s ease',
             }}
           >
             <button
@@ -132,39 +246,37 @@ export default function ScreeningSymptoms({ lang, online = true, onNavigate }: S
               style={{
                 flex: 1,
                 minWidth: 0,
-                minHeight: 76,
+                minHeight: 64,
                 display: 'flex',
                 alignItems: 'center',
                 gap: 12,
-                padding: '10px 6px 10px 14px',
+                padding: '12px 14px',
                 textAlign: 'left',
                 border: 0,
                 background: 'none',
                 cursor: 'pointer',
-                color: 'var(--ms-ink)',
+                color: '#00201C',
               }}
             >
               <span
                 aria-hidden
                 style={{
-                  flex: '0 0 34px',
-                  height: 34,
-                  borderRadius: 10,
-                  display: 'grid',
-                  placeItems: 'center',
-                  border: `2.5px solid ${on ? 'var(--ms-orange)' : 'var(--ms-border)'}`,
-                  background: on ? 'var(--ms-orange)' : '#fff',
-                  color: '#fff',
+                  width: 24,
+                  height: 24,
+                  borderRadius: 6,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: `2px solid ${on ? '#235347' : '#707975'}`,
+                  background: on ? '#235347' : '#FFFFFF',
+                  color: '#FFFFFF',
+                  flexShrink: 0,
                 }}
               >
-                {on && (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="m5 12.5 4.5 4.5L19 7.5" />
-                  </svg>
-                )}
+                {on && <Check size={16} strokeWidth={3} />}
               </span>
-              <span style={{ flex: '0 0 auto', color: 'var(--ms-green-700)', display: 'grid' }}>{ICONS[i]}</span>
-              <span style={{ fontSize: 16.5, fontWeight: 700, lineHeight: 1.3 }}>{label}</span>
+              <span style={{ flex: '0 0 auto', display: 'flex', alignItems: 'center' }}>{SYMPTOM_ICONS[i]}</span>
+              <span style={{ fontSize: 14.5, fontWeight: 600, lineHeight: 1.35, color: '#00201C' }}>{label}</span>
             </button>
             <button
               type="button"
@@ -172,29 +284,30 @@ export default function ScreeningSymptoms({ lang, online = true, onNavigate }: S
               aria-label={`${t.listen}: ${label}`}
               aria-pressed={speaking === i}
               style={{
-                flex: '0 0 60px',
-                display: 'grid',
-                placeItems: 'center',
+                flex: '0 0 52px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
                 border: 0,
+                borderLeft: '1px solid #E3ECE7',
                 background: 'none',
                 cursor: 'pointer',
-                color: speaking === i ? 'var(--ms-orange)' : 'var(--ms-green-700)',
+                color: speaking === i ? '#235347' : '#707975',
               }}
             >
               <span
                 style={{
-                  width: 42,
-                  height: 42,
+                  width: 36,
+                  height: 36,
                   borderRadius: '50%',
-                  display: 'grid',
-                  placeItems: 'center',
-                  background: speaking === i ? 'var(--ms-orange-100)' : 'var(--ms-green-100)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: speaking === i ? '#DAF1DE' : '#F8FAF9',
+                  border: '1px solid #E3ECE7',
                 }}
               >
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                  <path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z" />
-                  <path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" />
-                </svg>
+                {speaking === i ? <VolumeX size={16} color="#235347" /> : <Volume2 size={16} />}
               </span>
             </button>
           </li>
@@ -207,347 +320,242 @@ export default function ScreeningSymptoms({ lang, online = true, onNavigate }: S
     <div>
       {/* ===================== NARROW PHONE LAYOUT (@md and below) ===================== */}
       <div className="block @2xl:hidden">
+        {/* Header bar */}
         <header
           style={{
-            background: 'var(--ms-surface)',
-            borderRadius: '0 0 32px 32px',
-            padding: 'calc(20px + env(safe-area-inset-top, 0px)) 20px 20px',
+            background: '#FFFFFF',
+            borderBottom: '1px solid #E3ECE7',
+            position: 'sticky',
+            top: 0,
+            zIndex: 30,
+            padding: 'calc(12px + env(safe-area-inset-top, 0px)) 16px 12px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
           }}
         >
-          <div
-            role="progressbar"
-            aria-valuemin={1}
-            aria-valuemax={4}
-            aria-valuenow={STEP}
-            aria-valuetext={`${t.stepOf}: ${t.steps[STEP - 1]}`}
-          >
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
-              {t.steps.map((_, i) => (
-                <span
-                  key={i}
-                  style={{
-                    height: 8,
-                    borderRadius: 4,
-                    background: i < STEP ? 'var(--ms-orange)' : 'var(--ms-green-100)',
-                  }}
-                />
-              ))}
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6, marginTop: 8 }}>
-              {t.steps.map((label, i) => (
-                <span
-                  key={label}
-                  style={{
-                    fontSize: 12.5,
-                    fontWeight: i === STEP - 1 ? 800 : 600,
-                    color: i === STEP - 1 ? 'var(--ms-ink)' : 'var(--ms-muted)',
-                  }}
-                >
-                  {label}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          <div
-            style={{
-              marginTop: 18,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 12,
-              padding: '12px 14px',
-              borderRadius: 20,
-              background: 'var(--ms-green-100)',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
-              <span
-                aria-hidden
-                style={{
-                  flex: '0 0 44px',
-                  height: 44,
-                  borderRadius: 14,
-                  display: 'grid',
-                  placeItems: 'center',
-                  background: 'var(--ms-green-500)',
-                  color: '#fff',
-                }}
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" aria-hidden>
-                  <circle cx="12" cy="8" r="3.6" />
-                  <path d="M5 20a7 7 0 0 1 14 0" />
-                </svg>
-              </span>
-              <p style={{ margin: 0, fontSize: 18, fontWeight: 800, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {getPatientSummary(patientId, lang)}
-              </p>
-            </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <button
               type="button"
               onClick={() => onNavigate('/mitanin/screening/patient')}
+              aria-label={t.back}
               style={{
-                border: 0,
-                background: 'none',
-                color: 'var(--ms-green-900)',
-                fontSize: 13,
-                fontWeight: 700,
-                textDecoration: 'underline',
+                width: 38,
+                height: 38,
+                borderRadius: 10,
+                background: '#F8FAF9',
+                border: '1px solid #E3ECE7',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#051F20',
                 cursor: 'pointer',
-                padding: '4px 6px',
-                flexShrink: 0,
               }}
             >
-              {lang === 'hi' ? hiLocale.common.changePatient : enLocale.common.changePatient}
+              <ArrowLeft size={18} />
             </button>
+            <div>
+              <h1 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#051F20', lineHeight: 1.2 }}>
+                {t.title}
+              </h1>
+              <p style={{ margin: '2px 0 0', fontSize: 12, color: '#707975', fontWeight: 500 }}>
+                {t.stepOf}: {t.steps[STEP - 1]}
+              </p>
+            </div>
           </div>
+          <span
+            style={{
+              padding: '4px 10px',
+              borderRadius: 999,
+              fontSize: 11.5,
+              fontWeight: 700,
+              background: '#FFF1CC',
+              color: '#8A5A00',
+              border: '1px solid #FFF1CC',
+            }}
+          >
+            {t.tag}
+          </span>
         </header>
 
-        <section style={{ padding: '22px 20px 0' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
-            <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800 }}>{t.title}</h1>
-            <span
-              style={{
-                padding: '4px 10px',
-                borderRadius: 999,
-                fontSize: 12,
-                fontWeight: 700,
-                background: '#fff1c9',
-                color: '#8a6200',
-              }}
-            >
-              {t.tag}
-            </span>
-          </div>
-          <p style={{ margin: '2px 0 0', fontSize: 13.5, color: 'var(--ms-muted)' }}>{t.sub}</p>
+        <section style={{ padding: '16px 16px 100px' }}>
+          {renderStepper()}
+          {renderPatientSummaryBar()}
 
-          {renderSymptomsList()}
+          <div style={{ marginTop: 16 }}>
+            <p style={{ margin: 0, fontSize: 13, color: '#707975', fontWeight: 500 }}>{t.sub}</p>
+            {renderSymptomsList()}
+          </div>
         </section>
 
+        {/* Sticky Bottom Actions */}
         <div
           style={{
             position: 'sticky',
-            bottom: 'calc(96px + env(safe-area-inset-bottom, 0px))',
-            marginTop: 18,
-            padding: '14px 20px 6px',
+            bottom: 0,
+            padding: '12px 16px calc(14px + env(safe-area-inset-bottom, 0px))',
             display: 'flex',
-            alignItems: 'center',
             gap: 12,
-            background: 'linear-gradient(to top, var(--ms-bg) 70%, rgba(246,248,245,0))',
+            background: '#FFFFFF',
+            borderTop: '1px solid #E3ECE7',
+            boxShadow: '0 -2px 10px rgba(0,0,0,0.05)',
+            zIndex: 25,
           }}
         >
           <button
             type="button"
             onClick={() => onNavigate('/mitanin/screening/patient')}
             style={{
-              flex: '0 0 auto',
-              padding: '16px 14px',
-              border: 0,
-              background: 'none',
+              padding: '0 16px',
+              height: 56,
+              borderRadius: 14,
+              border: '1px solid #CCD9D2',
+              background: '#F8FAF9',
               cursor: 'pointer',
-              fontSize: 17,
-              fontWeight: 800,
-              color: 'var(--ms-green-700)',
+              fontSize: 15,
+              fontWeight: 700,
+              color: '#235347',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
             }}
           >
-            {t.back}
+            <ArrowLeft size={18} />
+            <span>{t.back}</span>
           </button>
           <button
             type="button"
             onClick={handleNext}
+            className="ms-btn-primary"
             style={{
               flex: 1,
-              height: 62,
+              height: 56,
               border: 0,
-              borderRadius: 22,
+              borderRadius: 14,
               cursor: 'pointer',
-              fontSize: 19,
-              fontWeight: 800,
-              background: 'var(--ms-orange)',
-              color: '#fff',
-              boxShadow: '0 10px 22px rgba(240, 121, 75, 0.35)',
+              fontSize: 16,
+              fontWeight: 700,
+              background: '#235347',
+              color: '#FFFFFF',
+              boxShadow: '0 4px 14px rgba(35, 83, 71, 0.25)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+              transition: 'all 0.15s ease',
             }}
           >
-            {t.next}
+            <span>{t.next}</span>
+            <ArrowRight size={18} />
           </button>
         </div>
       </div>
 
       {/* ===================== WIDE CONTAINER LAYOUT (@2xl and above) ===================== */}
       <div className="hidden @2xl:block" style={{ padding: '32px 24px 48px' }}>
-        <div style={{ maxWidth: 1040, margin: '0 auto', display: 'flex', gap: 32, alignItems: 'flex-start', justifyContent: 'center' }}>
-          {/* Side Progress & Patient Card */}
-          <div style={{ width: 280, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 20 }}>
-            <div
-              style={{
-                background: 'var(--ms-surface)',
-                borderRadius: 24,
-                border: '1px solid var(--ms-border)',
-                padding: '22px',
-                boxShadow: 'var(--ms-shadow-card)',
-              }}
-            >
-              <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--ms-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                {t.stepOf}
-              </span>
-              <h3 style={{ margin: '6px 0 16px', fontSize: 18, fontWeight: 800, color: 'var(--ms-ink)' }}>
-                {t.steps[STEP - 1]}
-              </h3>
-
-              <ol style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 14 }}>
-                {t.steps.map((label, i) => {
-                  const isCurrent = i === STEP - 1;
-                  const isDone = i < STEP - 1;
-                  return (
-                    <li key={label} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <span
-                        style={{
-                          width: 28,
-                          height: 28,
-                          borderRadius: '50%',
-                          display: 'grid',
-                          placeItems: 'center',
-                          fontSize: 13,
-                          fontWeight: 800,
-                          background: isCurrent ? 'var(--ms-orange)' : isDone ? 'var(--ms-green-500)' : 'var(--ms-green-100)',
-                          color: isCurrent || isDone ? '#fff' : 'var(--ms-green-700)',
-                        }}
-                      >
-                        {isDone ? '✓' : i + 1}
-                      </span>
-                      <span style={{ fontSize: 14, fontWeight: isCurrent ? 800 : 600, color: isCurrent ? 'var(--ms-ink)' : 'var(--ms-muted)' }}>
-                        {label}
-                      </span>
-                    </li>
-                  );
-                })}
-              </ol>
-            </div>
-
-            {/* Patient Info Card */}
-            <div
-              style={{
-                background: 'var(--ms-green-100)',
-                borderRadius: 24,
-                padding: '18px 20px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: 12,
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
-                <span
-                  aria-hidden
-                  style={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: 14,
-                    display: 'grid',
-                    placeItems: 'center',
-                    background: 'var(--ms-green-500)',
-                    color: '#fff',
-                    flexShrink: 0,
-                  }}
-                >
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
-                    <circle cx="12" cy="8" r="3.6" />
-                    <path d="M5 20a7 7 0 0 1 14 0" />
-                  </svg>
-                </span>
-                <p style={{ margin: 0, fontSize: 16, fontWeight: 800, color: 'var(--ms-green-900)' }}>
-                  {getPatientSummary(patientId, lang)}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => onNavigate('/mitanin/screening/patient')}
-                style={{
-                  border: 0,
-                  background: 'none',
-                  color: 'var(--ms-green-900)',
-                  fontSize: 12.5,
-                  fontWeight: 700,
-                  textDecoration: 'underline',
-                  cursor: 'pointer',
-                  padding: '4px 6px',
-                  flexShrink: 0,
-                }}
-              >
-                {lang === 'hi' ? hiLocale.common.changePatient : enLocale.common.changePatient}
-              </button>
-            </div>
-          </div>
-
-          {/* Centred Form Card up to about 640px */}
-          <div
+        <div style={{ maxWidth: 860, margin: '0 auto' }}>
+          <header
             style={{
-              width: '100%',
-              maxWidth: 640,
-              background: 'var(--ms-surface)',
-              borderRadius: 28,
-              border: '1px solid var(--ms-border)',
-              boxShadow: 'var(--ms-shadow-card)',
-              padding: '32px 36px',
+              background: '#FFFFFF',
+              borderRadius: 20,
+              border: '1px solid #E3ECE7',
+              padding: '24px 28px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+              marginBottom: 20,
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
-              <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800, color: 'var(--ms-ink)' }}>{t.title}</h1>
+            {renderStepper()}
+            {renderPatientSummaryBar()}
+            <div style={{ marginTop: 18, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: '#00201C' }}>{t.title}</h1>
+                <p style={{ margin: '4px 0 0', fontSize: 14, color: '#707975', fontWeight: 500 }}>{t.sub}</p>
+              </div>
               <span
                 style={{
-                  padding: '4px 12px',
+                  padding: '6px 14px',
                   borderRadius: 999,
                   fontSize: 12.5,
                   fontWeight: 700,
-                  background: '#fff1c9',
-                  color: '#8a6200',
+                  background: '#FFF1CC',
+                  color: '#8A5A00',
+                  border: '1px solid #FFF1CC',
                 }}
               >
                 {t.tag}
               </span>
             </div>
-            <p style={{ margin: '4px 0 20px', fontSize: 14, color: 'var(--ms-muted)' }}>{t.sub}</p>
+          </header>
 
+          <main
+            style={{
+              background: '#FFFFFF',
+              borderRadius: 20,
+              border: '1px solid #E3ECE7',
+              padding: '28px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+            }}
+          >
             {renderSymptomsList()}
 
-            <div style={{ marginTop: 28, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, borderTop: '1px solid var(--ms-border)', paddingTop: 20 }}>
+            <div
+              style={{
+                marginTop: 24,
+                paddingTop: 18,
+                borderTop: '1px solid #E3ECE7',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
               <button
                 type="button"
                 onClick={() => onNavigate('/mitanin/screening/patient')}
                 style={{
                   padding: '12px 20px',
-                  border: '1.5px solid var(--ms-border)',
-                  borderRadius: 16,
-                  background: 'var(--ms-bg)',
+                  borderRadius: 12,
+                  border: '1px solid #CCD9D2',
+                  background: '#F8FAF9',
                   cursor: 'pointer',
                   fontSize: 15,
-                  fontWeight: 800,
-                  color: 'var(--ms-green-700)',
+                  fontWeight: 700,
+                  color: '#235347',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
                 }}
               >
-                {t.back}
+                <ArrowLeft size={18} />
+                <span>{t.back}</span>
               </button>
               <button
                 type="button"
                 onClick={handleNext}
+                className="ms-btn-primary"
                 style={{
-                  padding: '14px 32px',
+                  padding: '0 32px',
+                  height: 52,
                   border: 0,
-                  borderRadius: 18,
+                  borderRadius: 14,
                   cursor: 'pointer',
-                  fontSize: 17,
-                  fontWeight: 800,
-                  background: 'var(--ms-orange)',
-                  color: '#fff',
-                  boxShadow: '0 8px 20px rgba(240, 121, 75, 0.35)',
+                  fontSize: 16,
+                  fontWeight: 700,
+                  background: '#235347',
+                  color: '#FFFFFF',
+                  boxShadow: '0 4px 14px rgba(35, 83, 71, 0.25)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
                 }}
               >
-                {t.next} →
+                <span>{t.next}</span>
+                <ArrowRight size={18} />
               </button>
             </div>
-          </div>
+          </main>
         </div>
       </div>
     </div>
   );
 }
+

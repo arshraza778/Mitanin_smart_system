@@ -37,7 +37,22 @@ const caseData = readJson('src/data/cases.json');
 for (const item of [...caseData.doctorInbox, ...caseData.supervisorRows]) assert(patientIds.has(item.patientId), `Unknown patient ID in case data: ${item.patientId}`);
 for (const days of Object.values(readJson('src/data/visits.json'))) for (const item of days) assert(patientIds.has(item.patientId), `Unknown patient ID in visit data: ${item.patientId}`);
 const css = fs.readFileSync(path.join(src, 'styles.css'), 'utf8');
-const requiredTokens = {'--ms-forest':'#2B6B52','--ms-green':'#6BAF7D','--ms-mint':'#EAF4EC','--ms-orange':'#EE7B4D','--ms-blue':'#7B8CF5','--ms-ink':'#1F2933','--ms-muted':'#6B7785','--ms-card':'#FFFFFF','--ms-danger':'#D64545','--ms-warn':'#E8A33D','--ms-ok':'#2E9E5B'};
+const requiredTokens = {
+  '--ms-dark-900': '#051F20',
+  '--ms-dark-800': '#163832',
+  '--ms-primary': '#235347',
+  '--ms-sage': '#8EB69B',
+  '--ms-mint': '#DAF1DE',
+  '--ms-border': '#E3ECE7',
+  '--ms-card': '#FFFFFF',
+  '--ms-text': '#00201C',
+  '--ms-muted': '#404945',
+  '--ms-danger': '#BA1A1A',
+  '--ms-danger-bg': '#FFDAD6',
+  '--ms-warn': '#8A5A00',
+  '--ms-warn-bg': '#FFF1CC',
+  '--ms-ok': '#2E7D4F',
+};
 for (const [token, value] of Object.entries(requiredTokens)) assert(css.includes(`${token}: ${value}`), `Missing/wrong design token ${token}`);
 assert(css.includes('@media (max-width: 360px)') && css.includes('@media (max-width: 390px)'), 'Missing 360px/390px responsive rules');
 console.log('PASS: locale parity, exact route inventory, shared screen props, centralized bottom navigation, JSON data integrity, exact design-token values, and responsive breakpoint rules.');

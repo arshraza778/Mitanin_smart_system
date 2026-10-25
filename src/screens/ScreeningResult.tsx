@@ -1,8 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
+import {
+  AlertTriangle,
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  CheckCircle2,
+  HelpCircle,
+  Save,
+  Send,
+  User,
+} from 'lucide-react';
 import type { ScreenProps } from '../App';
 import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
-import { dataService } from '../services';
 import { useCaseStore } from '../store/CaseStore';
 
 const STEP = 4;
@@ -44,43 +54,168 @@ export default function ScreeningResult({ lang, online = true, onNavigate }: Scr
     timer.current = window.setTimeout(() => onNavigate('/mitanin/home'), 3200);
   };
 
-  const renderResultContent = () => (
-    <div style={{ display: 'grid', gap: 16 }}>
-      <div
-        style={{
-          padding: 20,
-          borderRadius: 24,
-          background: 'var(--ms-surface)',
-          border: '1px solid var(--ms-border)',
-          boxShadow: '0 4px 16px rgba(31, 77, 56, 0.07)',
-        }}
-      >
-        <span
+  const renderStepper = () => (
+    <div
+      role="progressbar"
+      aria-valuemin={1}
+      aria-valuemax={4}
+      aria-valuenow={STEP}
+      aria-valuetext={`${t.stepOf}: ${t.steps[STEP - 1]}`}
+      style={{
+        background: '#FFFFFF',
+        borderRadius: 14,
+        padding: '12px 14px',
+        border: '1px solid #E3ECE7',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        {t.steps.map((label, i) => {
+          const stepNum = i + 1;
+          const isActive = stepNum === STEP;
+          const isDone = stepNum < STEP;
+
+          return (
+            <div key={label} style={{ display: 'flex', alignItems: 'center', flex: i < 3 ? 1 : 'none' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 48 }}>
+                <div
+                  style={{
+                    width: 28,
+                    height: 28,
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 12,
+                    fontWeight: 700,
+                    background: isActive ? '#053C31' : isDone ? '#2E7D4F' : '#E3ECE7',
+                    color: isActive || isDone ? '#FFFFFF' : '#404945',
+                    boxShadow: isActive ? '0 0 0 4px rgba(142, 182, 155, 0.4)' : 'none',
+                  }}
+                >
+                  {isDone ? <Check size={14} strokeWidth={3} /> : stepNum}
+                </div>
+                <span
+                  style={{
+                    marginTop: 4,
+                    fontSize: 11,
+                    fontWeight: isActive ? 700 : 500,
+                    color: isActive ? '#053C31' : isDone ? '#2E7D4F' : '#404945',
+                    textAlign: 'center',
+                  }}
+                >
+                  {label}
+                </span>
+              </div>
+              {i < 3 && (
+                <div
+                  style={{
+                    height: 2,
+                    flex: 1,
+                    margin: '0 4px',
+                    marginBottom: 16,
+                    background: isDone ? '#2E7D4F' : '#E3ECE7',
+                  }}
+                />
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
+  const renderPatientSummaryBar = () => (
+    <div
+      style={{
+        marginTop: 12,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 12,
+        padding: '10px 14px',
+        borderRadius: 14,
+        background: '#DAF1DE',
+        border: '1px solid rgba(142, 182, 155, 0.4)',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+        <div
           style={{
-            display: 'inline-flex',
+            width: 36,
+            height: 36,
+            borderRadius: 10,
+            display: 'flex',
             alignItems: 'center',
-            gap: 8,
-            padding: '8px 16px',
-            borderRadius: 999,
-            fontSize: 16,
-            fontWeight: 800,
-            letterSpacing: '0.02em',
-            background: 'var(--ms-orange)',
-            color: '#fff',
+            justifyContent: 'center',
+            background: '#235347',
+            color: '#FFFFFF',
+            flexShrink: 0,
           }}
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-            <path d="M12 3.5 2.8 19.5h18.4z" />
-            <path d="M12 10v4.5M12 17.2v.1" />
-          </svg>
-          {t.priority}
-        </span>
-        <p style={{ margin: '14px 2px 0', fontSize: 16, fontWeight: 600, lineHeight: 1.45, color: 'var(--ms-ink)' }}>{t.why}</p>
+          <User size={18} />
+        </div>
+        <p style={{ margin: 0, fontSize: 14.5, fontWeight: 700, color: '#0B2B26', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {getPatientSummary(patientId, lang)}
+        </p>
+      </div>
+    </div>
+  );
+
+  const renderResultContent = () => (
+    <div style={{ display: 'grid', gap: 14 }}>
+      {/* Urgency Alert Card */}
+      <div
+        style={{
+          padding: 16,
+          borderRadius: 16,
+          background: '#FFFFFF',
+          border: '1px solid #FFDAD6',
+          boxShadow: '0 2px 8px rgba(186, 26, 26, 0.06)',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '4px 12px',
+              borderRadius: 999,
+              fontSize: 12.5,
+              fontWeight: 700,
+              background: '#FFDAD6',
+              color: '#BA1A1A',
+            }}
+          >
+            <AlertTriangle size={14} color="#BA1A1A" />
+            <span>{t.priority}</span>
+          </span>
+          <span style={{ fontSize: 11, fontWeight: 700, color: '#707975', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            {lang === 'hi' ? 'प्रोटोकॉल मिलान' : 'Protocol Match'}
+          </span>
+        </div>
+        <p style={{ margin: '12px 0 0', fontSize: 15, fontWeight: 600, lineHeight: 1.45, color: '#00201C' }}>
+          {t.why}
+        </p>
       </div>
 
-      <div style={{ padding: 20, borderRadius: 24, background: 'var(--ms-green-500)', color: '#fff', boxShadow: '0 4px 16px rgba(43, 107, 82, 0.15)' }}>
-        <p style={{ margin: 0, fontSize: 13.5, fontWeight: 700, opacity: 0.92 }}>{t.actionLabel}</p>
-        <p style={{ margin: '6px 0 0', fontSize: 22, fontWeight: 800, lineHeight: 1.25 }}>{t.action}</p>
+      {/* Recommended Action Card (Primary Dark Band) */}
+      <div
+        style={{
+          padding: 18,
+          borderRadius: 18,
+          background: '#053C31',
+          color: '#FFFFFF',
+          boxShadow: '0 4px 16px rgba(5, 60, 49, 0.18)',
+        }}
+      >
+        <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: '#C0EACC', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+          {t.actionLabel}
+        </p>
+        <p style={{ margin: '6px 0 0', fontSize: 20, fontWeight: 800, lineHeight: 1.25, color: '#FFFFFF' }}>
+          {t.action}
+        </p>
         <span
           style={{
             marginTop: 14,
@@ -89,21 +224,20 @@ export default function ScreeningResult({ lang, online = true, onNavigate }: Scr
             gap: 6,
             padding: '4px 12px',
             borderRadius: 999,
-            fontSize: 12.5,
-            fontWeight: 700,
-            background: 'rgba(255,255,255,0.25)',
+            fontSize: 12,
+            fontWeight: 600,
+            background: 'rgba(255, 255, 255, 0.15)',
+            color: '#FFFFFF',
           }}
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden>
-            <circle cx="12" cy="12" r="9" />
-            <path d="M12 11v5.5M12 7.6v.1" />
-          </svg>
-          {t.rule}
+          <HelpCircle size={14} color="#C0EACC" />
+          <span>{t.rule}</span>
         </span>
       </div>
 
-      <div style={{ marginTop: 8 }}>
-        <h3 style={{ margin: '0 0 10px', fontSize: 14, fontWeight: 700, color: 'var(--ms-muted)', textTransform: 'uppercase' }}>
+      {/* Key Findings List */}
+      <div style={{ marginTop: 4 }}>
+        <h3 style={{ margin: '0 0 8px', fontSize: 12, fontWeight: 700, color: '#163832', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
           {lang === 'hi' ? 'जाँच तथ्य' : 'Key Findings'}
         </h3>
         <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexWrap: 'wrap', gap: 8 }}>
@@ -113,10 +247,11 @@ export default function ScreeningResult({ lang, online = true, onNavigate }: Scr
               style={{
                 padding: '6px 14px',
                 borderRadius: 999,
-                fontSize: 13,
-                fontWeight: 700,
-                background: 'var(--ms-green-100)',
-                color: 'var(--ms-green-900)',
+                fontSize: 12.5,
+                fontWeight: 600,
+                background: '#DAF1DE',
+                color: '#235347',
+                border: '1px solid rgba(142, 182, 155, 0.4)',
               }}
             >
               {f}
@@ -131,276 +266,238 @@ export default function ScreeningResult({ lang, online = true, onNavigate }: Scr
     <div>
       {/* ===================== NARROW PHONE LAYOUT (@md and below) ===================== */}
       <div className="block @2xl:hidden">
+        {/* Header bar */}
         <header
           style={{
-            background: 'var(--ms-surface)',
-            borderRadius: '0 0 32px 32px',
-            padding: 'calc(20px + env(safe-area-inset-top, 0px)) 20px 20px',
+            background: '#FFFFFF',
+            borderBottom: '1px solid #E3ECE7',
+            position: 'sticky',
+            top: 0,
+            zIndex: 30,
+            padding: 'calc(12px + env(safe-area-inset-top, 0px)) 16px 12px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
           }}
         >
-          <div
-            role="progressbar"
-            aria-valuemin={1}
-            aria-valuemax={4}
-            aria-valuenow={STEP}
-            aria-valuetext={`${t.stepOf}: ${t.steps[STEP - 1]}`}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <button
+              type="button"
+              onClick={() => onNavigate('/mitanin/screening/test')}
+              aria-label={t.stepOf}
+              style={{
+                width: 38,
+                height: 38,
+                borderRadius: 10,
+                background: '#F8FAF9',
+                border: '1px solid #E3ECE7',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#051F20',
+                cursor: 'pointer',
+              }}
+            >
+              <ArrowLeft size={18} />
+            </button>
+            <div>
+              <h1 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#051F20', lineHeight: 1.2 }}>
+                {lang === 'hi' ? 'निष्कर्ष एवं कार्रवाई' : 'Result & Recommended Action'}
+              </h1>
+              <p style={{ margin: '2px 0 0', fontSize: 12, color: '#707975', fontWeight: 500 }}>
+                {t.stepOf}: {t.steps[STEP - 1]}
+              </p>
+            </div>
+          </div>
+          <span
+            style={{
+              padding: '4px 10px',
+              borderRadius: 999,
+              fontSize: 11.5,
+              fontWeight: 700,
+              background: '#FFDAD6',
+              color: '#BA1A1A',
+            }}
           >
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
-              {t.steps.map((_, i) => (
-                <span
-                  key={i}
-                  style={{ height: 8, borderRadius: 4, background: i < STEP ? 'var(--ms-orange)' : 'var(--ms-green-100)' }}
-                />
-              ))}
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6, marginTop: 8 }}>
-              {t.steps.map((label, i) => (
-                <span
-                  key={label}
-                  style={{
-                    fontSize: 12.5,
-                    fontWeight: i === STEP - 1 ? 800 : 600,
-                    color: i === STEP - 1 ? 'var(--ms-ink)' : 'var(--ms-muted)',
-                  }}
-                >
-                  {label}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          <div style={{ marginTop: 18, padding: '14px', borderRadius: 20, background: 'var(--ms-green-100)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <span
-                aria-hidden
-                style={{
-                  flex: '0 0 44px',
-                  height: 44,
-                  borderRadius: 14,
-                  display: 'grid',
-                  placeItems: 'center',
-                  background: 'var(--ms-green-500)',
-                  color: '#fff',
-                }}
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" aria-hidden>
-                  <circle cx="12" cy="8" r="3.6" />
-                  <path d="M5 20a7 7 0 0 1 14 0" />
-                </svg>
-              </span>
-              <p style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>{getPatientSummary(patientId, lang)}</p>
-            </div>
-            <ul style={{ listStyle: 'none', margin: '12px 0 0', padding: 0, display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-              {t.facts.map((f) => (
-                <li
-                  key={f}
-                  style={{
-                    padding: '5px 12px',
-                    borderRadius: 999,
-                    fontSize: 13,
-                    fontWeight: 700,
-                    background: 'var(--ms-surface)',
-                    color: 'var(--ms-green-900)',
-                  }}
-                >
-                  {f}
-                </li>
-              ))}
-            </ul>
-          </div>
+            {t.priority}
+          </span>
         </header>
 
-        <section style={{ padding: '20px 20px 0', display: 'grid', gap: 14 }}>
-          {renderResultContent()}
+        <section style={{ padding: '16px 16px 100px' }}>
+          {renderStepper()}
+          {renderPatientSummaryBar()}
+
+          <div style={{ marginTop: 16 }}>
+            {renderResultContent()}
+          </div>
         </section>
 
+        {/* Sticky Bottom Actions */}
         <div
           style={{
             position: 'sticky',
-            bottom: 'calc(96px + env(safe-area-inset-bottom, 0px))',
-            marginTop: 18,
-            padding: '14px 20px 6px',
+            bottom: 0,
+            padding: '12px 16px calc(14px + env(safe-area-inset-bottom, 0px))',
             display: 'grid',
-            gap: 8,
-            background: 'linear-gradient(to top, var(--ms-bg) 70%, rgba(246,248,245,0))',
+            gap: 10,
+            background: '#FFFFFF',
+            borderTop: '1px solid #E3ECE7',
+            boxShadow: '0 -2px 10px rgba(0,0,0,0.05)',
+            zIndex: 25,
           }}
         >
           <button
             type="button"
             disabled={saved}
             onClick={handleAskDoctor}
+            className="ms-btn-primary"
             style={{
-              height: 62,
+              height: 56,
               border: 0,
-              borderRadius: 22,
+              borderRadius: 14,
               cursor: saved ? 'default' : 'pointer',
-              fontSize: 19,
-              fontWeight: 800,
-              background: saved ? '#e3e9e5' : 'var(--ms-orange)',
-              color: saved ? '#9aa7a0' : '#fff',
-              boxShadow: saved ? 'none' : '0 10px 22px rgba(240, 121, 75, 0.35)',
+              fontSize: 16,
+              fontWeight: 700,
+              background: saved ? '#CCD9D2' : '#235347',
+              color: saved ? '#707975' : '#FFFFFF',
+              boxShadow: saved ? 'none' : '0 4px 14px rgba(35, 83, 71, 0.25)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+              transition: 'all 0.15s ease',
             }}
           >
-            {t.ask}
+            <Send size={18} />
+            <span>{t.ask}</span>
           </button>
           <button
             type="button"
             disabled={saved}
             onClick={save}
             style={{
-              height: 50,
-              border: `2px solid ${saved ? '#e3e9e5' : 'var(--ms-green-500)'}`,
-              borderRadius: 18,
+              height: 48,
+              border: `1.5px solid ${saved ? '#CCD9D2' : '#235347'}`,
+              borderRadius: 14,
               cursor: saved ? 'default' : 'pointer',
-              fontSize: 16.5,
-              fontWeight: 800,
-              background: 'var(--ms-surface)',
-              color: saved ? '#9aa7a0' : 'var(--ms-green-700)',
+              fontSize: 15,
+              fontWeight: 700,
+              background: '#FFFFFF',
+              color: saved ? '#707975' : '#235347',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+              transition: 'all 0.15s ease',
             }}
           >
-            {t.save}
+            <Save size={16} />
+            <span>{t.save}</span>
           </button>
         </div>
       </div>
 
       {/* ===================== WIDE CONTAINER LAYOUT (@2xl and above) ===================== */}
       <div className="hidden @2xl:block" style={{ padding: '32px 24px 48px' }}>
-        <div style={{ maxWidth: 1040, margin: '0 auto', display: 'flex', gap: 32, alignItems: 'flex-start', justifyContent: 'center' }}>
-          {/* Side Progress & Patient Card */}
-          <div style={{ width: 280, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 20 }}>
-            <div
-              style={{
-                background: 'var(--ms-surface)',
-                borderRadius: 24,
-                border: '1px solid var(--ms-border)',
-                padding: '22px',
-                boxShadow: 'var(--ms-shadow-card)',
-              }}
-            >
-              <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--ms-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                {t.stepOf}
-              </span>
-              <h3 style={{ margin: '6px 0 16px', fontSize: 18, fontWeight: 800, color: 'var(--ms-ink)' }}>
-                {t.steps[STEP - 1]}
-              </h3>
-
-              <ol style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 14 }}>
-                {t.steps.map((label, i) => {
-                  const isCurrent = i === STEP - 1;
-                  const isDone = i < STEP - 1;
-                  return (
-                    <li key={label} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <span
-                        style={{
-                          width: 28,
-                          height: 28,
-                          borderRadius: '50%',
-                          display: 'grid',
-                          placeItems: 'center',
-                          fontSize: 13,
-                          fontWeight: 800,
-                          background: isCurrent ? 'var(--ms-orange)' : isDone ? 'var(--ms-green-500)' : 'var(--ms-green-100)',
-                          color: isCurrent || isDone ? '#fff' : 'var(--ms-green-700)',
-                        }}
-                      >
-                        {isDone ? '✓' : i + 1}
-                      </span>
-                      <span style={{ fontSize: 14, fontWeight: isCurrent ? 800 : 600, color: isCurrent ? 'var(--ms-ink)' : 'var(--ms-muted)' }}>
-                        {label}
-                      </span>
-                    </li>
-                  );
-                })}
-              </ol>
-            </div>
-
-            {/* Patient Info Card */}
-            <div
-              style={{
-                background: 'var(--ms-green-100)',
-                borderRadius: 24,
-                padding: '18px 20px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 12,
-              }}
-            >
+        <div style={{ maxWidth: 860, margin: '0 auto' }}>
+          <header
+            style={{
+              background: '#FFFFFF',
+              borderRadius: 20,
+              border: '1px solid #E3ECE7',
+              padding: '24px 28px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+              marginBottom: 20,
+            }}
+          >
+            {renderStepper()}
+            {renderPatientSummaryBar()}
+            <div style={{ marginTop: 18, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: '#00201C' }}>
+                  {lang === 'hi' ? 'निष्कर्ष एवं कार्रवाई' : 'Result & Recommended Action'}
+                </h1>
+                <p style={{ margin: '4px 0 0', fontSize: 14, color: '#707975', fontWeight: 500 }}>
+                  {t.stepOf}: {t.steps[STEP - 1]}
+                </p>
+              </div>
               <span
-                aria-hidden
                 style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: 14,
-                  display: 'grid',
-                  placeItems: 'center',
-                  background: 'var(--ms-green-500)',
-                  color: '#fff',
-                  flexShrink: 0,
+                  padding: '6px 14px',
+                  borderRadius: 999,
+                  fontSize: 12.5,
+                  fontWeight: 700,
+                  background: '#FFDAD6',
+                  color: '#BA1A1A',
                 }}
               >
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
-                  <circle cx="12" cy="8" r="3.6" />
-                  <path d="M5 20a7 7 0 0 1 14 0" />
-                </svg>
+                {t.priority}
               </span>
-              <p style={{ margin: 0, fontSize: 16, fontWeight: 800, color: 'var(--ms-green-900)' }}>
-                {getPatientSummary(patientId, lang)}
-              </p>
             </div>
-          </div>
+          </header>
 
-          {/* Centred Form Card up to about 640px */}
-          <div
+          <main
             style={{
-              width: '100%',
-              maxWidth: 640,
-              background: 'var(--ms-surface)',
-              borderRadius: 28,
-              border: '1px solid var(--ms-border)',
-              boxShadow: 'var(--ms-shadow-card)',
-              padding: '32px 36px',
+              background: '#FFFFFF',
+              borderRadius: 20,
+              border: '1px solid #E3ECE7',
+              padding: '28px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
             }}
           >
             {renderResultContent()}
 
-            <div style={{ marginTop: 28, display: 'grid', gap: 12, borderTop: '1px solid var(--ms-border)', paddingTop: 20 }}>
+            <div style={{ marginTop: 24, display: 'flex', gap: 14, borderTop: '1px solid #E3ECE7', paddingTop: 20 }}>
               <button
                 type="button"
                 disabled={saved}
                 onClick={handleAskDoctor}
+                className="ms-btn-primary"
                 style={{
-                  height: 56,
+                  flex: 1,
+                  height: 52,
                   border: 0,
-                  borderRadius: 20,
+                  borderRadius: 14,
                   cursor: saved ? 'default' : 'pointer',
-                  fontSize: 17,
-                  fontWeight: 800,
-                  background: saved ? '#e3e9e5' : 'var(--ms-orange)',
-                  color: saved ? '#9aa7a0' : '#fff',
-                  boxShadow: saved ? 'none' : '0 8px 20px rgba(240, 121, 75, 0.35)',
+                  fontSize: 16,
+                  fontWeight: 700,
+                  background: saved ? '#CCD9D2' : '#235347',
+                  color: saved ? '#707975' : '#FFFFFF',
+                  boxShadow: saved ? 'none' : '0 4px 14px rgba(35, 83, 71, 0.25)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
                 }}
               >
-                {t.ask} →
+                <Send size={18} />
+                <span>{t.ask}</span>
+                <ArrowRight size={18} />
               </button>
               <button
                 type="button"
                 disabled={saved}
                 onClick={save}
                 style={{
-                  height: 48,
-                  border: `2px solid ${saved ? '#e3e9e5' : 'var(--ms-green-500)'}`,
-                  borderRadius: 18,
+                  padding: '0 24px',
+                  height: 52,
+                  border: `1.5px solid ${saved ? '#CCD9D2' : '#235347'}`,
+                  borderRadius: 14,
                   cursor: saved ? 'default' : 'pointer',
-                  fontSize: 15.5,
-                  fontWeight: 800,
-                  background: 'var(--ms-surface)',
-                  color: saved ? '#9aa7a0' : 'var(--ms-green-700)',
+                  fontSize: 15,
+                  fontWeight: 700,
+                  background: '#FFFFFF',
+                  color: saved ? '#707975' : '#235347',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
                 }}
               >
-                {t.save}
+                <Save size={16} />
+                <span>{t.save}</span>
               </button>
             </div>
-          </div>
+          </main>
         </div>
       </div>
 
@@ -413,38 +510,40 @@ export default function ScreeningResult({ lang, online = true, onNavigate }: Scr
             transform: 'translateX(-50%)',
             bottom: 'calc(110px + env(safe-area-inset-bottom, 0px))',
             width: 'min(calc(100% - 40px), 390px)',
-            zIndex: 30,
+            zIndex: 40,
             display: 'flex',
             alignItems: 'center',
             gap: 12,
             padding: '14px 16px',
-            borderRadius: 18,
-            fontSize: 14.5,
+            borderRadius: 16,
+            fontSize: 14,
             fontWeight: 700,
             lineHeight: 1.35,
-            background: 'var(--ms-green-900)',
-            color: '#fff',
+            background: '#002111',
+            color: '#FFFFFF',
             boxShadow: '0 12px 28px rgba(0, 0, 0, 0.25)',
           }}
         >
           <span
             aria-hidden
             style={{
-              flex: '0 0 26px',
-              height: 26,
+              width: 24,
+              height: 24,
               borderRadius: '50%',
-              display: 'grid',
-              placeItems: 'center',
-              background: 'var(--ms-green-500)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: '#2E7D4F',
+              color: '#FFFFFF',
+              flexShrink: 0,
             }}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="m5 12.5 4.5 4.5L19 7.5" />
-            </svg>
+            <Check size={14} strokeWidth={3} />
           </span>
-          {t.toast}
+          <span>{t.toast}</span>
         </div>
       )}
     </div>
   );
 }
+

@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { ArrowLeft, ArrowRight, Check, Info, Search, UserPlus, X } from 'lucide-react';
 import type { ScreenProps } from '../App';
 import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
@@ -118,32 +119,66 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
       aria-valuemax={4}
       aria-valuenow={STEP}
       aria-valuetext={`${t.stepOf}: ${t.steps[STEP - 1]}`}
+      style={{
+        background: '#FFFFFF',
+        borderRadius: 14,
+        padding: '12px 14px',
+        border: '1px solid #E3ECE7',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+      }}
     >
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
-        {t.steps.map((_, i) => (
-          <span
-            key={i}
-            style={{
-              height: 8,
-              borderRadius: 4,
-              background: i < STEP ? 'var(--ms-orange)' : 'var(--ms-green-100)',
-            }}
-          />
-        ))}
-      </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6, marginTop: 8 }}>
-        {t.steps.map((label, i) => (
-          <span
-            key={label}
-            style={{
-              fontSize: 12.5,
-              fontWeight: i === STEP - 1 ? 800 : 600,
-              color: i === STEP - 1 ? 'var(--ms-ink)' : 'var(--ms-muted)',
-            }}
-          >
-            {label}
-          </span>
-        ))}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        {t.steps.map((label, i) => {
+          const stepNum = i + 1;
+          const isActive = stepNum === STEP;
+          const isDone = stepNum < STEP;
+
+          return (
+            <div key={label} style={{ display: 'flex', alignItems: 'center', flex: i < 3 ? 1 : 'none' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 48 }}>
+                <div
+                  style={{
+                    width: 28,
+                    height: 28,
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 12,
+                    fontWeight: 700,
+                    background: isActive ? '#053C31' : isDone ? '#2E7D4F' : '#E3ECE7',
+                    color: isActive || isDone ? '#FFFFFF' : '#404945',
+                    boxShadow: isActive ? '0 0 0 4px rgba(142, 182, 155, 0.4)' : 'none',
+                  }}
+                >
+                  {isDone ? <Check size={14} strokeWidth={3} /> : stepNum}
+                </div>
+                <span
+                  style={{
+                    marginTop: 4,
+                    fontSize: 11,
+                    fontWeight: isActive ? 700 : 500,
+                    color: isActive ? '#053C31' : isDone ? '#2E7D4F' : '#404945',
+                    textAlign: 'center',
+                  }}
+                >
+                  {label}
+                </span>
+              </div>
+              {i < 3 && (
+                <div
+                  style={{
+                    height: 2,
+                    flex: 1,
+                    margin: '0 4px',
+                    marginBottom: 16,
+                    background: isDone ? '#2E7D4F' : '#E3ECE7',
+                  }}
+                />
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -152,28 +187,33 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
     <div
       role="note"
       style={{
-        marginTop: 14,
-        padding: '12px 16px',
-        borderRadius: 16,
-        background: 'var(--ms-green-100)',
-        color: 'var(--ms-green-900)',
+        marginTop: 12,
+        padding: '10px 14px',
+        borderRadius: 12,
+        background: '#E7F0EA',
+        color: '#404945',
         display: 'flex',
         alignItems: 'center',
         gap: 10,
-        fontSize: 13,
-        fontWeight: 700,
-        border: '1px solid #c2e2ca',
+        fontSize: 12.5,
+        fontWeight: 600,
+        border: '1px solid #CCD9D2',
       }}
     >
-      <span aria-hidden="true" style={{ fontSize: 16 }}>ℹ</span>
+      <Info size={16} color="#235347" style={{ flexShrink: 0 }} />
       <span>{t.banner}</span>
     </div>
   );
 
   const renderPatientListAndForm = () => (
-    <div style={{ display: 'grid', gap: 16 }}>
-      {/* Search Input (56px high) */}
+    <div style={{ display: 'grid', gap: 14 }}>
+      {/* Search Input */}
       <div style={{ position: 'relative' }}>
+        <Search
+          size={18}
+          color="#707975"
+          style={{ position: 'absolute', left: 16, top: 18, pointerEvents: 'none' }}
+        />
         <input
           type="search"
           value={query}
@@ -182,52 +222,56 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
           aria-label={t.searchPlaceholder}
           style={{
             width: '100%',
-            height: 56,
-            minHeight: 56,
-            padding: '0 16px 0 44px',
-            borderRadius: 16,
-            border: '2px solid var(--ms-border)',
-            background: 'var(--ms-surface)',
-            color: 'var(--ms-ink)',
-            fontSize: 15,
-            fontWeight: 600,
+            height: 52,
+            minHeight: 52,
+            padding: '0 40px 0 46px',
+            borderRadius: 14,
+            border: '1px solid #E3ECE7',
+            background: '#FFFFFF',
+            color: '#00201C',
+            fontSize: 14,
+            fontWeight: 500,
             outline: 'none',
             boxSizing: 'border-box',
           }}
         />
-        <svg
-          aria-hidden="true"
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="var(--ms-muted)"
-          strokeWidth="2.4"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          style={{ position: 'absolute', left: 16, top: 19 }}
-        >
-          <circle cx="11" cy="11" r="7" />
-          <path d="m21 21-4.35-4.35" />
-        </svg>
+        {query && (
+          <button
+            type="button"
+            onClick={() => setQuery('')}
+            aria-label="Clear search"
+            style={{
+              position: 'absolute',
+              right: 12,
+              top: 14,
+              border: 0,
+              background: 'none',
+              cursor: 'pointer',
+              color: '#707975',
+              padding: 4,
+            }}
+          >
+            <X size={16} />
+          </button>
+        )}
       </div>
 
-      {/* Add New Patient Toggle Button (56px high) */}
+      {/* Add New Patient Toggle Button */}
       {!showAddForm ? (
         <button
           type="button"
           onClick={() => setShowAddForm(true)}
           style={{
             width: '100%',
-            height: 56,
-            minHeight: 56,
-            padding: '0 20px',
-            borderRadius: 18,
-            border: '2px dashed var(--ms-green-500)',
-            background: 'var(--ms-mint)',
-            color: 'var(--ms-forest)',
-            fontSize: 15,
-            fontWeight: 800,
+            height: 52,
+            minHeight: 52,
+            padding: '0 16px',
+            borderRadius: 14,
+            border: '2px dashed #8EB69B',
+            background: 'rgba(218, 241, 222, 0.4)',
+            color: '#163832',
+            fontSize: 14,
+            fontWeight: 700,
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
@@ -236,7 +280,7 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
             transition: 'background 0.15s ease',
           }}
         >
-          <span style={{ fontSize: 20, lineHeight: 1 }}>+</span>
+          <UserPlus size={18} color="#235347" />
           <span>{t.addNewPatient}</span>
         </button>
       ) : (
@@ -244,17 +288,17 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
         <form
           onSubmit={handleSaveNewPatient}
           style={{
-            padding: 20,
-            borderRadius: 22,
-            background: 'var(--ms-surface)',
-            border: '2px solid var(--ms-border)',
+            padding: 18,
+            borderRadius: 16,
+            background: '#FFFFFF',
+            border: '1px solid #E3ECE7',
             display: 'grid',
-            gap: 16,
+            gap: 14,
             boxShadow: '0 4px 16px rgba(0,0,0,0.06)',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <h3 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: 'var(--ms-ink)' }}>
+            <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#00201C' }}>
               {t.addNewPatient}
             </h3>
             <button
@@ -266,9 +310,9 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
               style={{
                 border: 0,
                 background: 'none',
-                color: 'var(--ms-muted)',
+                color: '#707975',
                 fontSize: 13,
-                fontWeight: 700,
+                fontWeight: 600,
                 cursor: 'pointer',
                 padding: '4px 8px',
               }}
@@ -277,11 +321,11 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
             </button>
           </div>
 
-          {/* Name Field (56px high) */}
+          {/* Name Field */}
           <div>
             <label
               htmlFor="ms-patient-name"
-              style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--ms-ink)', marginBottom: 6 }}
+              style={{ display: 'block', fontSize: 12.5, fontWeight: 700, color: '#00201C', marginBottom: 6 }}
             >
               {t.nameLabel}
             </label>
@@ -296,30 +340,30 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
               placeholder={t.namePlaceholder}
               style={{
                 width: '100%',
-                height: 56,
-                minHeight: 56,
-                padding: '0 16px',
-                borderRadius: 16,
-                border: `2px solid ${formErrors.name ? 'var(--ms-danger)' : 'var(--ms-border)'}`,
-                background: 'var(--ms-bg)',
-                fontSize: 15,
-                fontWeight: 600,
+                height: 48,
+                padding: '0 14px',
+                borderRadius: 12,
+                border: `1px solid ${formErrors.name ? '#BA1A1A' : '#E3ECE7'}`,
+                background: '#F8FAF9',
+                color: '#00201C',
+                fontSize: 14,
+                fontWeight: 500,
                 boxSizing: 'border-box',
                 outline: 'none',
               }}
             />
             {formErrors.name && (
-              <span role="alert" style={{ display: 'block', marginTop: 4, fontSize: 12, fontWeight: 700, color: 'var(--ms-danger)' }}>
+              <span role="alert" style={{ display: 'block', marginTop: 4, fontSize: 12, fontWeight: 600, color: '#BA1A1A' }}>
                 {formErrors.name}
               </span>
             )}
           </div>
 
-          {/* Age Field (56px high) */}
+          {/* Age Field */}
           <div>
             <label
               htmlFor="ms-patient-age"
-              style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--ms-ink)', marginBottom: 6 }}
+              style={{ display: 'block', fontSize: 12.5, fontWeight: 700, color: '#00201C', marginBottom: 6 }}
             >
               {t.ageLabel}
             </label>
@@ -336,20 +380,20 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
               placeholder={t.agePlaceholder}
               style={{
                 width: '100%',
-                height: 56,
-                minHeight: 56,
-                padding: '0 16px',
-                borderRadius: 16,
-                border: `2px solid ${formErrors.age ? 'var(--ms-danger)' : 'var(--ms-border)'}`,
-                background: 'var(--ms-bg)',
-                fontSize: 15,
-                fontWeight: 600,
+                height: 48,
+                padding: '0 14px',
+                borderRadius: 12,
+                border: `1px solid ${formErrors.age ? '#BA1A1A' : '#E3ECE7'}`,
+                background: '#F8FAF9',
+                color: '#00201C',
+                fontSize: 14,
+                fontWeight: 500,
                 boxSizing: 'border-box',
                 outline: 'none',
               }}
             />
             {formErrors.age && (
-              <span role="alert" style={{ display: 'block', marginTop: 4, fontSize: 12, fontWeight: 700, color: 'var(--ms-danger)' }}>
+              <span role="alert" style={{ display: 'block', marginTop: 4, fontSize: 12, fontWeight: 600, color: '#BA1A1A' }}>
                 {formErrors.age}
               </span>
             )}
@@ -357,7 +401,7 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
 
           {/* Sex Field */}
           <div>
-            <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--ms-ink)', marginBottom: 6 }}>
+            <label style={{ display: 'block', fontSize: 12.5, fontWeight: 700, color: '#00201C', marginBottom: 6 }}>
               {t.sexLabel}
             </label>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
@@ -367,12 +411,12 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
                   type="button"
                   onClick={() => setFormSex(formSex === s ? '' : s)}
                   style={{
-                    height: 48,
-                    borderRadius: 14,
-                    border: `2px solid ${formSex === s ? 'var(--ms-forest)' : 'var(--ms-border)'}`,
-                    background: formSex === s ? 'var(--ms-mint)' : 'var(--ms-bg)',
-                    color: formSex === s ? 'var(--ms-forest)' : 'var(--ms-ink)',
-                    fontSize: 14,
+                    height: 44,
+                    borderRadius: 12,
+                    border: `2px solid ${formSex === s ? '#235347' : '#E3ECE7'}`,
+                    background: formSex === s ? '#DAF1DE' : '#F8FAF9',
+                    color: formSex === s ? '#0B2B26' : '#00201C',
+                    fontSize: 13.5,
                     fontWeight: 700,
                     cursor: 'pointer',
                   }}
@@ -383,11 +427,11 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
             </div>
           </div>
 
-          {/* Village Field (56px high) */}
+          {/* Village Field */}
           <div>
             <label
               htmlFor="ms-patient-village"
-              style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--ms-ink)', marginBottom: 6 }}
+              style={{ display: 'block', fontSize: 12.5, fontWeight: 700, color: '#00201C', marginBottom: 6 }}
             >
               {t.villageLabel}
             </label>
@@ -397,14 +441,14 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
               onChange={(e) => setFormVillage(e.target.value)}
               style={{
                 width: '100%',
-                height: 56,
-                minHeight: 56,
-                padding: '0 16px',
-                borderRadius: 16,
-                border: '2px solid var(--ms-border)',
-                background: 'var(--ms-bg)',
-                fontSize: 15,
-                fontWeight: 600,
+                height: 48,
+                padding: '0 14px',
+                borderRadius: 12,
+                border: '1px solid #E3ECE7',
+                background: '#F8FAF9',
+                color: '#00201C',
+                fontSize: 14,
+                fontWeight: 500,
                 boxSizing: 'border-box',
                 outline: 'none',
                 cursor: 'pointer',
@@ -425,15 +469,15 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
                 placeholder={t.customVillagePlaceholder}
                 style={{
                   width: '100%',
-                  height: 56,
-                  minHeight: 56,
+                  height: 48,
                   marginTop: 8,
-                  padding: '0 16px',
-                  borderRadius: 16,
-                  border: '2px solid var(--ms-border)',
-                  background: 'var(--ms-bg)',
-                  fontSize: 15,
-                  fontWeight: 600,
+                  padding: '0 14px',
+                  borderRadius: 12,
+                  border: '1px solid #E3ECE7',
+                  background: '#F8FAF9',
+                  color: '#00201C',
+                  fontSize: 14,
+                  fontWeight: 500,
                   boxSizing: 'border-box',
                   outline: 'none',
                 }}
@@ -441,21 +485,21 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
             )}
           </div>
 
-          {/* Pregnant switch - shown ONLY when Sex is Female and Age is 12 or more */}
+          {/* Pregnant switch */}
           {isFemaleAge12Plus && (
             <div
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                padding: '12px 16px',
-                borderRadius: 16,
-                background: 'var(--ms-bg)',
-                border: '1px solid var(--ms-border)',
+                padding: '10px 14px',
+                borderRadius: 12,
+                background: '#F8FAF9',
+                border: '1px solid #E3ECE7',
               }}
             >
               <div>
-                <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--ms-ink)' }}>{t.pregnantLabel}</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: '#00201C' }}>{t.pregnantLabel}</span>
               </div>
               <div style={{ display: 'flex', gap: 6 }}>
                 <button
@@ -463,13 +507,13 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
                   onClick={() => setFormPregnant(false)}
                   style={{
                     padding: '6px 14px',
-                    borderRadius: 10,
+                    borderRadius: 8,
                     border: 0,
                     cursor: 'pointer',
-                    fontSize: 13,
+                    fontSize: 12.5,
                     fontWeight: 700,
-                    background: !formPregnant ? 'var(--ms-forest)' : '#e2e8e5',
-                    color: !formPregnant ? '#fff' : 'var(--ms-muted)',
+                    background: !formPregnant ? '#235347' : '#E3ECE7',
+                    color: !formPregnant ? '#FFFFFF' : '#404945',
                   }}
                 >
                   {t.no}
@@ -479,13 +523,13 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
                   onClick={() => setFormPregnant(true)}
                   style={{
                     padding: '6px 14px',
-                    borderRadius: 10,
+                    borderRadius: 8,
                     border: 0,
                     cursor: 'pointer',
-                    fontSize: 13,
+                    fontSize: 12.5,
                     fontWeight: 700,
-                    background: formPregnant ? 'var(--ms-orange)' : '#e2e8e5',
-                    color: formPregnant ? '#fff' : 'var(--ms-muted)',
+                    background: formPregnant ? '#235347' : '#E3ECE7',
+                    color: formPregnant ? '#FFFFFF' : '#404945',
                   }}
                 >
                   {t.yes}
@@ -494,19 +538,20 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
             </div>
           )}
 
-          {/* Submit form button (56px high) */}
+          {/* Submit form button */}
           <button
             type="submit"
+            className="ms-btn-primary"
             style={{
               width: '100%',
-              height: 56,
-              minHeight: 56,
-              borderRadius: 18,
+              height: 52,
+              minHeight: 52,
+              borderRadius: 14,
               border: 0,
-              background: 'var(--ms-forest)',
-              color: '#fff',
-              fontSize: 16,
-              fontWeight: 800,
+              background: '#235347',
+              color: '#FFFFFF',
+              fontSize: 15,
+              fontWeight: 700,
               cursor: 'pointer',
             }}
           >
@@ -516,13 +561,18 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
       )}
 
       {/* Patient List Heading */}
-      <h3 style={{ margin: '8px 0 0', fontSize: 16, fontWeight: 800, color: 'var(--ms-ink)' }}>
-        {t.existingPatients} ({filteredPatients.length})
-      </h3>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 2px' }}>
+        <span style={{ fontSize: 12, fontWeight: 700, color: '#163832', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+          {t.existingPatients}
+        </span>
+        <span style={{ fontSize: 12, color: '#707975', fontWeight: 500 }}>
+          {filteredPatients.length}
+        </span>
+      </div>
 
-      {/* List of Patients with large tap targets (>= 56px high) */}
+      {/* List of Patients */}
       {filteredPatients.length === 0 ? (
-        <div style={{ padding: 24, textAlign: 'center', color: 'var(--ms-muted)', fontSize: 14, fontWeight: 600 }}>
+        <div style={{ padding: 24, textAlign: 'center', color: '#707975', fontSize: 14, fontWeight: 500 }}>
           {t.noPatientsFound}
         </div>
       ) : (
@@ -541,11 +591,11 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
                   style={{
                     width: '100%',
                     minHeight: 64,
-                    padding: '14px 18px',
-                    borderRadius: 20,
-                    border: `2px solid ${isSelected ? 'var(--ms-orange)' : 'transparent'}`,
-                    background: isSelected ? '#FFF3EC' : 'var(--ms-surface)',
-                    boxShadow: '0 4px 14px rgba(31, 77, 56, 0.06)',
+                    padding: '14px 16px',
+                    borderRadius: 16,
+                    border: `2px solid ${isSelected ? '#235347' : '#E3ECE7'}`,
+                    background: isSelected ? 'linear-gradient(to right, #FFFFFF, rgba(218, 241, 222, 0.25))' : '#FFFFFF',
+                    boxShadow: isSelected ? '0 2px 10px rgba(35, 83, 71, 0.1)' : '0 1px 3px rgba(0,0,0,0.03)',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
@@ -555,53 +605,53 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
                     transition: 'all 0.15s ease',
                   }}
                 >
-                  <div style={{ minWidth: 0, flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                      <span style={{ fontSize: 16.5, fontWeight: 800, color: 'var(--ms-ink)', lineHeight: 1.25 }}>
-                        {p.name[lang]}
-                      </span>
-                      {ageText && (
-                        <span
-                          style={{
-                            fontSize: 12.5,
-                            fontWeight: 700,
-                            color: 'var(--ms-muted)',
-                            background: 'var(--ms-bg)',
-                            padding: '2px 8px',
-                            borderRadius: 8,
-                          }}
-                        >
-                          {ageText}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0, flex: 1 }}>
+                    {/* Radio visual */}
+                    <div
+                      style={{
+                        width: 20,
+                        height: 20,
+                        borderRadius: '50%',
+                        border: `2px solid ${isSelected ? '#235347' : '#707975'}`,
+                        background: isSelected ? '#235347' : '#FFFFFF',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                      }}
+                    >
+                      {isSelected && (
+                        <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#FFFFFF' }} />
+                      )}
+                    </div>
+
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: 15.5, fontWeight: 700, color: '#00201C', lineHeight: 1.25 }}>
+                          {p.name[lang]}
+                        </span>
+                        {ageText && (
+                          <span
+                            style={{
+                              fontSize: 11.5,
+                              fontWeight: 600,
+                              color: '#404945',
+                              background: '#E7F0EA',
+                              padding: '2px 8px',
+                              borderRadius: 6,
+                            }}
+                          >
+                            {ageText}
+                          </span>
+                        )}
+                      </div>
+                      {villageName && (
+                        <span style={{ display: 'block', marginTop: 3, fontSize: 12.5, color: '#707975', fontWeight: 500 }}>
+                          {villageName}
                         </span>
                       )}
                     </div>
-                    {villageName && (
-                      <span style={{ display: 'block', marginTop: 4, fontSize: 13, color: 'var(--ms-muted)', fontWeight: 600 }}>
-                        {villageName}
-                      </span>
-                    )}
                   </div>
-
-                  <span
-                    aria-hidden="true"
-                    style={{
-                      width: 28,
-                      height: 28,
-                      borderRadius: '50%',
-                      border: `2px solid ${isSelected ? 'var(--ms-orange)' : 'var(--ms-border)'}`,
-                      background: isSelected ? 'var(--ms-orange)' : 'transparent',
-                      color: '#fff',
-                      display: 'grid',
-                      placeItems: 'center',
-                      flexShrink: 0,
-                    }}
-                  >
-                    {isSelected && (
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="m5 12.5 4.5 4.5L19 7.5" />
-                      </svg>
-                    )}
-                  </span>
                 </button>
               </li>
             );
@@ -615,75 +665,132 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
     <div>
       {/* ===================== NARROW PHONE LAYOUT (@md and below) ===================== */}
       <div className="block @2xl:hidden">
+        {/* Header bar */}
         <header
           style={{
-            background: 'var(--ms-surface)',
-            borderRadius: '0 0 32px 32px',
-            padding: 'calc(20px + env(safe-area-inset-top, 0px)) 20px 20px',
-            boxShadow: '0 4px 16px rgba(0,0,0,0.04)',
+            background: '#FFFFFF',
+            borderBottom: '1px solid #E3ECE7',
+            position: 'sticky',
+            top: 0,
+            zIndex: 30,
+            padding: 'calc(12px + env(safe-area-inset-top, 0px)) 16px 12px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
           }}
         >
-          {renderStepper()}
-          <h1 style={{ margin: '16px 0 2px', fontSize: 24, fontWeight: 800, color: 'var(--ms-ink)' }}>
-            {t.title}
-          </h1>
-          <p style={{ margin: 0, fontSize: 13.5, color: 'var(--ms-muted)', fontWeight: 600 }}>
-            {t.subtitle}
-          </p>
-          {renderBanner()}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <button
+              type="button"
+              onClick={() => onNavigate('/mitanin/home')}
+              aria-label={t.back}
+              style={{
+                width: 38,
+                height: 38,
+                borderRadius: 10,
+                background: '#F8FAF9',
+                border: '1px solid #E3ECE7',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#051F20',
+                cursor: 'pointer',
+              }}
+            >
+              <ArrowLeft size={18} />
+            </button>
+            <div>
+              <h1 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#051F20', lineHeight: 1.2 }}>
+                {t.title}
+              </h1>
+              <p style={{ margin: '2px 0 0', fontSize: 12, color: '#707975', fontWeight: 500 }}>
+                {t.subtitle}
+              </p>
+            </div>
+          </div>
+          <span
+            style={{
+              fontSize: 12,
+              fontWeight: 700,
+              color: '#235347',
+              background: '#DAF1DE',
+              padding: '4px 10px',
+              borderRadius: 999,
+              border: '1px solid rgba(142, 182, 155, 0.4)',
+            }}
+          >
+            {filteredPatients.length} {lang === 'hi' ? 'रोगी' : 'Patients'}
+          </span>
         </header>
 
-        <section style={{ padding: '20px 20px 100px' }}>
-          {renderPatientListAndForm()}
+        <section style={{ padding: '16px 16px 100px' }}>
+          {renderStepper()}
+          {renderBanner()}
+          <div style={{ marginTop: 16 }}>
+            {renderPatientListAndForm()}
+          </div>
         </section>
 
         {/* Sticky Bottom Actions */}
         <div
           style={{
             position: 'sticky',
-            bottom: 'calc(20px + env(safe-area-inset-bottom, 0px))',
-            marginTop: -80,
-            padding: '14px 20px 8px',
+            bottom: 0,
+            padding: '12px 16px calc(14px + env(safe-area-inset-bottom, 0px))',
             display: 'flex',
             gap: 12,
-            background: 'linear-gradient(to top, var(--ms-bg) 70%, rgba(246,248,245,0))',
+            background: '#FFFFFF',
+            borderTop: '1px solid #E3ECE7',
+            boxShadow: '0 -2px 10px rgba(0,0,0,0.05)',
+            zIndex: 25,
           }}
         >
           <button
             type="button"
             onClick={() => onNavigate('/mitanin/home')}
             style={{
-              flex: '0 0 auto',
-              padding: '16px 14px',
-              border: 0,
-              background: 'none',
+              padding: '0 16px',
+              height: 56,
+              borderRadius: 14,
+              border: '1px solid #CCD9D2',
+              background: '#F8FAF9',
               cursor: 'pointer',
-              fontSize: 17,
-              fontWeight: 800,
-              color: 'var(--ms-green-700)',
+              fontSize: 15,
+              fontWeight: 700,
+              color: '#235347',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
             }}
           >
-            {t.back}
+            <ArrowLeft size={18} />
+            <span>{t.back}</span>
           </button>
           <button
             type="button"
             disabled={!selectedPatientId}
             onClick={handleNext}
+            className="ms-btn-primary"
             style={{
               flex: 1,
-              height: 62,
+              height: 56,
               border: 0,
-              borderRadius: 22,
+              borderRadius: 14,
               cursor: selectedPatientId ? 'pointer' : 'default',
-              fontSize: 18.5,
-              fontWeight: 800,
-              background: selectedPatientId ? 'var(--ms-orange)' : '#d5ddd8',
-              color: selectedPatientId ? '#fff' : '#8a9690',
-              boxShadow: selectedPatientId ? '0 10px 22px rgba(240, 121, 75, 0.35)' : 'none',
+              fontSize: 16,
+              fontWeight: 700,
+              background: selectedPatientId ? '#235347' : '#CCD9D2',
+              color: selectedPatientId ? '#FFFFFF' : '#707975',
+              boxShadow: selectedPatientId ? '0 4px 14px rgba(35, 83, 71, 0.25)' : 'none',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
               transition: 'all 0.15s ease',
             }}
           >
-            {t.next}
+            <span>{t.next}</span>
+            <ArrowRight size={18} />
           </button>
         </div>
       </div>
@@ -693,42 +800,57 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
         <div style={{ maxWidth: 860, margin: '0 auto' }}>
           <header
             style={{
-              background: 'var(--ms-surface)',
-              borderRadius: 28,
-              border: '1px solid var(--ms-border)',
-              padding: '24px 32px',
-              boxShadow: 'var(--ms-shadow-card)',
-              marginBottom: 24,
+              background: '#FFFFFF',
+              borderRadius: 20,
+              border: '1px solid #E3ECE7',
+              padding: '24px 28px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+              marginBottom: 20,
             }}
           >
             {renderStepper()}
-            <div style={{ marginTop: 18 }}>
-              <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800, color: 'var(--ms-ink)' }}>
-                {t.title}
-              </h1>
-              <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--ms-muted)', fontWeight: 600 }}>
-                {t.subtitle}
-              </p>
+            <div style={{ marginTop: 18, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: '#00201C' }}>
+                  {t.title}
+                </h1>
+                <p style={{ margin: '4px 0 0', fontSize: 14, color: '#707975', fontWeight: 500 }}>
+                  {t.subtitle}
+                </p>
+              </div>
+              <span
+                style={{
+                  fontSize: 13,
+                  fontWeight: 700,
+                  color: '#235347',
+                  background: '#DAF1DE',
+                  padding: '6px 14px',
+                  borderRadius: 999,
+                  border: '1px solid rgba(142, 182, 155, 0.4)',
+                }}
+              >
+                {filteredPatients.length} {lang === 'hi' ? 'रोगी पंजीकृत' : 'Registered Patients'}
+              </span>
             </div>
             {renderBanner()}
           </header>
 
           <main
             style={{
-              background: 'var(--ms-surface)',
-              borderRadius: 28,
-              border: '1px solid var(--ms-border)',
-              padding: '32px',
-              boxShadow: 'var(--ms-shadow-card)',
+              background: '#FFFFFF',
+              borderRadius: 20,
+              border: '1px solid #E3ECE7',
+              padding: '28px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
             }}
           >
             {renderPatientListAndForm()}
 
             <div
               style={{
-                marginTop: 28,
-                paddingTop: 20,
-                borderTop: '1px solid var(--ms-border)',
+                marginTop: 24,
+                paddingTop: 18,
+                borderTop: '1px solid #E3ECE7',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
@@ -738,35 +860,45 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
                 type="button"
                 onClick={() => onNavigate('/mitanin/home')}
                 style={{
-                  padding: '14px 24px',
-                  border: 0,
-                  background: 'none',
+                  padding: '12px 20px',
+                  borderRadius: 12,
+                  border: '1px solid #CCD9D2',
+                  background: '#F8FAF9',
                   cursor: 'pointer',
-                  fontSize: 16,
-                  fontWeight: 800,
-                  color: 'var(--ms-green-700)',
+                  fontSize: 15,
+                  fontWeight: 700,
+                  color: '#235347',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
                 }}
               >
-                {t.back}
+                <ArrowLeft size={18} />
+                <span>{t.back}</span>
               </button>
               <button
                 type="button"
                 disabled={!selectedPatientId}
                 onClick={handleNext}
+                className="ms-btn-primary"
                 style={{
-                  padding: '16px 36px',
-                  height: 56,
+                  padding: '0 32px',
+                  height: 52,
                   border: 0,
-                  borderRadius: 18,
+                  borderRadius: 14,
                   cursor: selectedPatientId ? 'pointer' : 'default',
-                  fontSize: 17,
-                  fontWeight: 800,
-                  background: selectedPatientId ? 'var(--ms-orange)' : '#d5ddd8',
-                  color: selectedPatientId ? '#fff' : '#8a9690',
-                  boxShadow: selectedPatientId ? '0 8px 20px rgba(240, 121, 75, 0.35)' : 'none',
+                  fontSize: 16,
+                  fontWeight: 700,
+                  background: selectedPatientId ? '#235347' : '#CCD9D2',
+                  color: selectedPatientId ? '#FFFFFF' : '#707975',
+                  boxShadow: selectedPatientId ? '0 4px 14px rgba(35, 83, 71, 0.25)' : 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
                 }}
               >
-                {t.next} →
+                <span>{t.next}</span>
+                <ArrowRight size={18} />
               </button>
             </div>
           </main>
@@ -775,3 +907,4 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
     </div>
   );
 }
+

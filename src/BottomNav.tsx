@@ -1,4 +1,5 @@
 import type { ReactElement } from 'react';
+import { Home, Calendar, Bell, User, Inbox, FolderKanban, LayoutDashboard } from 'lucide-react';
 import enLocale from './i18n/en.json';
 import hiLocale from './i18n/hi.json';
 import { useCaseStore } from './store/CaseStore';
@@ -15,82 +16,14 @@ export interface Tab {
   icon: ReactElement;
 }
 
-const svgProps = {
-  width: 24,
-  height: 24,
-  viewBox: '0 0 24 24',
-  fill: 'none',
-  stroke: 'currentColor',
-  strokeWidth: 1.7,
-  strokeLinecap: 'round' as const,
-  strokeLinejoin: 'round' as const,
-  'aria-hidden': true,
-};
-
-const icons = {
-  home: (
-    <svg {...svgProps}>
-      <path d="M4 11 12 4l8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z" />
-    </svg>
-  ),
-  visits: (
-    <svg {...svgProps}>
-      <rect x="5" y="4" width="14" height="17" rx="2.5" />
-      <path d="M9 3v3M15 3v3M8.5 11h7M8.5 15h7" />
-    </svg>
-  ),
-  alerts: (
-    <svg {...svgProps}>
-      <path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z" />
-      <path d="M10 21h4" />
-    </svg>
-  ),
-  profile: (
-    <svg {...svgProps}>
-      <circle cx="12" cy="8" r="4" />
-      <path d="M4.5 20a7.5 7.5 0 0 1 15 0" />
-    </svg>
-  ),
-  inbox: (
-    <svg {...svgProps}>
-      <path d="M4 13 6.5 5h11L20 13v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z" />
-      <path d="M4 13h4.5l1 2.5h5l1-2.5H20" />
-    </svg>
-  ),
-  replied: (
-    <svg {...svgProps}>
-      <path d="M4 5.5A1.5 1.5 0 0 1 5.5 4h13A1.5 1.5 0 0 1 20 5.5v9a1.5 1.5 0 0 1-1.5 1.5H10l-4.5 4v-4A1.5 1.5 0 0 1 4 14.5z" />
-      <path d="m8.5 10 2.5 2.5 4.5-5" />
-    </svg>
-  ),
-  cases: (
-    <svg {...svgProps}>
-      <path d="M3.5 7.5a1.5 1.5 0 0 1 1.5-1.5h4l2 2.5h8a1.5 1.5 0 0 1 1.5 1.5V18a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 18z" />
-    </svg>
-  ),
-  people: (
-    <svg {...svgProps}>
-      <circle cx="9" cy="8.5" r="3.5" />
-      <path d="M2.5 20a6.5 6.5 0 0 1 13 0" />
-      <path d="M15.5 5.3a3.4 3.4 0 0 1 0 6.4M17.5 14.2a6.5 6.5 0 0 1 4 5.8" />
-    </svg>
-  ),
-  overview: (
-    <svg {...svgProps}>
-      <rect x="4" y="4" width="6.5" height="6.5" rx="1.5" />
-      <rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5" />
-      <rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5" />
-      <rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5" />
-    </svg>
-  ),
-};
+const iconSize = 22;
 
 const alertsTab: Tab = {
   id: 'alerts',
   route: '/alerts',
   match: ['/alerts'],
   labelKey: 'alerts',
-  icon: icons.alerts,
+  icon: <Bell size={iconSize} aria-hidden />,
 };
 
 const profileTab: Tab = {
@@ -98,7 +31,7 @@ const profileTab: Tab = {
   route: '/profile',
   match: ['/profile'],
   labelKey: 'profile',
-  icon: icons.profile,
+  icon: <User size={iconSize} aria-hidden />,
 };
 
 const casesTab: Tab = {
@@ -106,7 +39,7 @@ const casesTab: Tab = {
   route: '/case',
   match: ['/case'],
   labelKey: 'cases',
-  icon: icons.cases,
+  icon: <FolderKanban size={iconSize} aria-hidden />,
 };
 
 export const TABS: Record<Role, Tab[]> = {
@@ -116,14 +49,14 @@ export const TABS: Record<Role, Tab[]> = {
       route: '/mitanin/home',
       match: ['/mitanin/home', '/mitanin/screening/symptoms', '/mitanin/screening/test', '/mitanin/screening/result', '/mitanin/consult', '/mitanin/referral'],
       labelKey: 'home',
-      icon: icons.home,
+      icon: <Home size={iconSize} aria-hidden />,
     },
     {
       id: 'visits',
       route: '/mitanin/visits',
       match: ['/mitanin/visits'],
       labelKey: 'visits',
-      icon: icons.visits,
+      icon: <Calendar size={iconSize} aria-hidden />,
     },
     alertsTab,
     profileTab,
@@ -134,14 +67,14 @@ export const TABS: Record<Role, Tab[]> = {
       route: '/doctor/inbox',
       match: ['/doctor/inbox', '/doctor/review'],
       labelKey: 'inbox',
-      icon: icons.inbox,
+      icon: <Inbox size={iconSize} aria-hidden />,
     },
     {
       id: 'cases',
       route: '/case',
       match: ['/case'],
       labelKey: 'cases',
-      icon: icons.cases,
+      icon: <FolderKanban size={iconSize} aria-hidden />,
     },
     alertsTab,
     profileTab,
@@ -152,7 +85,7 @@ export const TABS: Record<Role, Tab[]> = {
       route: '/supervisor/overview',
       match: ['/supervisor/overview'],
       labelKey: 'overview',
-      icon: icons.overview,
+      icon: <LayoutDashboard size={iconSize} aria-hidden />,
     },
     casesTab,
     alertsTab,
@@ -176,7 +109,6 @@ export default function BottomNav({ role, route, lang, onNavigate }: BottomNavPr
   return (
     <nav
       aria-label={(lang === 'hi' ? hiLocale : enLocale).navigation.main}
-      className="pb-[env(safe-area-inset-bottom)]"
       style={{
         position: 'absolute',
         bottom: 0,
@@ -184,9 +116,9 @@ export default function BottomNav({ role, route, lang, onNavigate }: BottomNavPr
         transform: 'translateX(-50%)',
         width: '100%',
         maxWidth: 430,
-        padding: '0 12px calc(12px + env(safe-area-inset-bottom, 0px))',
+        padding: '0 12px calc(10px + env(safe-area-inset-bottom, 0px))',
         boxSizing: 'border-box',
-        zIndex: 20,
+        zIndex: 40,
         pointerEvents: 'none',
       }}
     >
@@ -194,13 +126,14 @@ export default function BottomNav({ role, route, lang, onNavigate }: BottomNavPr
         style={{
           listStyle: 'none',
           margin: 0,
-          padding: '8px',
+          padding: '6px 8px',
           display: 'grid',
           gridTemplateColumns: 'repeat(4, 1fr)',
           alignItems: 'center',
-          background: 'var(--ms-surface)',
-          borderRadius: 28,
-          boxShadow: '0 10px 30px rgba(31, 77, 56, 0.18)',
+          background: 'var(--ms-card)',
+          border: '1px solid var(--ms-border)',
+          borderRadius: 'var(--ms-radius-lg)',
+          boxShadow: 'var(--ms-shadow)',
           pointerEvents: 'auto',
         }}
       >
@@ -214,24 +147,24 @@ export default function BottomNav({ role, route, lang, onNavigate }: BottomNavPr
                 aria-current={active ? 'page' : undefined}
                 className="ms-navbtn"
                 style={{
-                  flex: 1,
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: 3,
-                  padding: '4px 2px',
-                  minHeight: 48,
-                  minWidth: 48,
+                  padding: '6px 4px',
+                  minHeight: 'var(--ms-tap-target)',
+                  minWidth: 'var(--ms-tap-target)',
                   width: '100%',
-                  background: 'none',
+                  background: active ? 'var(--ms-mint)' : 'transparent',
                   border: 0,
-                  borderRadius: 16,
+                  borderRadius: 'var(--ms-radius-sm)',
                   cursor: 'pointer',
                   font: 'inherit',
-                  fontSize: lang === 'hi' ? 10.5 : 11,
+                  fontSize: lang === 'hi' ? 12 : 12,
                   fontWeight: active ? 700 : 500,
-                  color: active ? 'var(--ms-orange)' : 'var(--ms-muted)',
+                  color: active ? 'var(--ms-primary)' : 'var(--ms-muted)',
+                  transition: 'background-color 0.15s ease, color 0.15s ease',
                 }}
               >
                 <span style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -240,14 +173,14 @@ export default function BottomNav({ role, route, lang, onNavigate }: BottomNavPr
                     <span
                       style={{
                         position: 'absolute',
-                        top: -4,
-                        right: -8,
-                        minWidth: 16,
-                        height: 16,
+                        top: -5,
+                        right: -9,
+                        minWidth: 18,
+                        height: 18,
                         padding: '0 4px',
-                        borderRadius: 999,
+                        borderRadius: 'var(--ms-radius-pill)',
                         background: 'var(--ms-danger)',
-                        color: '#fff',
+                        color: 'var(--ms-text-white)',
                         fontSize: 10,
                         fontWeight: 800,
                         display: 'grid',
@@ -259,20 +192,17 @@ export default function BottomNav({ role, route, lang, onNavigate }: BottomNavPr
                     </span>
                   )}
                 </span>
-                <span style={{ maxWidth: '100%', overflowWrap: 'break-word', textAlign: 'center', lineHeight: 1.15 }}>
+                <span
+                  style={{
+                    maxWidth: '100%',
+                    overflowWrap: 'break-word',
+                    textAlign: 'center',
+                    lineHeight: 1.15,
+                    color: active ? 'var(--ms-primary)' : 'var(--ms-muted)',
+                  }}
+                >
                   {(lang === 'hi' ? hiLocale : enLocale).navigation[tab.labelKey]}
                 </span>
-                <span
-                  aria-hidden
-                  style={{
-                    display: 'block',
-                    flexShrink: 0,
-                    width: 5,
-                    height: 5,
-                    borderRadius: '50%',
-                    background: active ? 'var(--ms-orange)' : 'transparent',
-                  }}
-                />
               </button>
             </li>
           );
@@ -281,3 +211,4 @@ export default function BottomNav({ role, route, lang, onNavigate }: BottomNavPr
     </nav>
   );
 }
+

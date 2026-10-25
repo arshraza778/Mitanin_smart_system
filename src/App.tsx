@@ -101,12 +101,27 @@ function WebSidebar({
   const { unreadAlertsCount } = useCaseStore();
 
   return (
-    <aside className="ms-web-sidebar">
+    <aside
+      className="ms-web-sidebar on-dark-900"
+      style={{
+        width: 'var(--ms-sidebar-width)',
+        minWidth: 'var(--ms-sidebar-width)',
+        maxWidth: 'var(--ms-sidebar-width)',
+        height: '100dvh',
+        position: 'sticky',
+        top: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        boxSizing: 'border-box',
+        zIndex: 30,
+        borderRight: '1px solid var(--ms-dark-800)',
+      }}
+    >
       {/* Brand Header */}
       <div
         style={{
           padding: '24px 20px 20px',
-          borderBottom: '1px solid var(--ms-border)',
+          borderBottom: '1px solid var(--ms-dark-800)',
           display: 'flex',
           alignItems: 'center',
           gap: 12,
@@ -116,16 +131,16 @@ function WebSidebar({
           style={{
             width: 40,
             height: 40,
-            borderRadius: 12,
-            background: 'var(--ms-forest)',
+            borderRadius: 'var(--ms-radius-sm)',
+            background: 'var(--ms-primary)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#FFFFFF',
-            boxShadow: '0 4px 12px rgba(43, 107, 82, 0.25)',
+            color: 'var(--ms-text-white)',
+            boxShadow: 'var(--ms-shadow)',
           }}
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
             <path d="M12 8v8" />
             <path d="M8 12h8" />
@@ -133,18 +148,18 @@ function WebSidebar({
         </div>
         <div>
           <h2
+            className="ms-title"
             style={{
               margin: 0,
               fontSize: 18,
               fontWeight: 800,
-              color: 'var(--ms-ink)',
               letterSpacing: '-0.3px',
               lineHeight: 1.2,
             }}
           >
             Mitanin Signal
           </h2>
-          <span style={{ fontSize: 12, color: 'var(--ms-muted)', fontWeight: 600 }}>
+          <span className="ms-meta" style={{ fontSize: 12, fontWeight: 600 }}>
             {lang === 'hi' ? 'सामुदायिक स्वास्थ्य' : 'Community Health'}
           </span>
         </div>
@@ -155,18 +170,18 @@ function WebSidebar({
         {role ? (
           <>
             <div
+              className="ms-meta"
               style={{
                 fontSize: 11,
                 fontWeight: 700,
                 textTransform: 'uppercase',
                 letterSpacing: '0.06em',
-                color: 'var(--ms-muted)',
                 padding: '4px 12px 10px',
               }}
             >
               {lang === 'hi' ? 'नेविगेशन' : 'Menu'}
             </div>
-            <nav aria-label="Web main navigation" style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <nav aria-label="Web main navigation" style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {tabs.map((tab) => {
                 const active = isActive(tab, currentRoute);
                 return (
@@ -174,21 +189,23 @@ function WebSidebar({
                     key={tab.id}
                     type="button"
                     onClick={() => onNavigate(tab.route)}
+                    className={active ? 'on-primary' : ''}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
                       gap: 12,
                       width: '100%',
-                      padding: '10px 14px',
-                      borderRadius: 12,
+                      padding: '12px 14px',
+                      borderRadius: 'var(--ms-radius-sm)',
                       border: 0,
-                      background: active ? 'var(--ms-mint)' : 'transparent',
-                      color: active ? 'var(--ms-forest)' : 'var(--ms-ink)',
+                      background: active ? 'var(--ms-primary)' : 'transparent',
+                      color: active ? 'var(--ms-text-white)' : 'var(--ms-text-light)',
                       fontWeight: active ? 700 : 500,
                       fontSize: 14,
                       textAlign: 'left',
                       cursor: 'pointer',
                       transition: 'background 0.15s ease, color 0.15s ease',
+                      minHeight: 48,
                     }}
                   >
                     <span
@@ -197,7 +214,7 @@ function WebSidebar({
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        color: active ? 'var(--ms-orange)' : 'var(--ms-muted)',
+                        color: active ? 'var(--ms-text-white)' : 'var(--ms-sage)',
                       }}
                     >
                       {tab.icon}
@@ -210,9 +227,9 @@ function WebSidebar({
                             minWidth: 16,
                             height: 16,
                             padding: '0 4px',
-                            borderRadius: 999,
+                            borderRadius: 'var(--ms-radius-pill)',
                             background: 'var(--ms-danger)',
-                            color: '#fff',
+                            color: 'var(--ms-text-white)',
                             fontSize: 10,
                             fontWeight: 800,
                             display: 'grid',
@@ -225,16 +242,6 @@ function WebSidebar({
                       )}
                     </span>
                     <span style={{ flex: 1 }}>{t.navigation[tab.labelKey]}</span>
-                    {active && (
-                      <span
-                        style={{
-                          width: 6,
-                          height: 6,
-                          borderRadius: '50%',
-                          background: 'var(--ms-orange)',
-                        }}
-                      />
-                    )}
                   </button>
                 );
               })}
@@ -243,10 +250,10 @@ function WebSidebar({
         ) : (
           <div style={{ padding: '8px 12px' }}>
             <div
+              className="ms-meta"
               style={{
                 fontSize: 12,
                 fontWeight: 700,
-                color: 'var(--ms-muted)',
                 marginBottom: 12,
               }}
             >
@@ -261,15 +268,16 @@ function WebSidebar({
                   display: 'flex',
                   alignItems: 'center',
                   width: '100%',
-                  padding: '10px 12px',
-                  marginBottom: 6,
-                  borderRadius: 10,
-                  border: '1px solid var(--ms-border)',
-                  background: 'var(--ms-surface)',
-                  color: 'var(--ms-forest)',
+                  padding: '12px 14px',
+                  marginBottom: 8,
+                  borderRadius: 'var(--ms-radius-sm)',
+                  border: '1px solid var(--ms-dark-800)',
+                  background: 'var(--ms-dark-800)',
+                  color: 'var(--ms-text-white)',
                   fontWeight: 700,
                   fontSize: 13,
                   cursor: 'pointer',
+                  minHeight: 48,
                 }}
               >
                 {roleLabels[r][lang]} →
@@ -281,14 +289,14 @@ function WebSidebar({
 
       {/* Role Footer Card */}
       <div
+        className="on-dark-800"
         style={{
           padding: 16,
-          borderTop: '1px solid var(--ms-border)',
-          background: 'var(--ms-bg)',
+          borderTop: '1px solid var(--ms-dark-850)',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-          <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--ms-muted)', textTransform: 'uppercase' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+          <span className="ms-meta" style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase' }}>
             {lang === 'hi' ? 'वर्तमान भूमिका' : 'Active Role'}
           </span>
           <button
@@ -300,7 +308,7 @@ function WebSidebar({
               padding: 0,
               fontSize: 12,
               fontWeight: 700,
-              color: 'var(--ms-forest)',
+              color: 'var(--ms-text-light)',
               cursor: 'pointer',
               textDecoration: 'underline',
             }}
@@ -308,7 +316,7 @@ function WebSidebar({
             {lang === 'hi' ? 'बदलें' : 'Change'}
           </button>
         </div>
-        <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--ms-ink)' }}>
+        <div className="ms-title" style={{ fontSize: 14, fontWeight: 700 }}>
           {role ? roleLabels[role][lang] : (lang === 'hi' ? 'कोई भूमिका नहीं' : 'No role selected')}
         </div>
       </div>
@@ -379,11 +387,11 @@ function WebTopbar({
             display: 'inline-flex',
             alignItems: 'center',
             gap: 6,
-            padding: '5px 12px',
-            borderRadius: 999,
-            border: `1px solid ${online ? '#C1E2CA' : '#FFE0B2'}`,
-            background: online ? 'var(--ms-mint)' : '#FFF3E0',
-            color: online ? 'var(--ms-forest)' : 'var(--ms-orange-700)',
+            padding: '6px 14px',
+            borderRadius: 'var(--ms-radius-pill)',
+            border: `1px solid ${online ? 'var(--ms-sage)' : 'var(--ms-warn)'}`,
+            background: online ? 'var(--ms-mint)' : 'var(--ms-warn-bg)',
+            color: online ? 'var(--ms-primary)' : 'var(--ms-warn)',
             fontSize: 12,
             fontWeight: 700,
             cursor: 'pointer',
@@ -391,8 +399,8 @@ function WebTopbar({
         >
           <span
             style={{
-              width: 7,
-              height: 7,
+              width: 8,
+              height: 8,
               borderRadius: '50%',
               background: online ? 'var(--ms-ok)' : 'var(--ms-warn)',
             }}
@@ -415,12 +423,12 @@ function WebTopbar({
               display: 'inline-flex',
               alignItems: 'center',
               gap: 4,
-              padding: '4px 10px',
-              borderRadius: 999,
-              border: '1px solid var(--ms-green)',
-              background: 'var(--ms-green)',
-              color: '#FFFFFF',
-              fontSize: 11.5,
+              padding: '6px 12px',
+              borderRadius: 'var(--ms-radius-pill)',
+              border: '1px solid var(--ms-primary)',
+              background: 'var(--ms-primary)',
+              color: 'var(--ms-text-white)',
+              fontSize: 12,
               fontWeight: 800,
               cursor: 'pointer',
             }}
@@ -435,9 +443,9 @@ function WebTopbar({
           aria-label={lang === 'hi' ? 'भाषा' : 'Language'}
           style={{
             display: 'inline-flex',
-            background: 'var(--ms-bg)',
+            background: 'var(--ms-surface-alt)',
             border: '1px solid var(--ms-border)',
-            borderRadius: 20,
+            borderRadius: 'var(--ms-radius-pill)',
             padding: 2,
           }}
         >
@@ -446,11 +454,11 @@ function WebTopbar({
             aria-pressed={lang === 'en'}
             onClick={() => onSetLang('en')}
             style={{
-              padding: '4px 10px',
-              borderRadius: 16,
+              padding: '5px 12px',
+              borderRadius: 'var(--ms-radius-pill)',
               border: 0,
-              background: lang === 'en' ? 'var(--ms-forest)' : 'transparent',
-              color: lang === 'en' ? '#FFFFFF' : 'var(--ms-muted)',
+              background: lang === 'en' ? 'var(--ms-primary)' : 'transparent',
+              color: lang === 'en' ? 'var(--ms-text-white)' : 'var(--ms-muted)',
               fontSize: 12,
               fontWeight: 700,
               cursor: 'pointer',
@@ -464,11 +472,11 @@ function WebTopbar({
             aria-pressed={lang === 'hi'}
             onClick={() => onSetLang('hi')}
             style={{
-              padding: '4px 10px',
-              borderRadius: 16,
+              padding: '5px 12px',
+              borderRadius: 'var(--ms-radius-pill)',
               border: 0,
-              background: lang === 'hi' ? 'var(--ms-forest)' : 'transparent',
-              color: lang === 'hi' ? '#FFFFFF' : 'var(--ms-muted)',
+              background: lang === 'hi' ? 'var(--ms-primary)' : 'transparent',
+              color: lang === 'hi' ? 'var(--ms-text-white)' : 'var(--ms-muted)',
               fontSize: 12,
               fontWeight: 700,
               cursor: 'pointer',
@@ -485,10 +493,10 @@ function WebTopbar({
           aria-label="View Mode Switch"
           style={{
             display: 'inline-flex',
-            background: 'var(--ms-bg)',
+            background: 'var(--ms-surface-alt)',
             border: '1.5px solid var(--ms-border)',
-            borderRadius: 20,
-            padding: 3,
+            borderRadius: 'var(--ms-radius-pill)',
+            padding: 2,
             gap: 2,
           }}
         >
@@ -502,10 +510,10 @@ function WebTopbar({
               alignItems: 'center',
               gap: 5,
               padding: '5px 12px',
-              borderRadius: 16,
+              borderRadius: 'var(--ms-radius-pill)',
               border: 0,
-              background: mode === 'phone' ? 'var(--ms-forest)' : 'transparent',
-              color: mode === 'phone' ? '#FFFFFF' : 'var(--ms-muted)',
+              background: mode === 'phone' ? 'var(--ms-primary)' : 'transparent',
+              color: mode === 'phone' ? 'var(--ms-text-white)' : 'var(--ms-muted)',
               fontSize: 12,
               fontWeight: 700,
               cursor: 'pointer',
@@ -528,10 +536,10 @@ function WebTopbar({
               alignItems: 'center',
               gap: 5,
               padding: '5px 12px',
-              borderRadius: 16,
+              borderRadius: 'var(--ms-radius-pill)',
               border: 0,
-              background: mode !== 'phone' ? 'var(--ms-forest)' : 'transparent',
-              color: mode !== 'phone' ? '#FFFFFF' : 'var(--ms-muted)',
+              background: mode !== 'phone' ? 'var(--ms-primary)' : 'transparent',
+              color: mode !== 'phone' ? 'var(--ms-text-white)' : 'var(--ms-muted)',
               fontSize: 12,
               fontWeight: 700,
               cursor: 'pointer',
@@ -662,9 +670,9 @@ function AppContent() {
             <div
               role="alert"
               style={{
-                background: 'var(--ms-orange-100)',
-                color: 'var(--ms-orange-700)',
-                borderBottom: '1px solid var(--ms-orange)',
+                background: 'var(--ms-warn-bg)',
+                color: 'var(--ms-warn)',
+                borderBottom: '1px solid var(--ms-border)',
                 padding: '8px 24px',
                 fontSize: 13,
                 fontWeight: 700,
@@ -691,37 +699,107 @@ function AppContent() {
             </div>
           )}
 
-          {/* Content Area up to 1200px wide wrapped in @container */}
+          {/* Content Area: Doctor/Supervisor up to 1200px wide; Mitanin centered up to 640px wide */}
           <div className="ms-web-content-wrap">
-            <div className="@container ms-container-wrap ms-web-container" style={{ width: '100%', maxWidth: 1200, margin: '0 auto' }}>
-              <main className="ms-screen-content">
-                {Screen ? <Screen {...props} /> : <Placeholder route={current} lang={lang} />}
-              </main>
-            </div>
+            {current.startsWith('/doctor') || current.startsWith('/supervisor') ? (
+              <div className="@container ms-container-wrap ms-web-container" style={{ width: '100%', maxWidth: 1200, margin: '0 auto' }}>
+                <main className="ms-screen-content">
+                  {Screen ? <Screen {...props} /> : <Placeholder route={current} lang={lang} />}
+                </main>
+              </div>
+            ) : (
+              <div
+                className="@container ms-container-wrap"
+                style={{
+                  width: '100%',
+                  maxWidth: 640,
+                  margin: '0 auto',
+                  background: 'var(--ms-card)',
+                  border: '1px solid var(--ms-border)',
+                  borderRadius: 'var(--ms-radius-lg)',
+                  boxShadow: 'var(--ms-shadow)',
+                  padding: '16px 20px',
+                  boxSizing: 'border-box',
+                }}
+              >
+                <main className="ms-screen-content">
+                  {Screen ? <Screen {...props} /> : <Placeholder route={current} lang={lang} />}
+                </main>
+              </div>
+            )}
           </div>
         </div>
       </div>
     );
   }
 
-  // Phone Mode: Centred frame, max width 430 px, with the existing bottom nav.
-  // On large screens drawn like a phone device (rounded corners, soft shadow) on a mid-green background.
+  // Phone Mode: Centred frame, max width 430 px, with dark header band using .on-dark-900 and bottom nav
   return (
     <div className="ms-phone-mode-backdrop">
       <div className="ms-phone-device">
         <div className="ms-phone-device-island">
-          <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#0F172A' }} />
-          <span style={{ width: 36, height: 4, borderRadius: 2, background: '#334155' }} />
+          <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#051F20' }} />
+          <span style={{ width: 36, height: 4, borderRadius: 2, background: '#163832' }} />
         </div>
+
+        {/* Dark Header Band using .on-dark-900 */}
+        <header
+          className="on-dark-900"
+          style={{
+            height: 48,
+            padding: '0 16px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            borderBottom: '1px solid var(--ms-dark-800)',
+            flexShrink: 0,
+            zIndex: 25,
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div
+              style={{
+                width: 26,
+                height: 26,
+                borderRadius: 'var(--ms-radius-sm)',
+                background: 'var(--ms-primary)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'var(--ms-text-white)',
+              }}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                <path d="M12 8v8" />
+                <path d="M8 12h8" />
+              </svg>
+            </div>
+            <span style={{ fontSize: 14, fontWeight: 800, color: 'var(--ms-text-white)', letterSpacing: '-0.2px' }}>
+              Mitanin Signal
+            </span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <button
+              type="button"
+              onClick={onToggleOnline}
+              className={online ? 'ms-pill-ok' : 'ms-pill-due'}
+              style={{ padding: '2px 8px', fontSize: 11, cursor: 'pointer', border: 0 }}
+            >
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: online ? 'var(--ms-primary)' : 'var(--ms-warn)' }} />
+              <span>{online ? (lang === 'hi' ? 'सिंक' : 'Synced') : (lang === 'hi' ? 'ऑफ़लाइन' : 'Offline')}</span>
+            </button>
+          </div>
+        </header>
 
         <div className="ms-phone-scroll-body">
           {demoDataResetNotice && (
             <div
               role="alert"
               style={{
-                background: 'var(--ms-orange-100)',
-                color: 'var(--ms-orange-700)',
-                borderBottom: '1px solid var(--ms-orange)',
+                background: 'var(--ms-warn-bg)',
+                color: 'var(--ms-warn)',
+                borderBottom: '1px solid var(--ms-border)',
                 padding: '8px 16px',
                 fontSize: 12.5,
                 fontWeight: 700,
