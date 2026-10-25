@@ -3,6 +3,8 @@ import type { ScreenProps } from '../App';
 import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
 import { useCaseStore } from '../store/CaseStore';
+import { dataService } from '../services';
+import { getDemoDate, getCenteredWeekDays } from '../domain';
 
 type VisitType = 'screening' | 'followup' | 'referral';
 type Status = 'overdue' | 'due' | 'scheduled' | 'done';
@@ -19,24 +21,7 @@ interface Visit {
   patientId: string;
 }
 
-const TODAY = 24;
-const WEEK = [21, 22, 23, 24, 25, 26, 27];
 
-const VISITS: Record<number, Visit[]> = {
-  24: [
-    { id: 'v1', start: '09:30', end: '10:15', name: { en: 'Meena Bai', hi: 'मीना बाई' }, village: { en: 'Amora', hi: 'अमोरा' }, type: 'referral', status: 'overdue', patientId: 'p2' },
-    { id: 'v2', start: '11:00', end: '11:40', name: { en: 'Radha Yadav', hi: 'राधा यादव' }, village: { en: 'Kodar', hi: 'कोड़ार' }, type: 'followup', status: 'due', patientId: 'p3' },
-    { id: 'v3', start: '14:15', end: '15:00', name: { en: 'Kamla Sahu', hi: 'कमला साहू' }, village: { en: 'Pachri', hi: 'पचरी' }, type: 'screening', status: 'scheduled', patientId: 'p8' },
-  ],
-  22: [
-    { id: 'v4', start: '10:00', end: '10:45', name: { en: 'Lata Verma', hi: 'लता वर्मा' }, village: { en: 'Kodar', hi: 'कोड़ार' }, type: 'screening', status: 'done', patientId: 'p9' },
-    { id: 'v5', start: '12:30', end: '13:10', name: { en: 'Geeta Netam', hi: 'गीता नेताम' }, village: { en: 'Amora', hi: 'अमोरा' }, type: 'followup', status: 'done', patientId: 'p10' },
-  ],
-  25: [
-    { id: 'v6', start: '09:00', end: '09:45', name: { en: 'Sarita Dhruw', hi: 'सरिता ध्रुव' }, village: { en: 'Pachri', hi: 'पचरी' }, type: 'followup', status: 'scheduled', patientId: 'p11' },
-    { id: 'v7', start: '11:30', end: '12:15', name: { en: 'Ramkali Sahu', hi: 'रामकली साहू' }, village: { en: 'Kodar', hi: 'कोड़ार' }, type: 'screening', status: 'scheduled', patientId: 'p12' },
-  ],
-};
 
 const PRIORITY: Record<Status, number> = {
   overdue: 0,
@@ -69,10 +54,25 @@ function pillStyle(status: Status) {
 
 export default function Visits({ lang, onNavigate }: ScreenProps) {
   const t = COPY[lang];
-  const { selectScreeningPatient } = useCaseStore();
-  const [day, setDay] = useState<number>(TODAY);
+  const { state, selectScreeningPatient } = useCaseStore();
+  const demoNow = useMemo(() => getDemoDate(state.demoClockOffsetMinutes || 0), [state.demoClockOffsetMinutes]);
+  const weekDays = useMemo(() => getCenteredWeekDays(demoNow, lang), [demoNow, lang]);
+
+  const [selectedOffset, setSelectedOffset] = useState<number>(0);
   const [sort, setSort] = useState<Sort>('time');
   const [selectedVisitId, setSelectedVisitId] = useState<string | null>(null);
+
+  const selectedDayItem = weekDays.find((w) => w.offset === selectedOffset) || weekDays[3] || weekDays[0];
+  const selectedDate = selectedDayItem.date;
+  const monthText = useMemo(() => {
+    try {
+      return new Intl.DateTimeFormat(lang === 'hi' ? 'hi-IN' : 'en-IN', { month: 'short', year: 'numeric' }).format(selectedDate);
+    } catch {
+      return '--';
+    }
+  }, [lang, selectedDate]);
+
+  const rawVisitsByDay = useMemo(() => dataService.getVisitsByDay() as Record<string, Visit[]>, []);
 
   const handleVisitClick = (visit: Visit) => {
     if (visit.patientId) {
@@ -82,7 +82,7 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
   };
 
   const list = useMemo(() => {
-    const items = [...(VISITS[day] ?? [])];
+    const items = [...(rawVisitsByDay[String(selectedOffset)] ?? [])];
 
     items.sort((a, b) =>
       sort === 'time'
@@ -92,7 +92,7 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
     );
 
     return items;
-  }, [day, sort]);
+  }, [rawVisitsByDay, selectedOffset, sort]);
 
   const selectedVisit = list.find((v) => v.id === selectedVisitId) || list[0] || null;
 
@@ -110,7 +110,7 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
     <div
       style={{
         minHeight: '100%',
-        paddingBottom: 96,
+        paddingBottom: "var(--ms-screen-padding-bottom)",
         background: '#EAF4EC',
         color: '#1F2933',
       }}
@@ -134,7 +134,7 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
                 color: '#1F2933',
               }}
             >
-              {day}
+              {selectedDayItem.dayNumber}
             </h1>
 
             <div
@@ -145,14 +145,14 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
                 fontWeight: 600,
               }}
             >
-              <div>{day === TODAY ? t.weekday : `${day}`}</div>
-              <div>{t.month}</div>
+              <div>{selectedDayItem.isToday ? t.today : selectedDayItem.weekdayLong}</div>
+              <div>{monthText}</div>
             </div>
 
             <button
               type="button"
               aria-label={t.today}
-              onClick={() => setDay(TODAY)}
+              onClick={() => setSelectedOffset(0)}
               style={{
                 ...buttonBase,
                 marginLeft: 'auto',
@@ -179,16 +179,16 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
               gap: 3,
             }}
           >
-            {WEEK.map((d, i) => {
-              const selected = d === day;
+            {weekDays.map((item) => {
+              const selected = item.offset === selectedOffset;
 
               return (
-                <li key={d}>
+                <li key={item.offset}>
                   <button
                     type="button"
-                    aria-label={`${t.month} ${d}`}
+                    aria-label={`${item.dayNumber} ${item.weekdayLong}`}
                     aria-pressed={selected}
-                    onClick={() => setDay(d)}
+                    onClick={() => setSelectedOffset(item.offset)}
                     style={{
                       ...buttonBase,
                       width: '100%',
@@ -200,7 +200,7 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
                       justifyContent: 'center',
                       gap: 6,
                       borderRadius: 18,
-                      background: selected ? '#EE7B4D' : 'transparent',
+                      background: selected ? 'var(--ms-orange)' : 'transparent',
                       color: selected ? '#FFFFFF' : '#1F2933',
                     }}
                   >
@@ -211,9 +211,9 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
                         opacity: selected ? 1 : 0.55,
                       }}
                     >
-                      {t.letters[i]}
+                      {item.weekdayNarrow}
                     </span>
-                    <span style={{ fontSize: 16, fontWeight: 800 }}>{d}</span>
+                    <span style={{ fontSize: 16, fontWeight: 800 }}>{item.dayNumber}</span>
                   </button>
                 </li>
               );
@@ -445,18 +445,18 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
                   color: '#1F2933',
                 }}
               >
-                {day}
+                {selectedDayItem.dayNumber}
               </span>
 
               <div style={{ lineHeight: 1.3, color: '#6B7785', fontSize: 16, fontWeight: 700 }}>
-                <div>{day === TODAY ? t.weekday : `${day}`}</div>
-                <div>{t.month}</div>
+                <div>{selectedDayItem.isToday ? t.today : selectedDayItem.weekdayLong}</div>
+                <div>{monthText}</div>
               </div>
 
               <button
                 type="button"
                 aria-label={t.today}
-                onClick={() => setDay(TODAY)}
+                onClick={() => setSelectedOffset(0)}
                 style={{
                   ...buttonBase,
                   minHeight: 40,
@@ -529,16 +529,16 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
               gap: 8,
             }}
           >
-            {WEEK.map((d, i) => {
-              const selected = d === day;
+            {weekDays.map((item) => {
+              const selected = item.offset === selectedOffset;
 
               return (
-                <li key={d}>
+                <li key={item.offset}>
                   <button
                     type="button"
-                    aria-label={`${t.month} ${d}`}
+                    aria-label={`${item.dayNumber} ${item.weekdayLong}`}
                     aria-pressed={selected}
-                    onClick={() => setDay(d)}
+                    onClick={() => setSelectedOffset(item.offset)}
                     style={{
                       ...buttonBase,
                       width: '100%',
@@ -550,7 +550,7 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
                       justifyContent: 'center',
                       gap: 4,
                       borderRadius: 18,
-                      background: selected ? '#EE7B4D' : '#F5F6F3',
+                      background: selected ? 'var(--ms-orange)' : '#F5F6F3',
                       color: selected ? '#FFFFFF' : '#1F2933',
                       transition: 'all 0.15s ease',
                     }}
@@ -562,9 +562,9 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
                         opacity: selected ? 1 : 0.6,
                       }}
                     >
-                      {t.letters[i]}
+                      {item.weekdayNarrow}
                     </span>
-                    <span style={{ fontSize: 17, fontWeight: 800 }}>{d}</span>
+                    <span style={{ fontSize: 17, fontWeight: 800 }}>{item.dayNumber}</span>
                   </button>
                 </li>
               );

@@ -1,41 +1,9 @@
 {
-  "22": [
-    {
-      "id": "v4",
-      "start": "10:00",
-      "end": "10:45",
-      "name": {
-        "en": "Lata Verma",
-        "hi": "लता वर्मा"
-      },
-      "village": {
-        "en": "Kodar",
-        "hi": "कोड़ार"
-      },
-      "type": "screening",
-      "status": "done",
-      "patientId": "p9"
-    },
-    {
-      "id": "v5",
-      "start": "12:30",
-      "end": "13:10",
-      "name": {
-        "en": "Geeta Netam",
-        "hi": "गीता नेताम"
-      },
-      "village": {
-        "en": "Amora",
-        "hi": "अमोरा"
-      },
-      "type": "followup",
-      "status": "done",
-      "patientId": "p10"
-    }
-  ],
-  "24": [
+  "0": [
     {
       "id": "v1",
+      "offsetDays": 0,
+      "time": "today 09:30",
       "start": "09:30",
       "end": "10:15",
       "name": {
@@ -52,6 +20,8 @@
     },
     {
       "id": "v2",
+      "offsetDays": 0,
+      "time": "today 11:00",
       "start": "11:00",
       "end": "11:40",
       "name": {
@@ -68,6 +38,8 @@
     },
     {
       "id": "v3",
+      "offsetDays": 0,
+      "time": "today 14:15",
       "start": "14:15",
       "end": "15:00",
       "name": {
@@ -83,9 +55,11 @@
       "patientId": "p8"
     }
   ],
-  "25": [
+  "1": [
     {
       "id": "v6",
+      "offsetDays": 1,
+      "time": "today 09:00",
       "start": "09:00",
       "end": "09:45",
       "name": {
@@ -102,6 +76,8 @@
     },
     {
       "id": "v7",
+      "offsetDays": 1,
+      "time": "today 11:30",
       "start": "11:30",
       "end": "12:15",
       "name": {
@@ -115,6 +91,44 @@
       "type": "screening",
       "status": "scheduled",
       "patientId": "p12"
+    }
+  ],
+  "-2": [
+    {
+      "id": "v4",
+      "offsetDays": -2,
+      "time": "today 10:00",
+      "start": "10:00",
+      "end": "10:45",
+      "name": {
+        "en": "Lata Verma",
+        "hi": "लता वर्मा"
+      },
+      "village": {
+        "en": "Kodar",
+        "hi": "कोड़ार"
+      },
+      "type": "screening",
+      "status": "done",
+      "patientId": "p9"
+    },
+    {
+      "id": "v5",
+      "offsetDays": -2,
+      "time": "today 12:30",
+      "start": "12:30",
+      "end": "13:10",
+      "name": {
+        "en": "Geeta Netam",
+        "hi": "गीता नेताम"
+      },
+      "village": {
+        "en": "Amora",
+        "hi": "अमोरा"
+      },
+      "type": "followup",
+      "status": "done",
+      "patientId": "p10"
     }
   ]
 }

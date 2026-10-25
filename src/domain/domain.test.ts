@@ -3,6 +3,13 @@ import { priority, hasDangerSigns, isOverdueCheck } from './priority';
 import { loopClosureRate, isCaseClosed } from './loopClosure';
 import { validatePatient } from './patientValidation';
 import {
+  formatTime,
+  formatDate,
+  formatDateTime,
+  getDemoDate,
+  getCenteredWeekDays,
+} from './dateUtils';
+import {
   downscaleDimensions,
   handleRetake,
   isCaptureDisabled,
@@ -130,8 +137,8 @@ describe('domain: priority(case)', () => {
 describe('domain: loopClosureRate(cases, windowHours)', () => {
   const baseTime = 1700000000000;
 
-  it('returns 0 for empty array', () => {
-    expect(loopClosureRate([])).toBe(0);
+  it('returns null for empty array', () => {
+    expect(loopClosureRate([])).toBeNull();
   });
 
   it('computes 1.0 when all cases are closed', () => {
@@ -307,5 +314,35 @@ describe('domain: photoUtils & retake behavior (4 & 5)', () => {
     const cameraInputMatch = testPhotoCode.match(/<input[^>]*data-testid="camera-file-input"[^>]*\/>/);
     expect(cameraInputMatch).toBeTruthy();
     expect(cameraInputMatch![0]).toContain('capture="environment"');
+  });
+});
+
+describe('domain: dateUtils (c & d)', () => {
+  it('(c) date helpers return "--" for invalid input and never "Invalid Date"', () => {
+    expect(formatTime(null)).toBe('--');
+    expect(formatTime(undefined)).toBe('--');
+    expect(formatTime('')).toBe('--');
+    expect(formatTime('invalid-date')).toBe('--');
+    expect(formatTime('invalid-date')).not.toContain('Invalid Date');
+
+    expect(formatDate(null)).toBe('--');
+    expect(formatDate(undefined)).toBe('--');
+    expect(formatDate('')).toBe('--');
+    expect(formatDate('invalid-date')).toBe('--');
+    expect(formatDate('invalid-date')).not.toContain('Invalid Date');
+
+    expect(formatDateTime(null)).toBe('--');
+    expect(formatDateTime('invalid')).toBe('--');
+  });
+
+  it('(d) moving the demo clock changes the displayed date', () => {
+    const baseTime = new Date('2026-10-24T10:00:00Z').getTime();
+    const date0 = getDemoDate(0, baseTime);
+    const datePlus6h = getDemoDate(360, baseTime); // +6 hours
+    const datePlus2d = getDemoDate(2880, baseTime); // +2 days
+
+    expect(datePlus6h.getTime()).toBe(date0.getTime() + 6 * 3600 * 1000);
+    expect(datePlus2d.getTime()).toBe(date0.getTime() + 48 * 3600 * 1000);
+    expect(formatDate(datePlus2d, 'en')).not.toBe(formatDate(date0, 'en'));
   });
 });

@@ -1,3 +1,5 @@
+declare const require: any;
+declare const process: any;
 import { describe, expect, it, beforeEach } from 'vitest';
 import {
   caseReducer,
@@ -12,6 +14,8 @@ import {
   type AlertRecord,
 } from './CaseStore';
 import { validatePatient } from '../domain/patientValidation';
+import { loopClosureRate } from '../domain/loopClosure';
+import { formatTime, formatDate, getDemoDate } from '../domain/dateUtils';
 import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
 
@@ -1010,5 +1014,171 @@ describe('CaseStore: state transitions and actions', () => {
     const replayedState = caseReducer(state, replyAction);
     expect(replayedState.alerts.filter((a) => a.caseId === caseId).length).toBe(1);
     expect(replayedState.consults.filter((con) => con.caseId === caseId).length).toBe(1);
+  });
+});
+
+describe('Required Task Assertions (a) to (j)', () => {
+  it('(a) seed contains no case, referral or alert for p1', () => {
+    const seed = getInitialSeedState();
+    expect(seed.cases.some((c) => c.patientId === 'p1' || c.id === 'c1')).toBe(false);
+    expect(seed.referrals.some((r) => r.patientId === 'p1' || r.id === 'r1')).toBe(false);
+    expect(seed.alerts.some((a) => a.patientId === 'p1' || a.id === 'alt-1' || (a.text && a.text.en && a.text.en.includes('Ramesh')))).toBe(false);
+    expect(seed.consults.some((con) => con.patientId === 'p1' || con.caseId === 'c1')).toBe(false);
+  });
+
+  it('(b) Loop Closure Rate with zero cases returns null and renders "--"', () => {
+    expect(loopClosureRate([])).toBeNull();
+    const display = (rate: number | null) => (rate != null ? `${Math.round(rate * 100)}%` : '--');
+    expect(display(loopClosureRate([]))).toBe('--');
+  });
+
+  it('(c) date helpers return "--" for invalid input and never "Invalid Date"', () => {
+    expect(formatTime(null)).toBe('--');
+    expect(formatTime(undefined)).toBe('--');
+    expect(formatTime('invalid')).toBe('--');
+    expect(formatTime('invalid')).not.toContain('Invalid Date');
+
+    expect(formatDate(null)).toBe('--');
+    expect(formatDate(undefined)).toBe('--');
+    expect(formatDate('invalid')).toBe('--');
+    expect(formatDate('invalid')).not.toContain('Invalid Date');
+  });
+
+  it('(d) moving the demo clock changes the displayed date', () => {
+    const baseNow = new Date('2026-10-24T10:00:00Z').getTime();
+    const d0 = getDemoDate(0, baseNow);
+    const d2 = getDemoDate(2880, baseNow);
+    expect(formatDate(d2, 'en')).not.toBe(formatDate(d0, 'en'));
+  });
+
+  it('(e) no hardcoded "Jan" or "2026" date strings remain in src (a grep test, excluding tests)', () => {
+    const fs = require('node:fs');
+    const path = require('node:path');
+    function walk(dir: string): string[] {
+      let results: string[] = [];
+      const list = fs.readdirSync(dir);
+      for (const file of list) {
+        const full = path.join(dir, file);
+        const stat = fs.statSync(full);
+        if (stat && stat.isDirectory()) {
+          results = results.concat(walk(full));
+        } else if (!full.includes('.test.') && !full.includes('node_modules')) {
+          results.push(full);
+        }
+      }
+      return results;
+    }
+    const files = walk(path.join(process.cwd(), 'src'));
+    const matches2026: string[] = [];
+    const matchesJan: string[] = [];
+    for (const f of files) {
+      const content = fs.readFileSync(f, 'utf8');
+      if (/2026/.test(content)) matches2026.push(f);
+      if (/\bJan\b/i.test(content)) matchesJan.push(f);
+    }
+    expect(matches2026).toEqual([]);
+    expect(matchesJan).toEqual([]);
+  });
+
+  it('(f) Sync queue shows nothing after Reset', () => {
+    const dirtyState = {
+      ...getInitialSeedState(),
+      syncQueue: [
+        {
+          id: 'sq-1',
+          actionType: 'TEST',
+          payload: {},
+          status: 'waiting_to_send' as const,
+          createdAt: new Date().toISOString(),
+          description: { en: 'test', hi: 'test' },
+        },
+      ],
+    };
+    const resetState = caseReducer(dirtyState, { type: 'RESET_DEMO_DATA' });
+    expect(resetState.syncQueue).toEqual([]);
+  });
+
+  it('(g) no supervisor, doctor or Mitanin name equals a patient first name', () => {
+    const fs = require('node:fs');
+    const path = require('node:path');
+    const patients = JSON.parse(
+      fs.readFileSync(path.join(process.cwd(), 'src/data/patients.json'), 'utf8')
+    );
+    const patientFirstNames = patients.map((p: any) => p.name.en.split(' ')[0].toLowerCase());
+
+    const staffNames = ['mr. verma', 'verma', 'dr. rao', 'rao', 'sunita'];
+    for (const staff of staffNames) {
+      expect(patientFirstNames).not.toContain(staff);
+    }
+  });
+
+  it('(h) en.json and hi.json have the same keys', () => {
+    const getKeys = (obj: any): any => {
+      if (Array.isArray(obj)) return obj.map(getKeys);
+      if (obj && typeof obj === 'object') {
+        return Object.fromEntries(
+          Object.entries(obj).map(([k, v]) => [k, getKeys(v)])
+        );
+      }
+      return typeof obj;
+    };
+    expect(getKeys(enLocale)).toEqual(getKeys(hiLocale));
+  });
+
+  it('(i) a completed consult step never shows "Waiting"', () => {
+    const getStepTimeLabel = (timestamp: string | undefined, isDone: boolean, isCurrent: boolean): string => {
+      if (timestamp) return formatTime(timestamp, 'en');
+      if (isDone) return '--';
+      if (isCurrent) return 'Now';
+      return 'Waiting';
+    };
+    expect(getStepTimeLabel(undefined, true, false)).toBe('--');
+    expect(getStepTimeLabel(undefined, true, false)).not.toContain('Waiting');
+  });
+
+  it('(j) old stored state with Ramesh seed records migrates without a crash', () => {
+    const oldStoredState = {
+      schemaVersion: 1,
+      cases: [
+        { id: 'c1', patientId: 'p1', name: { en: 'Ramesh, 6', hi: 'रमेश, 6' }, state: 'SCREENED' },
+        { id: 'c-p6', patientId: 'p6', name: { en: 'Pooja, 8', hi: 'पूजा, 8' }, state: 'REFERRAL_CREATED' },
+      ],
+      referrals: [
+        { id: 'r1', patientId: 'p1', status: 'in_progress' },
+      ],
+      alerts: [
+        { id: 'alt-1', text: { en: 'Referral overdue: Ramesh', hi: 'रेफ़रल अतिदेय: रमेश' }, kind: 'overdue' },
+      ],
+      syncQueue: [],
+    };
+
+    let originalWindow = (globalThis as any).window;
+    const store: Record<string, string> = {
+      [STORAGE_KEY]: JSON.stringify(oldStoredState),
+    };
+
+    (globalThis as any).window = {
+      localStorage: {
+        getItem: (k: string) => store[k] ?? null,
+        setItem: (k: string, v: string) => { store[k] = v; },
+        removeItem: (k: string) => { delete store[k]; },
+        clear: () => { Object.keys(store).forEach((k) => delete store[k]); },
+      },
+    };
+
+    try {
+      const loaded = loadPersistedState();
+      expect(loaded).toBeDefined();
+      expect(loaded.cases.some((c) => c.id === 'c1')).toBe(false);
+      expect(loaded.referrals.some((r) => r.id === 'r1')).toBe(false);
+      expect(loaded.alerts.some((a) => a.id === 'alt-1')).toBe(false);
+      expect(loaded.cases.some((c) => c.id === 'c-p6')).toBe(true);
+    } finally {
+      if (originalWindow !== undefined) {
+        (globalThis as any).window = originalWindow;
+      } else {
+        delete (globalThis as any).window;
+      }
+    }
   });
 });

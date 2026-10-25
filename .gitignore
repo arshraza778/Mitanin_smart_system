@@ -5,3 +5,9 @@ venv/
 .env
 .env.*
 !.env.example
+*.tsbuildinfo
+ui-reference/
+visual-before/
+visual-after/
+visual-test-results/
+

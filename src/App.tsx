@@ -747,7 +747,7 @@ function AppContent() {
               </button>
             </div>
           )}
-          <div className="@container ms-container-wrap ms-app-shell" style={{ width: '100%', maxWidth: 430, margin: '0 auto', paddingBottom: showNav ? 104 : 24 }}>
+          <div className="@container ms-container-wrap ms-app-shell" style={{ width: '100%', maxWidth: 430, margin: '0 auto', paddingBottom: showNav ? "var(--ms-screen-padding-bottom)" : 24 }}>
             <main className="ms-screen-content">
               {Screen ? <Screen {...props} /> : <Placeholder route={current} lang={lang} />}
             </main>

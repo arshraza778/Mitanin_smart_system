@@ -35,6 +35,8 @@
   --ms-radius-md: 16px;
   --ms-radius-lg: 24px;
   --ms-shadow-card: 0 8px 24px rgba(0, 0, 0, 0.08);
+  --ms-nav-height: 76px;
+  --ms-screen-padding-bottom: calc(var(--ms-nav-height) + env(safe-area-inset-bottom, 0px) + 24px);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -65,7 +67,7 @@ img, svg { max-width: 100%; }
 
 
 /* Shared safe-area, tap target and mobile overflow safeguards. */
-.ms-screen-content { padding-bottom: 24px; }
+.ms-screen-content { padding-bottom: var(--ms-screen-padding-bottom); }
 .ms-screen-content button, .ms-screen-content a, .ms-screen-content input, .ms-screen-content select, .ms-screen-content textarea { max-width: 100%; }
 .ms-screen-content button,
 .ms-app-shell button,

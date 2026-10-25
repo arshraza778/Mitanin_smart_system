@@ -112,7 +112,7 @@
         ]
       ],
       "photoTitle": "Rapid test photo",
-      "photoMeta": "24 Jan, 10:38, taken by Sunita",
+      "photoMeta": "Photo taken by Sunita",
       "reads": [
         "Mitanin read: Positive",
         "Doctor read: Agree"
@@ -213,7 +213,7 @@
     },
     "MitaninHome": {
       "greeting": "Namaste, Sunita",
-      "synced": "Synced",
+      "synced": "Saved and sent",
       "offline": "Offline",
       "search": "Search patients",
       "prioTitle": "Today's priorities",
@@ -222,9 +222,9 @@
       "visitsSub": "Next patients",
       "newScreening": "New screening",
       "priorities": [
-        "Overdue referral",
-        "Follow-ups due",
-        "Awaiting doctor"
+        "Late: sent to hospital",
+        "Check-ups due",
+        "Waiting for doctor"
       ],
       "visits": [
         {
@@ -238,7 +238,7 @@
           "name": "Meena Bai",
           "village": "Amora",
           "task": "Referral check",
-          "status": "Overdue",
+          "status": "Late",
           "late": true
         }
       ]
@@ -256,7 +256,7 @@
       "changeRole": "Change role"
     },
     "ReferralTracker": {
-      "title": "Referral",
+      "title": "Send to hospital",
       "rows": [
         "Patient",
         "Refer to",
@@ -411,7 +411,7 @@
       "emptyBody": "New items will appear here when available."
     },
     "SupervisorDashboard": {
-      "title": "Anita, District supervisor",
+      "title": "Mr. Verma, District supervisor",
       "ringTitle": "Loop Closure Rate",
       "demo": "Demo",
       "stats": [
@@ -498,7 +498,7 @@
     },
     "Visits": {
       "weekday": "Wed",
-      "month": "Jan 2026",
+      "month": "Month",
       "today": "Today",
       "letters": [
         "S",

@@ -1,24 +1,6 @@
 {
   "doctorInbox": [
     {
-      "id": "c1",
-      "name": {
-        "en": "Ramesh, 6",
-        "hi": "रमेश, 6"
-      },
-      "village": {
-        "en": "Kotra",
-        "hi": "कोतरा"
-      },
-      "symptoms": {
-        "en": "Fever over 2 days, test positive",
-        "hi": "2 दिन से ज़्यादा बुखार, जाँच पॉज़िटिव"
-      },
-      "waitingMin": 190,
-      "photo": true,
-      "patientId": "p1"
-    },
-    {
       "id": "c2",
       "name": {
         "en": "Anita Markam, 3",
@@ -92,21 +74,6 @@
     }
   ],
   "supervisorRows": [
-    {
-      "id": "r1",
-      "name": {
-        "en": "Ramesh, 6",
-        "hi": "रमेश, 6"
-      },
-      "village": "Kotra",
-      "mitanin": "Sunita",
-      "reason": {
-        "en": "Referral not confirmed, 2 days",
-        "hi": "रेफ़रल की पुष्टि नहीं, 2 दिन"
-      },
-      "status": "overdue",
-      "patientId": "p1"
-    },
     {
       "id": "r2",
       "name": {

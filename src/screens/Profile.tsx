@@ -7,59 +7,6 @@ import { useCaseStore, type SyncItem } from '../store/CaseStore';
 
 const COPY = { en: enLocale.screens.Profile, hi: hiLocale.screens.Profile } as const;
 
-interface SyncRecord {
-  id: string;
-  typeEn: string;
-  typeHi: string;
-  nameEn: string;
-  nameHi: string;
-  recordId: string;
-  timeEn: string;
-  timeHi: string;
-}
-
-const SYNC_ITEMS: SyncRecord[] = [
-  {
-    id: '1',
-    typeEn: 'Screening',
-    typeHi: 'जाँच',
-    nameEn: 'Ramesh Kumar',
-    nameHi: 'रमेश कुमार',
-    recordId: 'MS-1042',
-    timeEn: '3 min ago',
-    timeHi: '3 मिनट पहले',
-  },
-  {
-    id: '2',
-    typeEn: 'Visit',
-    typeHi: 'भेंट',
-    nameEn: 'Sunita Bai',
-    nameHi: 'सुनीता बाई',
-    recordId: 'MS-1040',
-    timeEn: '18 min ago',
-    timeHi: '18 मिनट पहले',
-  },
-  {
-    id: '3',
-    typeEn: 'Consult',
-    typeHi: 'परामर्श',
-    nameEn: 'Anita',
-    nameHi: 'अनिता',
-    recordId: 'MS-1039',
-    timeEn: '1 hr ago',
-    timeHi: '1 घंटा पहले',
-  },
-  {
-    id: '4',
-    typeEn: 'Referral',
-    typeHi: 'रेफ़रल',
-    nameEn: 'Priya',
-    nameHi: 'प्रिया',
-    recordId: 'MS-1037',
-    timeEn: '2 hr ago',
-    timeHi: '2 घंटे पहले',
-  },
-];
 
 export default function Profile({
   lang,
@@ -90,9 +37,8 @@ export default function Profile({
     setTimeout(() => setResetToast(false), 2400);
   };
 
-  const pageTitle = isHindi ? 'प्रोफ़ाइल एवं डिवाइस सिंक' : 'Profile & Device Sync';
-  const pageSubtitle = isHindi ? 'प्रोफ़ाइल एवं डिवाइस सिंक सेटिंग्स' : 'Profile & Device Sync settings';
-  const allSyncedText = isHindi ? 'सब सिंक है (सिम्युलेटेड)' : 'All synced (Simulated)';
+  const pageTitle = isHindi ? 'प्रोफ़ाइल' : 'Profile';
+    const allSyncedText = isHindi ? 'सब सिंक है (सिम्युलेटेड)' : 'All synced (Simulated)';
   const pendingText = isHindi ? `${waitingSyncCount || 4} लंबित (सिम्युलेटेड)` : `${waitingSyncCount || 4} pending (Simulated)`;
   const activeText = isHindi ? 'सक्रिय' : 'Active';
   const subCenterText = isHindi ? 'कोटरा उप-केंद्र' : 'Kotra Sub-Center';
@@ -164,74 +110,41 @@ export default function Profile({
           <p style={{ margin: '4px 0 0', fontSize: 13.5, color: 'var(--ms-muted)', fontWeight: 600 }}>
             {t.role} • {subCenterText}
           </p>
-          <p
-            style={{
-              margin: '4px 0 0',
-              fontSize: 12,
-              color: 'var(--ms-muted)',
-              fontFamily: 'ui-monospace, SFMono-Regular, monospace',
-              fontWeight: 600,
-            }}
-          >
-            Device ID: MS-MIT-042
-          </p>
+
         </div>
       </div>
 
       <hr style={{ height: 1, background: 'var(--ms-border)', border: 0, margin: 0 }} />
 
-      {/* Connection status row */}
+      {/* Shared status chip text only */}
       <div
         style={{
-          padding: '14px 16px',
-          borderRadius: 16,
-          background: 'var(--ms-bg)',
-          border: '1px solid var(--ms-border)',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 12,
+          gap: 8,
+          padding: '10px 14px',
+          borderRadius: 16,
+          background: online ? 'var(--ms-green-100)' : 'var(--ms-orange-100)',
+          color: online ? 'var(--ms-green-900)' : 'var(--ms-orange-700)',
+          fontSize: 13.5,
+          fontWeight: 700,
         }}
       >
-        <div style={{ minWidth: 0 }}>
-          <span style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--ms-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-            {t.sync}
-          </span>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, marginTop: 4, fontSize: 13.5, fontWeight: 700, color: 'var(--ms-ink)' }}>
-            <span
-              aria-hidden="true"
-              style={{
-                width: 8,
-                height: 8,
-                borderRadius: '50%',
-                background: online ? 'var(--ms-ok)' : 'var(--ms-warn)',
-                flexShrink: 0,
-              }}
-            />
-            <span>{online ? `${t.online} / ${connectedText}` : `${t.offline} / ${offlineStorageText}`}</span>
-          </span>
-        </div>
-        <button
-          type="button"
-          onClick={onToggleOnline}
-          aria-label={online ? 'Toggle offline mode' : 'Toggle online mode'}
+        <span
+          aria-hidden="true"
           style={{
+            width: 8,
+            height: 8,
+            borderRadius: '50%',
+            background: online ? 'var(--ms-green-500)' : 'var(--ms-orange)',
             flexShrink: 0,
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            padding: '6px 12px',
-            borderRadius: 999,
-            fontSize: 12,
-            fontWeight: 800,
-            border: 0,
-            cursor: 'pointer',
-            background: online ? 'var(--ms-green-100)' : 'var(--ms-orange-100)',
-            color: online ? 'var(--ms-forest)' : 'var(--ms-orange-700)',
           }}
-        >
-          {online ? '●' : '○'} {online ? t.online : t.offline}
-        </button>
+        />
+        <span>
+          {online
+            ? (isHindi ? 'सहेजा और भेजा गया' : 'Saved and sent')
+            : (isHindi ? 'सिग्नल नहीं। फ़ोन पर सहेजा गया' : 'No signal. Saved on phone')}
+        </span>
       </div>
 
       <hr style={{ height: 1, background: 'var(--ms-border)', border: 0, margin: 0 }} />
@@ -472,19 +385,17 @@ export default function Profile({
     </section>
   );
 
-  const queueItems = state.syncQueue.length > 0
-    ? state.syncQueue.map((sq: SyncItem) => ({
-        id: sq.id,
-        typeEn: sq.actionType.replace('_', ' '),
-        typeHi: sq.actionType,
-        nameEn: sq.description.en,
-        nameHi: sq.description.hi,
-        recordId: 'MS-1042',
-        timeEn: sq.status === 'sent' ? 'Sent just now' : 'Waiting to send',
-        timeHi: sq.status === 'sent' ? 'अभी भेजा गया' : 'भेजने की प्रतीक्षा में',
-        isQueued: sq.status === 'waiting_to_send',
-      }))
-    : SYNC_ITEMS.map((item: SyncRecord) => ({ ...item, isQueued: !online }));
+  const queueItems = state.syncQueue.map((sq: SyncItem) => ({
+    id: sq.id,
+    typeEn: sq.actionType.replace('_', ' '),
+    typeHi: sq.actionType,
+    nameEn: sq.description.en,
+    nameHi: sq.description.hi,
+    recordId: sq.id.slice(0, 8),
+    timeEn: sq.status === 'sent' ? 'Sent just now' : 'Waiting to send',
+    timeHi: sq.status === 'sent' ? 'अभी भेजा गया' : 'भेजने की प्रतीक्षा में',
+    isQueued: sq.status === 'waiting_to_send',
+  }));
 
   // Shared Sync Queue Card Component
   const renderSyncCard = () => (
@@ -540,7 +451,11 @@ export default function Profile({
 
       {/* Sync Queue List */}
       <div style={{ display: 'flex', flexDirection: 'column' }}>
-        {queueItems.map((item, idx) => (
+        {queueItems.length === 0 ? (
+          <div style={{ padding: '20px 0', textAlign: 'center', color: 'var(--ms-muted)', fontSize: 14, fontWeight: 600 }}>
+            {isHindi ? 'भेजने के लिए कुछ नहीं' : 'Nothing waiting to send'}
+          </div>
+        ) : queueItems.map((item: any, idx: number) => (
           <div
             key={item.id}
             style={{
@@ -685,7 +600,7 @@ export default function Profile({
   return (
     <div className="@container w-full min-h-screen" style={{ background: 'var(--ms-bg)' }}>
       {/* ─── Narrow Phone Layout (@md and below) ─── */}
-      <div className="block @2xl:hidden" style={{ minHeight: '100%', paddingBottom: 24 }}>
+      <div className="block @2xl:hidden" style={{ minHeight: '100%', paddingBottom: "var(--ms-screen-padding-bottom)" }}>
         {/* Phone Header */}
         <header
           style={{
@@ -702,9 +617,7 @@ export default function Profile({
               <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, lineHeight: 1.2 }}>
                 {pageTitle}
               </h1>
-              <p style={{ margin: '4px 0 0', fontSize: 13, color: 'rgba(255,255,255,0.85)', fontWeight: 600 }}>
-                {pageSubtitle}
-              </p>
+
             </div>
             <button
               type="button"
@@ -768,9 +681,7 @@ export default function Profile({
             <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800, color: 'var(--ms-ink)', lineHeight: 1.2 }}>
               {pageTitle}
             </h1>
-            <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--ms-muted)', fontWeight: 600 }}>
-              {pageSubtitle}
-            </p>
+
           </div>
           <button
             type="button"

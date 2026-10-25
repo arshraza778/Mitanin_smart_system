@@ -66,65 +66,102 @@ export default function MitaninHome({ lang, online, onNavigate, onToggleOnline }
     <div>
       {/* ===================== NARROW PHONE LAYOUT (@md and below) ===================== */}
       <div className="block @2xl:hidden">
-        <header style={{ position: 'relative', height: 260, color: '#fff' }}>
+        <header
+          style={{
+            position: 'relative',
+            color: '#fff',
+            padding: 'calc(16px + env(safe-area-inset-top, 0px)) 16px 44px',
+            overflow: 'hidden',
+          }}
+        >
           <HeroLeaves />
-          <button
-            type="button"
-            aria-label={t.search}
-            onClick={() => onNavigate('/mitanin/visits')}
-            style={{
-              position: 'absolute',
-              top: 'calc(18px + env(safe-area-inset-top, 0px))',
-              left: 20,
-              width: 46,
-              height: 46,
-              display: 'grid',
-              placeItems: 'center',
-              border: 0,
-              borderRadius: 14,
-              cursor: 'pointer',
-              background: 'rgba(255,255,255,0.18)',
-              color: '#fff',
-            }}
-          >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
-              <circle cx="11" cy="11" r="6.5" />
-              <path d="m16 16 4.5 4.5" />
-            </svg>
-          </button>
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+              <button
+                type="button"
+                aria-label={t.search}
+                onClick={() => onNavigate('/mitanin/visits')}
+                style={{
+                  width: 44,
+                  height: 44,
+                  display: 'grid',
+                  placeItems: 'center',
+                  border: 0,
+                  borderRadius: 14,
+                  cursor: 'pointer',
+                  background: 'rgba(255,255,255,0.18)',
+                  color: '#fff',
+                }}
+              >
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+                  <circle cx="11" cy="11" r="6.5" />
+                  <path d="m16 16 4.5 4.5" />
+                </svg>
+              </button>
 
-          <div style={{ position: 'absolute', left: 20, bottom: 56 }}>
-            <h1 style={{ margin: 0, fontSize: 28, fontWeight: 800, lineHeight: 1.15 }}>{t.greeting}</h1>
+              <button
+                type="button"
+                onClick={onToggleOnline}
+                aria-pressed={online}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 7,
+                  padding: '6px 14px',
+                  minHeight: 44,
+                  border: 0,
+                  borderRadius: 999,
+                  cursor: 'pointer',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  background: online ? 'var(--ms-green-100)' : 'var(--ms-orange-100)',
+                  color: online ? 'var(--ms-green-900)' : 'var(--ms-orange-700)',
+                }}
+              >
+                <span
+                  aria-hidden
+                  style={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    background: online ? 'var(--ms-green-500)' : 'var(--ms-orange)',
+                  }}
+                />
+                {online ? t.synced : t.offline}
+              </button>
+            </div>
+
+            <h1 style={{ margin: 0, fontSize: 'clamp(24px, 7vw, 30px)', fontWeight: 800, lineHeight: 1.15 }}>
+              {t.greeting}
+            </h1>
+
+            {/* Above the fold New screening button */}
             <button
               type="button"
-              onClick={onToggleOnline}
-              aria-pressed={online}
+              onClick={() => onNavigate('/mitanin/screening/patient')}
               style={{
-                marginTop: 10,
-                display: 'inline-flex',
+                marginTop: 14,
+                width: '100%',
+                minHeight: 56,
+                height: 56,
+                display: 'flex',
                 alignItems: 'center',
-                gap: 7,
-                padding: '6px 14px',
-                minHeight: 48,
+                justifyContent: 'center',
+                gap: 10,
                 border: 0,
-                borderRadius: 999,
+                borderRadius: 20,
                 cursor: 'pointer',
-                fontSize: 13,
-                fontWeight: 700,
-                background: online ? 'var(--ms-green-100)' : 'var(--ms-orange-100)',
-                color: online ? 'var(--ms-green-900)' : 'var(--ms-orange-700)',
+                fontSize: 17,
+                fontWeight: 800,
+                background: 'var(--ms-orange)',
+                color: '#fff',
+                boxShadow: '0 8px 20px rgba(238, 123, 77, 0.35)',
               }}
             >
-              <span
-                aria-hidden
-                style={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: '50%',
-                  background: online ? 'var(--ms-green-500)' : 'var(--ms-orange)',
-                }}
-              />
-              {online ? t.synced : t.offline}
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden>
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+              <span>{t.newScreening}</span>
             </button>
           </div>
         </header>
@@ -212,51 +249,66 @@ export default function MitaninHome({ lang, online, onNavigate, onToggleOnline }
             style={{
               listStyle: 'none',
               margin: 0,
-              padding: '16px 20px 6px',
-              display: 'flex',
-              gap: 12,
-              overflowX: 'auto',
-              scrollSnapType: 'x proximity',
-              scrollPaddingLeft: 20,
+              padding: '16px 16px 6px',
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+              gap: 8,
             }}
           >
-            {PRIORITY_CARDS.map((card, i) => (
-              <li key={i} style={{ flex: '0 0 148px', scrollSnapAlign: 'start' }}>
+            {PRIORITY_CARDS.slice(0, 3).map((card, i) => (
+              <li key={i} style={{ minWidth: 0 }}>
                 <button
                   type="button"
-                  onClick={() => onNavigate(card.route)}
+                  onClick={() => {
+                    const targetRoute = card.route.startsWith('/mitanin') ? card.route : ('/mitanin' + card.route);
+                    onNavigate(targetRoute);
+                  }}
                   style={{
                     position: 'relative',
                     overflow: 'hidden',
                     width: '100%',
-                    height: 122,
-                    padding: 14,
+                    minHeight: 110,
+                    padding: '12px 6px 10px',
                     textAlign: 'left',
                     border: 0,
-                    borderRadius: 22,
+                    borderRadius: 18,
                     cursor: 'pointer',
                     background: card.bg,
                     color: '#fff',
                     display: 'flex',
                     flexDirection: 'column',
-                    justifyContent: 'flex-end',
+                    justifyContent: 'space-between',
                   }}
                 >
                   <span
                     aria-hidden
                     style={{
                       position: 'absolute',
-                      top: -26,
-                      right: -22,
-                      width: 82,
-                      height: 82,
+                      top: -24,
+                      right: -20,
+                      width: 64,
+                      height: 64,
                       borderRadius: '50%',
                       background: card.blob,
                       opacity: 0.55,
                     }}
                   />
-                  <span style={{ fontSize: 36, fontWeight: 800, lineHeight: 1 }}>{priorityCounts[i] ?? card.count}</span>
-                  <span style={{ marginTop: 4, fontSize: 14, fontWeight: 700, lineHeight: 1.25 }}>
+                  <span style={{ fontSize: 'clamp(24px, 7vw, 32px)', fontWeight: 800, lineHeight: 1 }}>
+                    {priorityCounts[i] ?? card.count}
+                  </span>
+                  <span
+                    style={{
+                      marginTop: 6,
+                      fontSize: 'clamp(11px, 3.1vw, 13px)',
+                      fontWeight: 700,
+                      lineHeight: 1.2,
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                      wordBreak: 'break-word',
+                    }}
+                  >
                     {t.priorities[i]}
                   </span>
                 </button>
@@ -328,32 +380,7 @@ export default function MitaninHome({ lang, online, onNavigate, onToggleOnline }
               ))}
             </ul>
 
-            <button
-              type="button"
-              onClick={() => onNavigate('/mitanin/screening/patient')}
-              style={{
-                marginTop: 22,
-                width: '100%',
-                height: 62,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 10,
-                border: 0,
-                borderRadius: 22,
-                cursor: 'pointer',
-                fontSize: 18,
-                fontWeight: 800,
-                background: 'var(--ms-orange)',
-                color: '#fff',
-                boxShadow: '0 10px 22px rgba(240, 121, 75, 0.35)',
-              }}
-            >
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden>
-                <path d="M12 5v14M5 12h14" />
-              </svg>
-              {t.newScreening}
-            </button>
+            
           </div>
         </section>
       </div>

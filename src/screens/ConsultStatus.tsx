@@ -3,6 +3,7 @@ import type { ScreenProps } from '../App';
 import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
 import { useCaseStore } from '../store/CaseStore';
+import { formatTime } from '../domain';
 
 type Variant = 'waiting' | 'replied';
 
@@ -108,18 +109,45 @@ export default function ConsultStatus({ lang, online = true, onNavigate }: Scree
   const diffMs = dueTimestamp - demoClockNow;
   const isLate = !replied && diffMs <= 0;
 
-  const formatTimelineTime = (dateStr?: string) => {
-    if (!dateStr) return t.pending;
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return t.pending;
-    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
-
-  const timelineTimes = [
-    formatTimelineTime(consult?.requestedAt),
-    consult?.receivedAt ? formatTimelineTime(consult.receivedAt) : t.pending,
-    consult?.repliedAt ? formatTimelineTime(consult.repliedAt) : t.pending,
+  const stepTimestamps: (string | undefined)[] = [
+    consult?.requestedAt,
+    consult?.receivedAt,
+    consult?.repliedAt,
   ];
+
+  // Determine current step index (-1 if all done)
+  let currentStepIdx = 0;
+  if (!consult?.requestedAt) {
+    currentStepIdx = 0;
+  } else if (!consult?.receivedAt) {
+    currentStepIdx = 1;
+  } else if (!consult?.repliedAt && consult?.status !== 'replied') {
+    currentStepIdx = 2;
+  } else {
+    currentStepIdx = -1;
+  }
+
+  const getStepTimeLabel = (i: number, isDone: boolean): string => {
+    const raw = stepTimestamps[i];
+    if (raw) {
+      const formatted = formatTime(raw, lang);
+      if (formatted !== '--') return formatted;
+    }
+    // No timestamp
+    if (isDone) {
+      // Completed step must never show 'Waiting'
+      return '--';
+    }
+    if (i === currentStepIdx) {
+      // Current step shows 'Now'
+      return lang === 'hi' ? 'अभी' : 'Now';
+    }
+    if (currentStepIdx !== -1 && i > currentStepIdx) {
+      // Steps after current step show 'Waiting'
+      return lang === 'hi' ? 'प्रतीक्षारत' : 'Waiting';
+    }
+    return '--';
+  };
 
   let countdownText = '';
   if (replied) {
@@ -192,7 +220,7 @@ export default function ConsultStatus({ lang, online = true, onNavigate }: Scree
                 {label}
               </p>
               <p style={{ margin: '2px 0 0', fontSize: 13.5, color: 'var(--ms-muted)' }}>
-                {done ? timelineTimes[i] : t.pending}
+                {getStepTimeLabel(i, done)}
               </p>
             </div>
           </li>
@@ -549,7 +577,7 @@ export default function ConsultStatus({ lang, online = true, onNavigate }: Scree
             }}
           >
             <h2 style={{ margin: '0 0 16px', fontSize: 22, fontWeight: 800, color: 'var(--ms-ink)' }}>
-              {lang === 'hi' ? 'परामर्श प्रगति एवं समयरेखा' : 'Consultation Progress & Timeline'}
+              {lang === 'hi' ? 'डॉक्टर से पूछें: प्रगति एवं समयरेखा' : 'Ask doctor: Progress & Timeline'}
             </h2>
 
             {renderStepsList()}

@@ -98,50 +98,45 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
   const dynamicRows: Row[] = useMemo(() => {
     const mappedBase = ROWS.map((baseRow) => {
       const c = syncedCases.find(
-        (sc) => sc.patientId === baseRow.id.replace('r', 'p') || (baseRow.id === 'r1' && sc.id === 'c1')
+        (sc) => sc.patientId === baseRow.id.replace('r', 'p') || sc.id === baseRow.id
       );
       if (!c) return baseRow;
 
       let status: StatusKey = baseRow.status;
       let reason = baseRow.reason;
 
-      if (c.id === 'c1' || c.patientId === 'p1') {
-        if (c.state === 'OUTCOME_RECORDED') {
-          status = 'soon';
-          reason = {
-            en: 'Outcome recorded (resolved)',
-            hi: 'परिणाम दर्ज (समाधान)',
-          };
-        } else if (c.state === 'REACHED_FACILITY') {
-          status = 'soon';
-          reason = {
-            en: 'Reached facility confirmed',
-            hi: 'अस्पताल पहुँचने की पुष्टि हुई',
-          };
-        } else if (c.state === 'CONSULT_REQUESTED') {
-          status = 'awaiting';
-          reason = {
-            en: 'Doctor reply pending, 2 hours',
-            hi: 'डॉक्टर का जवाब बाकी, 2 घंटे',
-          };
-        } else if (c.state === 'CONSULT_REPLIED') {
-          status = 'soon';
-          reason = {
-            en: 'Doctor replied, create referral',
-            hi: 'डॉक्टर का जवाब आया, रेफ़रल बनाएँ',
-          };
-        } else {
-          const overdue = isOverdue(c.dueAt);
-          status = overdue ? 'overdue' : 'soon';
-        }
+      if (c.state === 'OUTCOME_RECORDED') {
+        status = 'soon';
+        reason = {
+          en: 'Outcome recorded (resolved)',
+          hi: 'परिणाम दर्ज (समाधान)',
+        };
+      } else if (c.state === 'REACHED_FACILITY') {
+        status = 'soon';
+        reason = {
+          en: 'Reached facility confirmed',
+          hi: 'अस्पताल पहुँचने की पुष्टि हुई',
+        };
+      } else if (c.state === 'CONSULT_REQUESTED') {
+        status = 'awaiting';
+        reason = {
+          en: 'Doctor reply pending',
+          hi: 'डॉक्टर का जवाब बाकी',
+        };
+      } else if (c.state === 'CONSULT_REPLIED') {
+        status = 'soon';
+        reason = {
+          en: 'Doctor replied, create referral',
+          hi: 'डॉक्टर का जवाब आया, रेफ़रल बनाएँ',
+        };
       } else {
         const p = priority(c);
         if (p.rank === 2) {
           status = 'overdue';
         } else if (p.rank === 3) {
           status = 'soon';
-        } else if (c.state === 'CONSULT_REQUESTED') {
-          status = 'awaiting';
+        } else if (isOverdue(c.dueAt)) {
+          status = 'overdue';
         }
       }
 
@@ -158,12 +153,11 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
           !ROWS.some(
             (baseRow) =>
               c.patientId === baseRow.id.replace('r', 'p') ||
-              (baseRow.id === 'r1' && (c.id === 'c1' || c.patientId === 'p1'))
+              c.id === baseRow.id
           )
       )
       .map((c) => {
-        const overdue = isOverdue(c.dueAt);
-        let status: StatusKey = overdue ? 'overdue' : 'soon';
+        let status: StatusKey = isOverdue(c.dueAt) ? 'overdue' : 'soon';
         if (c.state === 'CONSULT_REQUESTED') {
           status = 'awaiting';
         }
@@ -174,14 +168,22 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
             ? c.village
             : 'Amora';
 
+        let reasonText = { en: 'Active case', hi: 'सक्रिय केस' };
+        if (c.state === 'CONSULT_REQUESTED') {
+          reasonText = { en: 'Waiting for doctor reply', hi: 'डॉक्टर का जवाब बाकी' };
+        } else if (c.state === 'CONSULT_REPLIED') {
+          reasonText = { en: 'Doctor replied', hi: 'डॉक्टर का जवाब आया' };
+        } else if (isOverdue(c.dueAt)) {
+          reasonText = { en: 'Referral late', hi: 'रेफ़रल में देरी' };
+        }
+
         return {
           id: c.id,
           name: c.name,
           village: villageName,
-          mitanin: 'Sunita Netam',
-          phone: '94252 01842',
+          mitanin: c.mitanin || 'Sunita',
+          reason: typeof c.reason === 'object' && c.reason !== null ? (c.reason as Record<Lang, string>) : reasonText,
           status,
-          reason: c.symptoms || { en: 'Screened', hi: 'जाँच की गई' },
         };
       });
 
@@ -244,7 +246,7 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
           </div>
 
           <div style={{ position: 'relative', marginTop: 20, display: 'flex', alignItems: 'center', gap: 18 }}>
-            <svg width="144" height="144" viewBox="0 0 144 144" role="img" aria-label={`${t.ringTitle}: ${Math.round(loopRate * 100)}%`}>
+            <svg width="144" height="144" viewBox="0 0 144 144" role="img" aria-label={`${t.ringTitle}: ${loopRate != null ? Math.round(loopRate * 100) + '%' : '--'}`}>
               <circle cx="72" cy="72" r={R} fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="14" />
               <circle
                 cx="72"
@@ -255,15 +257,20 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
                 strokeWidth="14"
                 strokeLinecap="round"
                 strokeDasharray={C}
-                strokeDashoffset={C * (1 - loopRate)}
+                strokeDashoffset={loopRate != null ? C * (1 - loopRate) : C}
                 transform="rotate(-90 72 72)"
               />
               <text x="72" y="82" textAnchor="middle" fontSize="34" fontWeight="800" fill="#fff">
-                {Math.round(loopRate * 100)}%
+                {loopRate != null ? `${Math.round(loopRate * 100)}%` : '--'}
               </text>
             </svg>
             <div>
               <p style={{ margin: 0, fontSize: 20, fontWeight: 800, lineHeight: 1.2 }}>{t.ringTitle}</p>
+              {loopRate == null && (
+                <p style={{ margin: '4px 0 0', fontSize: 13, opacity: 0.9 }}>
+                  {lang === 'hi' ? 'कोई केस नहीं' : 'No cases yet'}
+                </p>
+              )}
               <span
                 style={{
                   display: 'inline-block',
@@ -465,7 +472,7 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
                 <path d="M0 84C-42 44-34-22 0-66C34-22 42 44 0 84Z" fill="var(--ms-green-500)" />
               </g>
             </svg>
-            <svg width="80" height="80" viewBox="0 0 144 144" role="img" aria-label={`${t.ringTitle}: ${Math.round(loopRate * 100)}%`}>
+            <svg width="80" height="80" viewBox="0 0 144 144" role="img" aria-label={`${t.ringTitle}: ${loopRate != null ? Math.round(loopRate * 100) + '%' : '--'}`}>
               <circle cx="72" cy="72" r={R} fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="15" />
               <circle
                 cx="72"
@@ -476,15 +483,20 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
                 strokeWidth="15"
                 strokeLinecap="round"
                 strokeDasharray={C}
-                strokeDashoffset={C * (1 - loopRate)}
+                strokeDashoffset={loopRate != null ? C * (1 - loopRate) : C}
                 transform="rotate(-90 72 72)"
               />
               <text x="72" y="81" textAnchor="middle" fontSize="30" fontWeight="800" fill="#fff">
-                {Math.round(loopRate * 100)}%
+                {loopRate != null ? `${Math.round(loopRate * 100)}%` : '--'}
               </text>
             </svg>
             <div style={{ position: 'relative', zIndex: 1, minWidth: 0 }}>
               <p style={{ margin: 0, fontSize: 16, fontWeight: 800, lineHeight: 1.25 }}>{t.ringTitle}</p>
+              {loopRate == null && (
+                <p style={{ margin: '2px 0 0', fontSize: 12, opacity: 0.9 }}>
+                  {lang === 'hi' ? 'कोई केस नहीं' : 'No cases yet'}
+                </p>
+              )}
               <span
                 style={{
                   display: 'inline-block',

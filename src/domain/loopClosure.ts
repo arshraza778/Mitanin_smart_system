@@ -27,14 +27,14 @@ export function isCaseClosed(c: LoopClosureCase): boolean {
 
 /**
  * Computes loop closure rate for a set of cases within a given time window (in hours).
- * Returns rate as a float between 0 and 1.
+ * Returns rate as a float between 0 and 1, or null when there are no eligible cases.
  */
 export function loopClosureRate(
   cases: LoopClosureCase[],
   windowHours?: number,
   now: number = Date.now()
-): number {
-  if (!cases || cases.length === 0) return 0;
+): number | null {
+  if (!cases || cases.length === 0) return null;
 
   let eligible = cases;
   if (windowHours != null && windowHours > 0) {
@@ -48,7 +48,7 @@ export function loopClosureRate(
     });
   }
 
-  if (eligible.length === 0) return 0;
+  if (eligible.length === 0) return null;
 
   const closedCount = eligible.filter(isCaseClosed).length;
   const rate = closedCount / eligible.length;

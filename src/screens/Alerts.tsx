@@ -37,7 +37,7 @@ const KIND_STYLE: Record<Kind, { stripe: string; tint: string; fg: string }> = {
 };
 
 const KIND_LABEL: Record<Kind, Record<'en' | 'hi', string>> = {
-  overdue: { en: 'Overdue', hi: 'अतिदेय' },
+  overdue: { en: 'Late', hi: 'देरी' },
   replied: { en: 'Doctor replied', hi: 'डॉक्टर का जवाब' },
   followup: { en: 'Follow-up', hi: 'फ़ॉलो-अप' },
 };
@@ -184,7 +184,7 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
         minHeight: '100%',
         background: COLORS.page,
         color: COLORS.ink,
-        paddingBottom: 24,
+        paddingBottom: 'var(--ms-screen-padding-bottom)',
       }}
     >
       {/* ===================== NARROW PHONE LAYOUT (@md and below) ===================== */}

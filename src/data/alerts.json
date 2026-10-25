@@ -1,18 +1,5 @@
 [
   {
-    "id": "a1",
-    "kind": "overdue",
-    "group": "today",
-    "text": {
-      "en": "Referral overdue: Ramesh",
-      "hi": "रेफ़रल अतिदेय: रमेश"
-    },
-    "time": {
-      "en": "2 h ago",
-      "hi": "2 घंटे पहले"
-    }
-  },
-  {
     "id": "a2",
     "kind": "replied",
     "group": "today",

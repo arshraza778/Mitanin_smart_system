@@ -4,11 +4,12 @@ import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
 import { dataService } from '../services';
 import { useCaseStore } from '../store/CaseStore';
+import States from './States';
+import { formatDateTime } from '../domain';
 
 type Tab = 'timeline' | 'details' | 'photos';
 
 const CURRENT = 5;
-const TIMES = dataService.getTimeline().caseTimeline;
 
 const COPY = {
   en: enLocale.screens.CaseTimeline,
@@ -135,13 +136,58 @@ const base: Record<string, CSSProperties> = {
   },
 };
 
-export default function CaseTimeline({ lang }: ScreenProps) {
+export default function CaseTimeline({ lang, onNavigate }: ScreenProps) {
   const t = COPY[lang];
-  const { getCaseByPatientId, currentScreening, getPatient, getPatientSummary } = useCaseStore();
+  const { state, getCaseByPatientId, currentScreening, getPatient, getPatientSummary, getConsultByCaseId } = useCaseStore();
   const patientId = currentScreening?.patientId || 'p1';
   const caseRecord = getCaseByPatientId(patientId);
-  const patient = getPatient(patientId) || dataService.getPatient('p1');
+
+  if (!caseRecord) {
+    return (
+      <div style={{ padding: '24px 16px', paddingBottom: 'var(--ms-screen-padding-bottom)' }}>
+        <States variant="empty" lang={lang}>
+          <div style={{ marginTop: 8 }}>
+            <p style={{ margin: '0 0 16px', fontSize: 16, fontWeight: 700, color: 'var(--ms-ink)' }}>
+              {lang === 'hi' ? 'अभी कोई केस नहीं है। जाँच शुरू करें।' : 'No case yet. Start a screening.'}
+            </p>
+            <button
+              type="button"
+              onClick={() => onNavigate('/mitanin/screening/patient')}
+              style={{
+                height: 52,
+                padding: '0 24px',
+                border: 0,
+                borderRadius: 18,
+                background: 'var(--ms-orange)',
+                color: '#fff',
+                fontSize: 16,
+                fontWeight: 800,
+                cursor: 'pointer',
+                boxShadow: '0 8px 20px rgba(238, 123, 77, 0.35)',
+              }}
+            >
+              {lang === 'hi' ? 'जाँच शुरू करें' : 'Start a screening'}
+            </button>
+          </div>
+        </States>
+      </div>
+    );
+  }
+
+  const patient = getPatient(patientId) || dataService.getPatient(patientId);
   const patientSummary = getPatientSummary(patientId, lang);
+  const consult = getConsultByCaseId(caseRecord.id) || state.consults.find((c) => c.caseId === caseRecord.id || c.patientId === patientId);
+  const referral = state.referrals.find((r) => r.caseId === caseRecord.id || r.patientId === patientId);
+
+  const stepTimestamps: (string | undefined)[] = [
+    caseRecord.createdAt,
+    consult?.requestedAt || caseRecord.createdAt,
+    consult?.repliedAt,
+    referral?.createdAt,
+    referral?.createdAt,
+    referral?.createdAt,
+    caseRecord.updatedAt,
+  ];
 
   const stepMap: Record<string, number> = {
     SCREENED: 1,
@@ -300,7 +346,7 @@ export default function CaseTimeline({ lang }: ScreenProps) {
                       : C.muted,
                 }}
               >
-                {done ? TIMES[i] : current ? t.inProgress : t.notYet}
+                {done ? (stepTimestamps[i] ? formatDateTime(stepTimestamps[i], lang) : '--') : current ? t.inProgress : t.notYet}
               </p>
             </div>
           </li>
