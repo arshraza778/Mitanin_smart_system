@@ -1,4 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
+import {
+  PhoneCall,
+  MapPin,
+  ClipboardCheck,
+  Check,
+  Clock,
+  AlertTriangle,
+  Building2,
+  UserCheck,
+} from 'lucide-react';
 import type { ScreenProps } from '../App';
 import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
@@ -10,42 +20,18 @@ type Outcome = 'completed' | 'rescheduled' | 'escalated' | 'unresolved';
 const COPY = { en: enLocale.screens.ReferralTracker, hi: hiLocale.screens.ReferralTracker } as const;
 
 const OUTCOME_STYLE: Record<Outcome, { bg: string; glyph: string }> = {
-  completed: { bg: 'var(--ms-green-500)', glyph: '✓' },
-  rescheduled: { bg: 'var(--ms-violet)', glyph: '↻' },
-  escalated: { bg: 'var(--ms-orange)', glyph: '↑' },
-  unresolved: { bg: 'var(--ms-muted)', glyph: '?' },
+  completed: { bg: '#2E7D4F', glyph: '✓' },
+  rescheduled: { bg: '#235347', glyph: '↻' },
+  escalated: { bg: '#BA1A1A', glyph: '↑' },
+  unresolved: { bg: '#707975', glyph: '?' },
 };
 
 const DEMO_MS_LEFT = (19 * 60 + 20) * 60_000;
 
-const icon = {
-  width: 24,
-  height: 24,
-  viewBox: '0 0 24 24',
-  fill: 'none',
-  stroke: 'currentColor',
-  strokeWidth: 2,
-  strokeLinecap: 'round' as const,
-  strokeLinejoin: 'round' as const,
-  'aria-hidden': true,
-};
-
 const ACTION_ICONS = [
-  // voice message
-  <svg key="v" {...icon}>
-    <rect x="9" y="3" width="6" height="11" rx="3" />
-    <path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3" />
-  </svg>,
-  // reached
-  <svg key="r" {...icon}>
-    <path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z" />
-    <path d="m9.3 10 2 2 3.4-3.8" />
-  </svg>,
-  // outcome
-  <svg key="o" {...icon}>
-    <rect x="5" y="4" width="14" height="17" rx="2.5" />
-    <path d="M9 3v3M15 3v3M8.5 12l2.5 2.5 4.5-5" />
-  </svg>,
+  <PhoneCall key="v" size={20} aria-hidden />,
+  <MapPin key="r" size={20} aria-hidden />,
+  <ClipboardCheck key="o" size={20} aria-hidden />,
 ];
 
 export default function ReferralTracker({ lang, online = true }: ScreenProps) {
@@ -120,13 +106,17 @@ export default function ReferralTracker({ lang, online = true }: ScreenProps) {
 
   const pill = (() => {
     if (stage === 4 && outcome) {
-      const s = outcome === 'completed' ? ['var(--ms-green-100)', 'var(--ms-green-700)'] : outcome === 'rescheduled' ? ['var(--ms-violet-100)', 'var(--ms-violet-700)'] : ['var(--ms-orange-100)', 'var(--ms-orange-700)'];
+      const s = outcome === 'completed'
+        ? ['#DAF1DE', '#235347']
+        : outcome === 'rescheduled'
+        ? ['#E7F0EA', '#163832']
+        : ['#FFDAD6', '#BA1A1A'];
       return { text: t.outcomes[outcome], bg: s[0], fg: s[1] };
     }
     const colors = [
-      ['var(--ms-orange-100)', 'var(--ms-orange-700)'],
-      ['var(--ms-violet-100)', 'var(--ms-violet-700)'],
-      ['var(--ms-green-100)', 'var(--ms-green-700)'],
+      ['#FFDAD6', '#BA1A1A'],
+      ['#FFF1CC', '#8A5A00'],
+      ['#DAF1DE', '#235347'],
     ][Math.min(stage, 3) - 1];
     return { text: t.steps[stage - 1], bg: colors[0], fg: colors[1] };
   })();
@@ -135,42 +125,44 @@ export default function ReferralTracker({ lang, online = true }: ScreenProps) {
   const renderReferralCard = () => (
     <div
       style={{
-        padding: 22,
-        borderRadius: 24,
-        background: 'var(--ms-surface)',
-        border: '1px solid var(--ms-border)',
-        boxShadow: 'var(--ms-shadow-card)',
+        padding: 20,
+        borderRadius: 20,
+        background: '#FFFFFF',
+        border: '1px solid #E3ECE7',
+        boxShadow: '0 2px 8px rgba(0, 33, 17, 0.04)',
       }}
     >
       <dl style={{ margin: 0, display: 'grid', gap: 14 }}>
         {t.rows.map((label, i) => (
           <div key={label} style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'baseline' }}>
-            <dt style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--ms-muted)' }}>{label}</dt>
-            <dd style={{ margin: 0, textAlign: 'right', fontSize: 16, fontWeight: 800 }}>
+            <dt style={{ fontSize: 13.5, fontWeight: 600, color: '#404945' }}>{label}</dt>
+            <dd style={{ margin: 0, textAlign: 'right', fontSize: 15, fontWeight: 700, color: '#00201C' }}>
               {referralValues[i]}
               {i === 3 && (
-                <span style={{ display: 'block', marginTop: 2, fontSize: 13.5, fontWeight: 700, color: stage >= 3 ? 'var(--ms-green-700)' : 'var(--ms-orange)' }}>
-                  {stage >= 3 ? t.done : lang === 'hi' ? `${h} ${t.hourUnit} ${m} ${t.minuteUnit} ${t.leftSuffix}` : `${h} ${t.hourUnit} ${m} ${t.minuteUnit} ${t.leftSuffix}`}
+                <span style={{ display: 'block', marginTop: 2, fontSize: 13, fontWeight: 700, color: stage >= 3 ? '#2E7D4F' : '#BA1A1A' }}>
+                  {stage >= 3 ? t.done : `${h} ${t.hourUnit} ${m} ${t.minuteUnit} ${t.leftSuffix}`}
                 </span>
               )}
             </dd>
           </div>
         ))}
       </dl>
-      <span
-        style={{
-          display: 'inline-block',
-          marginTop: 18,
-          padding: '6px 16px',
-          borderRadius: 999,
-          fontSize: 13,
-          fontWeight: 800,
-          background: pill.bg,
-          color: pill.fg,
-        }}
-      >
-        {pill.text}
-      </span>
+      <div style={{ marginTop: 16, paddingTop: 14, borderTop: '1px solid #E3ECE7', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ fontSize: 12, fontWeight: 600, color: '#404945' }}>{t.trackerLabel}</span>
+        <span
+          style={{
+            display: 'inline-block',
+            padding: '4px 14px',
+            borderRadius: 999,
+            fontSize: 12,
+            fontWeight: 700,
+            background: pill.bg,
+            color: pill.fg,
+          }}
+        >
+          {pill.text}
+        </span>
+      </div>
     </div>
   );
 
@@ -178,19 +170,24 @@ export default function ReferralTracker({ lang, online = true }: ScreenProps) {
   const renderTracker = () => (
     <div
       style={{
-        padding: 22,
-        borderRadius: 24,
-        background: 'var(--ms-surface)',
-        border: '1px solid var(--ms-border)',
-        boxShadow: 'var(--ms-shadow-card)',
+        padding: 20,
+        borderRadius: 20,
+        background: '#FFFFFF',
+        border: '1px solid #E3ECE7',
+        boxShadow: '0 2px 8px rgba(0, 33, 17, 0.04)',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
       }}
     >
-      <h3 style={{ margin: '0 0 18px', fontSize: 16, fontWeight: 800, color: 'var(--ms-ink)' }}>
-        {t.trackerLabel}
-      </h3>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#00201C' }}>
+          {t.trackerLabel}
+        </h3>
+        <span style={{ fontSize: 12, fontWeight: 700, color: '#235347', background: '#DAF1DE', padding: '2px 8px', borderRadius: 999 }}>
+          {lang === 'hi' ? `चरण ${stage} / 4` : `Step ${stage} of 4`}
+        </span>
+      </div>
       <ol
         aria-label={t.trackerLabel}
         style={{
@@ -203,10 +200,11 @@ export default function ReferralTracker({ lang, online = true }: ScreenProps) {
       >
         {t.steps.map((label, i) => {
           const done = i < stage;
+          const isCurrent = i === stage - 1;
           return (
             <li
               key={label}
-              aria-current={i === stage - 1 ? 'step' : undefined}
+              aria-current={isCurrent ? 'step' : undefined}
               style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}
             >
               {i > 0 && (
@@ -217,9 +215,8 @@ export default function ReferralTracker({ lang, online = true }: ScreenProps) {
                     top: 14,
                     right: '50%',
                     width: '100%',
-                    height: 3,
-                    borderRadius: 2,
-                    background: done ? 'var(--ms-green-500)' : '#d6ddd8',
+                    height: 2,
+                    background: done ? '#2E7D4F' : '#CCD9D2',
                   }}
                 />
               )}
@@ -227,23 +224,25 @@ export default function ReferralTracker({ lang, online = true }: ScreenProps) {
                 aria-hidden
                 style={{
                   position: 'relative',
-                  width: 32,
-                  height: 32,
+                  width: 30,
+                  height: 30,
                   borderRadius: '50%',
                   display: 'grid',
                   placeItems: 'center',
-                  background: done ? 'var(--ms-green-500)' : 'var(--ms-surface)',
-                  border: done ? 0 : '2.5px dashed #b9c4bd',
-                  color: '#fff',
+                  background: done ? '#2E7D4F' : isCurrent ? '#DAF1DE' : '#F1F5F3',
+                  border: done ? 0 : isCurrent ? '2px solid #235347' : '1.5px solid #CCD9D2',
+                  color: done ? '#FFFFFF' : '#235347',
+                  fontSize: 12,
+                  fontWeight: 700,
                 }}
               >
-                {done && (
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="m5 12.5 4.5 4.5L19 7.5" />
-                  </svg>
+                {done ? (
+                  <Check size={16} strokeWidth={3} />
+                ) : (
+                  <span>{i + 1}</span>
                 )}
               </span>
-              <span style={{ marginTop: 8, padding: '0 2px', fontSize: lang === 'hi' ? 11 : 12, lineHeight: 1.2, wordBreak: 'break-word', maxWidth: '100%', fontWeight: i === stage - 1 ? 800 : 600, color: done ? 'var(--ms-ink)' : 'var(--ms-muted)' }}>
+              <span style={{ marginTop: 8, padding: '0 2px', fontSize: lang === 'hi' ? 10.5 : 11.5, lineHeight: 1.25, wordBreak: 'break-word', maxWidth: '100%', fontWeight: isCurrent ? 700 : 600, color: done || isCurrent ? '#00201C' : '#707975' }}>
                 {label}
               </span>
             </li>
@@ -266,29 +265,27 @@ export default function ReferralTracker({ lang, online = true }: ScreenProps) {
             disabled={done}
             onClick={handlers[i]}
             style={{
-              minHeight: 60,
+              minHeight: 56,
               display: 'flex',
               alignItems: 'center',
               gap: 12,
               padding: '0 18px',
               textAlign: 'left',
-              borderRadius: 20,
+              borderRadius: 16,
               cursor: done ? 'default' : 'pointer',
-              fontSize: 16,
-              fontWeight: 800,
-              border: primary ? 0 : `2px solid ${done ? '#e3e9e5' : 'var(--ms-green-500)'}`,
-              background: primary ? 'var(--ms-orange)' : 'var(--ms-surface)',
-              color: primary ? '#fff' : done ? '#9aa7a0' : 'var(--ms-green-700)',
-              boxShadow: primary ? '0 10px 22px rgba(240, 121, 75, 0.35)' : 'none',
+              fontSize: 15,
+              fontWeight: 700,
+              border: primary ? 0 : `1.5px solid ${done ? '#E3ECE7' : '#CCD9D2'}`,
+              background: primary ? '#235347' : done ? '#F8FAF9' : '#FFFFFF',
+              color: primary ? '#FFFFFF' : done ? '#707975' : '#235347',
+              boxShadow: primary ? '0 4px 14px rgba(35, 83, 71, 0.25)' : 'none',
               transition: 'all 0.15s ease',
             }}
           >
             {ACTION_ICONS[i]}
             <span style={{ flex: 1 }}>{label}</span>
             {done && (
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <path d="m5 12.5 4.5 4.5L19 7.5" />
-              </svg>
+              <Check size={18} strokeWidth={2.5} aria-hidden />
             )}
           </button>
         );
@@ -301,82 +298,28 @@ export default function ReferralTracker({ lang, online = true }: ScreenProps) {
       {/* ===================== NARROW PHONE LAYOUT (@md and below) ===================== */}
       <div className="block @2xl:hidden">
         <header
+          className="on-dark-900"
           style={{
-            background: 'var(--ms-green-700)',
-            color: '#fff',
-            borderRadius: '0 0 32px 32px',
-            padding: 'calc(22px + env(safe-area-inset-top, 0px)) 20px 26px',
+            background: '#051F20',
+            color: '#FFFFFF',
+            borderRadius: '0 0 24px 24px',
+            padding: 'calc(20px + env(safe-area-inset-top, 0px)) 20px 24px',
           }}
         >
-          <h1 style={{ margin: 0, fontSize: 28, fontWeight: 800 }}>{t.title}</h1>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+            <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, color: '#FFFFFF' }}>{t.title}</h1>
+            <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 999, background: '#FFDAD6', color: '#BA1A1A' }}>
+              Ticket #{referral.id || 'REF-1'}
+            </span>
+          </div>
+          <p style={{ margin: 0, fontSize: 13, color: '#8EB69B' }}>
+            {lang === 'hi' ? '108 आपातकालीन सेवा समन्वय' : '108 Emergency Transport Coordination'}
+          </p>
         </header>
 
-        <section style={{ padding: '18px 20px 0', display: 'grid', gap: 16 }}>
+        <section style={{ padding: '16px 16px 0', display: 'grid', gap: 14 }}>
           {renderReferralCard()}
-
-          <ol
-            aria-label={t.trackerLabel}
-            style={{
-              listStyle: 'none',
-              margin: 0,
-              padding: '16px 8px',
-              display: 'grid',
-              gridTemplateColumns: 'repeat(4, 1fr)',
-              borderRadius: 24,
-              background: 'var(--ms-surface)',
-              boxShadow: '0 4px 16px rgba(31, 77, 56, 0.07)',
-            }}
-          >
-            {t.steps.map((label, i) => {
-              const done = i < stage;
-              return (
-                <li
-                  key={label}
-                  aria-current={i === stage - 1 ? 'step' : undefined}
-                  style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}
-                >
-                  {i > 0 && (
-                    <span
-                      aria-hidden
-                      style={{
-                        position: 'absolute',
-                        top: 14,
-                        right: '50%',
-                        width: '100%',
-                        height: 3,
-                        borderRadius: 2,
-                        background: done ? 'var(--ms-green-500)' : '#d6ddd8',
-                      }}
-                    />
-                  )}
-                  <span
-                    aria-hidden
-                    style={{
-                      position: 'relative',
-                      width: 30,
-                      height: 30,
-                      borderRadius: '50%',
-                      display: 'grid',
-                      placeItems: 'center',
-                      background: done ? 'var(--ms-green-500)' : 'var(--ms-surface)',
-                      border: done ? 0 : '2.5px dashed #b9c4bd',
-                      color: '#fff',
-                    }}
-                  >
-                    {done && (
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="m5 12.5 4.5 4.5L19 7.5" />
-                      </svg>
-                    )}
-                  </span>
-                  <span style={{ marginTop: 8, padding: '0 2px', fontSize: lang === 'hi' ? 10.5 : 12, lineHeight: 1.2, wordBreak: 'break-word', maxWidth: '100%', fontWeight: i === stage - 1 ? 800 : 600, color: done ? 'var(--ms-ink)' : 'var(--ms-muted)' }}>
-                    {label}
-                  </span>
-                </li>
-              );
-            })}
-          </ol>
-
+          {renderTracker()}
           {renderActions()}
         </section>
       </div>
@@ -385,41 +328,38 @@ export default function ReferralTracker({ lang, online = true }: ScreenProps) {
       <div className="hidden @2xl:block" style={{ padding: '24px 28px 40px' }}>
         {/* Wide Header */}
         <header style={{ marginBottom: 24 }}>
-          <h1 style={{ margin: 0, fontSize: 28, fontWeight: 800, color: 'var(--ms-ink)' }}>{t.title}</h1>
-          <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--ms-muted)', fontWeight: 600 }}>
+          <h1 style={{ margin: 0, fontSize: 28, fontWeight: 800, color: '#00201C' }}>{t.title}</h1>
+          <p style={{ margin: '4px 0 0', fontSize: 14, color: '#404945', fontWeight: 600 }}>
             {lang === 'hi' ? 'उच्च सुविधा केंद्र रेफ़रल स्थिति एवं ट्रैकिंग' : 'Hospital Referral Status & Care Loop Tracking'}
           </p>
         </header>
 
         {/* Wide Layout: Referral card beside 4-step tracker on the left, Actions in a side panel on the right */}
         <div className="grid grid-cols-12 @md:grid-cols-12 @2xl:grid-cols-12 @4xl:grid-cols-12 gap-6" style={{ alignItems: 'start' }}>
-          {/* Main Area (~65-70%): Referral card beside the 4-step tracker */}
+          {/* Main Area: Referral card beside the 4-step tracker */}
           <div className="col-span-12 @2xl:col-span-8 @4xl:col-span-8">
             <div className="grid grid-cols-1 @md:grid-cols-2 @2xl:grid-cols-2 gap-6">
-              {/* 1. Referral Card */}
               <div>
                 {renderReferralCard()}
               </div>
-
-              {/* 2. 4-step Tracker */}
               <div>
                 {renderTracker()}
               </div>
             </div>
           </div>
 
-          {/* Side Panel (~30-35%): Actions (Send reminder, Mark reached, Record outcome) */}
+          {/* Side Panel: Actions */}
           <div
             className="col-span-12 @2xl:col-span-4 @4xl:col-span-4"
             style={{
-              background: 'var(--ms-surface)',
-              borderRadius: 24,
-              border: '1px solid var(--ms-border)',
-              boxShadow: 'var(--ms-shadow-card)',
-              padding: 24,
+              background: '#FFFFFF',
+              borderRadius: 20,
+              border: '1px solid #E3ECE7',
+              boxShadow: '0 2px 8px rgba(0, 33, 17, 0.04)',
+              padding: 22,
             }}
           >
-            <h2 style={{ margin: '0 0 16px', fontSize: 18, fontWeight: 800, color: 'var(--ms-ink)' }}>
+            <h2 style={{ margin: '0 0 16px', fontSize: 16, fontWeight: 700, color: '#00201C' }}>
               {lang === 'hi' ? 'कार्रवाई' : 'Next Actions'}
             </h2>
             {renderActions()}
@@ -433,7 +373,7 @@ export default function ReferralTracker({ lang, online = true }: ScreenProps) {
           <div
             onClick={() => setSheet(false)}
             aria-hidden
-            style={{ position: 'absolute', inset: 0, background: 'rgba(10, 30, 20, 0.5)' }}
+            style={{ position: 'absolute', inset: 0, background: 'rgba(0, 0, 0, 0.65)' }}
           />
           <div
             ref={panelRef}
@@ -450,15 +390,15 @@ export default function ReferralTracker({ lang, online = true }: ScreenProps) {
               maxWidth: 440,
               maxHeight: '92dvh',
               overflowY: 'auto',
-              padding: '16px 22px calc(24px + env(safe-area-inset-bottom, 0px))',
-              borderRadius: '32px 32px 0 0',
-              background: 'var(--ms-surface)',
-              boxShadow: '0 -8px 30px rgba(0,0,0,0.2)',
+              padding: '16px 20px calc(24px + env(safe-area-inset-bottom, 0px))',
+              borderRadius: '24px 24px 0 0',
+              background: '#FFFFFF',
+              boxShadow: '0 -8px 30px rgba(0, 0, 0, 0.2)',
               outline: 'none',
             }}
           >
-            <span aria-hidden style={{ display: 'block', width: 44, height: 5, margin: '0 auto 14px', borderRadius: 3, background: '#d6ddd8' }} />
-            <h2 style={{ margin: 0, fontSize: 22, fontWeight: 800 }}>{t.sheetTitle}</h2>
+            <span aria-hidden style={{ display: 'block', width: 40, height: 4, margin: '0 auto 14px', borderRadius: 2, background: '#CCD9D2' }} />
+            <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: '#00201C' }}>{t.sheetTitle}</h2>
 
             <div role="radiogroup" aria-label={t.sheetTitle} style={{ marginTop: 14, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
               {(Object.keys(OUTCOME_STYLE) as Outcome[]).map((key) => {
@@ -472,35 +412,35 @@ export default function ReferralTracker({ lang, online = true }: ScreenProps) {
                     aria-checked={on}
                     onClick={() => setPick(key)}
                     style={{
-                      minHeight: 84,
+                      minHeight: 80,
                       display: 'flex',
                       flexDirection: 'column',
                       alignItems: 'center',
                       justifyContent: 'center',
                       gap: 6,
                       padding: '10px 6px',
-                      borderRadius: 20,
+                      borderRadius: 16,
                       cursor: 'pointer',
-                      fontSize: 16,
-                      fontWeight: 800,
-                      border: `2px solid ${on ? st.bg : '#e3e9e5'}`,
-                      background: on ? st.bg : 'var(--ms-bg)',
-                      color: on ? '#fff' : 'var(--ms-ink)',
+                      fontSize: 15,
+                      fontWeight: 700,
+                      border: `2px solid ${on ? st.bg : '#E3ECE7'}`,
+                      background: on ? st.bg : '#F8FAF9',
+                      color: on ? '#FFFFFF' : '#00201C',
                       transition: 'all 0.15s ease',
                     }}
                   >
                     <span
                       aria-hidden
                       style={{
-                        width: 32,
-                        height: 32,
+                        width: 28,
+                        height: 28,
                         borderRadius: '50%',
                         display: 'grid',
                         placeItems: 'center',
-                        fontSize: 18,
+                        fontSize: 16,
                         lineHeight: 1,
-                        background: on ? 'rgba(255,255,255,0.28)' : st.bg,
-                        color: '#fff',
+                        background: on ? 'rgba(255, 255, 255, 0.28)' : st.bg,
+                        color: '#FFFFFF',
                       }}
                     >
                       {st.glyph}
@@ -512,7 +452,7 @@ export default function ReferralTracker({ lang, online = true }: ScreenProps) {
             </div>
 
             <label style={{ display: 'block', marginTop: 16 }}>
-              <span style={{ display: 'block', marginBottom: 6, fontSize: 14, fontWeight: 700 }}>{t.note}</span>
+              <span style={{ display: 'block', marginBottom: 6, fontSize: 13, fontWeight: 700, color: '#00201C' }}>{t.note}</span>
               <textarea
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
@@ -522,12 +462,13 @@ export default function ReferralTracker({ lang, online = true }: ScreenProps) {
                   width: '100%',
                   resize: 'none',
                   padding: '12px 14px',
-                  borderRadius: 16,
-                  border: '2px solid #e3e9e5',
+                  borderRadius: 14,
+                  border: '1px solid #CCD9D2',
                   font: 'inherit',
-                  fontSize: 16,
-                  color: 'var(--ms-ink)',
-                  background: 'var(--ms-surface)',
+                  fontSize: 15,
+                  color: '#00201C',
+                  background: '#FFFFFF',
+                  boxSizing: 'border-box',
                 }}
               />
             </label>
@@ -541,12 +482,12 @@ export default function ReferralTracker({ lang, online = true }: ScreenProps) {
                 width: '100%',
                 height: 56,
                 border: 0,
-                borderRadius: 20,
+                borderRadius: 16,
                 cursor: pick ? 'pointer' : 'default',
-                fontSize: 18,
+                fontSize: 16,
                 fontWeight: 800,
-                background: pick ? 'var(--ms-orange)' : '#e3e9e5',
-                color: pick ? '#fff' : '#9aa7a0',
+                background: pick ? '#235347' : '#E3ECE7',
+                color: pick ? '#FFFFFF' : '#707975',
               }}
             >
               {t.save}
@@ -561,9 +502,9 @@ export default function ReferralTracker({ lang, online = true }: ScreenProps) {
                 border: 0,
                 background: 'none',
                 cursor: 'pointer',
-                fontSize: 15,
-                fontWeight: 800,
-                color: 'var(--ms-green-700)',
+                fontSize: 14,
+                fontWeight: 700,
+                color: '#404945',
               }}
             >
               {t.cancel}

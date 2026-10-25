@@ -1,4 +1,5 @@
 import { useState, type CSSProperties, type KeyboardEvent } from 'react';
+import { Clock, Check, FileText, Image as ImageIcon, History, RefreshCw } from 'lucide-react';
 import type { ScreenProps } from '../App';
 import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
@@ -17,51 +18,51 @@ const COPY = {
 } as const;
 
 const C = {
-  page: '#EAF4EC',
+  page: '#F4F9F6',
   surface: '#FFFFFF',
-  green: '#286749',
-  greenDark: '#204F39',
-  greenSoft: '#E3F0E6',
-  greenLine: '#8AB594',
-  orange: '#E97848',
-  orangeSoft: '#FFF0E8',
-  ink: '#263238',
-  muted: '#68766E',
-  border: '#DCE8DE',
-  pending: '#A3AEA6',
+  green: '#235347',
+  greenDark: '#053C31',
+  greenSoft: '#DAF1DE',
+  greenLine: '#2E7D4F',
+  accent: '#235347',
+  accentSoft: '#DAF1DE',
+  ink: '#00201C',
+  muted: '#404945',
+  border: '#E3ECE7',
+  pending: '#CCD9D2',
 };
 
 const base: Record<string, CSSProperties> = {
   header: {
-    background: C.green,
+    background: '#051F20',
     color: '#FFFFFF',
-    borderRadius: '0 0 28px 28px',
-    padding: 'calc(24px + env(safe-area-inset-top, 0px)) 22px 25px',
+    borderRadius: '0 0 24px 24px',
+    padding: 'calc(20px + env(safe-area-inset-top, 0px)) 20px 22px',
   },
   caseNumber: {
     margin: 0,
-    fontSize: 13,
-    fontWeight: 600,
+    fontSize: 12,
+    fontWeight: 700,
     letterSpacing: '0.4px',
-    opacity: 0.85,
+    color: '#8EB69B',
   },
   patientName: {
-    margin: '8px 0 0',
-    fontSize: 'clamp(23px, 5.5vw, 31px)',
+    margin: '6px 0 0',
+    fontSize: 'clamp(22px, 5vw, 28px)',
     lineHeight: 1.25,
-    fontWeight: 700,
-    letterSpacing: '-0.5px',
+    fontWeight: 800,
+    color: '#FFFFFF',
     overflowWrap: 'anywhere',
   },
   status: {
     display: 'inline-flex',
     alignItems: 'center',
-    marginTop: 15,
-    padding: '8px 13px',
+    marginTop: 12,
+    padding: '4px 12px',
     borderRadius: 999,
-    background: C.orange,
-    color: '#FFFFFF',
-    fontSize: 13,
+    background: '#FFDAD6',
+    color: '#BA1A1A',
+    fontSize: 12,
     fontWeight: 700,
     lineHeight: 1.35,
   },
@@ -70,28 +71,30 @@ const base: Record<string, CSSProperties> = {
     gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
     gap: 4,
     padding: 4,
-    borderRadius: 16,
-    background: C.greenSoft,
+    borderRadius: 14,
+    background: '#E7F0EA',
+    border: '1px solid #CCD9D2',
   },
   tab: {
     minWidth: 0,
-    minHeight: 48,
-    padding: '10px 4px',
-    border: '1px solid transparent',
-    borderRadius: 12,
+    minHeight: 44,
+    padding: '8px 4px',
+    border: 0,
+    borderRadius: 10,
     background: 'transparent',
-    color: C.green,
-    fontSize: 14,
-    fontWeight: 600,
+    color: '#404945',
+    fontSize: 13.5,
+    fontWeight: 700,
     cursor: 'pointer',
+    transition: 'all 0.15s ease',
   },
   content: {
-    padding: '22px 22px 32px',
+    padding: '18px 16px 28px',
   },
   timelineRow: {
     display: 'flex',
     alignItems: 'stretch',
-    gap: 13,
+    gap: 12,
   },
   markerColumn: {
     width: 28,
@@ -104,35 +107,34 @@ const base: Record<string, CSSProperties> = {
     flex: 1,
     minWidth: 0,
     paddingTop: 2,
-    paddingBottom: 23,
+    paddingBottom: 22,
   },
   stepTitle: {
     margin: 0,
-    fontSize: 16,
-    lineHeight: 1.45,
-    fontWeight: 650,
-    letterSpacing: '-0.15px',
+    fontSize: 15,
+    lineHeight: 1.4,
+    fontWeight: 700,
   },
   stepBy: {
-    margin: '4px 0 0',
-    color: C.muted,
-    fontSize: 13.5,
-    lineHeight: 1.5,
-    fontWeight: 400,
+    margin: '3px 0 0',
+    color: '#404945',
+    fontSize: 13,
+    lineHeight: 1.45,
+    fontWeight: 500,
   },
   stepTime: {
-    margin: '5px 0 0',
-    fontSize: 13,
-    lineHeight: 1.5,
-    fontWeight: 650,
+    margin: '4px 0 0',
+    fontSize: 12.5,
+    lineHeight: 1.4,
+    fontWeight: 700,
   },
   panel: {
     margin: 0,
-    padding: '8px 18px',
-    border: `1px solid ${C.border}`,
-    borderRadius: 18,
-    background: C.surface,
-    boxShadow: '0 3px 12px rgba(31, 77, 56, 0.045)',
+    padding: '6px 18px',
+    border: '1px solid #E3ECE7',
+    borderRadius: 16,
+    background: '#FFFFFF',
+    boxShadow: '0 2px 8px rgba(0, 33, 17, 0.04)',
   },
 };
 
@@ -157,13 +159,13 @@ export default function CaseTimeline({ lang, onNavigate }: ScreenProps) {
                 height: 52,
                 padding: '0 24px',
                 border: 0,
-                borderRadius: 18,
-                background: 'var(--ms-orange)',
-                color: '#fff',
+                borderRadius: 16,
+                background: '#235347',
+                color: '#FFFFFF',
                 fontSize: 16,
                 fontWeight: 800,
                 cursor: 'pointer',
-                boxShadow: '0 8px 20px rgba(238, 123, 77, 0.35)',
+                boxShadow: '0 4px 14px rgba(35, 83, 71, 0.25)',
               }}
             >
               {lang === 'hi' ? 'जाँच शुरू करें' : 'Start a screening'}
@@ -259,36 +261,25 @@ export default function CaseTimeline({ lang, onNavigate }: ScreenProps) {
                   background: done
                     ? C.greenLine
                     : current
-                      ? C.orange
-                      : C.surface,
+                      ? C.accent
+                      : '#F1F5F3',
                   border:
                     done || current
                       ? 'none'
                       : `1.5px solid ${C.border}`,
                   boxShadow: current
-                    ? `0 0 0 4px ${C.orangeSoft}`
+                    ? `0 0 0 4px ${C.accentSoft}`
                     : 'none',
                   color: '#FFFFFF',
                 }}
               >
                 {done ? (
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="m5 12 4 4L19 6" />
-                  </svg>
+                  <Check size={16} strokeWidth={2.5} />
                 ) : current ? (
                   <span
                     style={{
-                      width: 7,
-                      height: 7,
+                      width: 8,
+                      height: 8,
                       borderRadius: '50%',
                       background: '#FFFFFF',
                     }}
@@ -320,12 +311,12 @@ export default function CaseTimeline({ lang, onNavigate }: ScreenProps) {
               )}
             </div>
 
-            <div style={{ ...base.stepContent, paddingBottom: last ? 0 : 23 }}>
+            <div style={{ ...base.stepContent, paddingBottom: last ? 0 : 22 }}>
               <p
                 style={{
                   ...base.stepTitle,
                   color: current
-                    ? C.orange
+                    ? C.accent
                     : done
                       ? C.ink
                       : C.muted,
@@ -340,9 +331,9 @@ export default function CaseTimeline({ lang, onNavigate }: ScreenProps) {
                 style={{
                   ...base.stepTime,
                   color: done
-                    ? C.green
+                    ? C.greenLine
                     : current
-                      ? C.orange
+                      ? C.accent
                       : C.muted,
                 }}
               >
@@ -502,13 +493,13 @@ export default function CaseTimeline({ lang, onNavigate }: ScreenProps) {
             <li
               key={read}
               style={{
-                padding: '6px 11px',
+                padding: '4px 12px',
                 borderRadius: 999,
-                background: i === 0 ? C.orangeSoft : C.greenSoft,
-                color: i === 0 ? '#A94D28' : C.greenDark,
+                background: i === 0 ? '#FFDAD6' : '#DAF1DE',
+                color: i === 0 ? '#BA1A1A' : '#235347',
                 fontSize: 12,
                 lineHeight: 1.4,
-                fontWeight: 650,
+                fontWeight: 700,
               }}
             >
               {read}
@@ -523,13 +514,13 @@ export default function CaseTimeline({ lang, onNavigate }: ScreenProps) {
     <div style={{ background: C.page, minHeight: '100%', color: C.ink }}>
       {/* ===================== NARROW PHONE LAYOUT (@md and below) ===================== */}
       <div className="block @2xl:hidden">
-        <header style={base.header}>
+        <header className="on-dark-900" style={base.header}>
           <p style={base.caseNumber}>{t.caseNo}</p>
           <h1 style={base.patientName}>{patientSummary}</h1>
           <span style={base.status}>{t.status}</span>
         </header>
 
-        <div style={{ padding: '20px 20px 0' }}>
+        <div style={{ padding: '16px 16px 0' }}>
           <div role="tablist" aria-label={lang === 'hi' ? 'केस अनुभाग' : 'Case sections'} style={base.tabWrap}>
             {tabs.map((key, i) => {
               const selected = tab === key;
@@ -547,11 +538,10 @@ export default function CaseTimeline({ lang, onNavigate }: ScreenProps) {
                   onKeyDown={(e) => onKey(e, i)}
                   style={{
                     ...base.tab,
-                    background: selected ? C.surface : 'transparent',
-                    color: selected ? C.greenDark : C.muted,
-                    borderColor: selected ? C.border : 'transparent',
+                    background: selected ? '#235347' : 'transparent',
+                    color: selected ? '#FFFFFF' : '#404945',
                     boxShadow: selected
-                      ? '0 2px 5px rgba(31, 77, 56, 0.05)'
+                      ? '0 2px 6px rgba(35, 83, 71, 0.2)'
                       : 'none',
                   }}
                 >
@@ -577,6 +567,7 @@ export default function CaseTimeline({ lang, onNavigate }: ScreenProps) {
       {/* ===================== WIDE CONTAINER LAYOUT (@2xl and above) ===================== */}
       <div className="hidden @2xl:block">
         <header
+          className="on-dark-900"
           style={{
             ...base.header,
             borderRadius: '0 0 32px 32px',
@@ -599,18 +590,18 @@ export default function CaseTimeline({ lang, onNavigate }: ScreenProps) {
             <div
               style={{
                 background: C.surface,
-                borderRadius: 24,
+                borderRadius: 20,
                 padding: '24px 22px',
                 border: `1px solid ${C.border}`,
-                boxShadow: '0 3px 14px rgba(31, 77, 56, 0.05)',
+                boxShadow: '0 2px 8px rgba(0, 33, 17, 0.04)',
               }}
             >
               <h2
                 style={{
                   margin: '0 0 20px',
-                  fontSize: 19,
+                  fontSize: 18,
                   fontWeight: 800,
-                  color: C.greenDark,
+                  color: '#00201C',
                   display: 'flex',
                   alignItems: 'center',
                   gap: 8,
@@ -633,9 +624,9 @@ export default function CaseTimeline({ lang, onNavigate }: ScreenProps) {
               <h2
                 style={{
                   margin: '0 0 12px',
-                  fontSize: 19,
+                  fontSize: 18,
                   fontWeight: 800,
-                  color: C.greenDark,
+                  color: '#00201C',
                 }}
               >
                 {t.tabs.details}
@@ -648,9 +639,9 @@ export default function CaseTimeline({ lang, onNavigate }: ScreenProps) {
               <h2
                 style={{
                   margin: '0 0 12px',
-                  fontSize: 19,
+                  fontSize: 18,
                   fontWeight: 800,
-                  color: C.greenDark,
+                  color: '#00201C',
                 }}
               >
                 {t.tabs.photos}

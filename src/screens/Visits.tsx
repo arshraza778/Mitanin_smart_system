@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { MapPin, Calendar, Clock, ArrowRight } from 'lucide-react';
 import type { ScreenProps } from '../App';
 import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
@@ -21,8 +22,6 @@ interface Visit {
   patientId: string;
 }
 
-
-
 const PRIORITY: Record<Status, number> = {
   overdue: 0,
   due: 1,
@@ -43,10 +42,10 @@ const COPY = {
 
 function pillStyle(status: Status) {
   const styles: Record<Status, { background: string; color: string }> = {
-    overdue: { background: '#FCE8E8', color: '#B42318' },
-    due: { background: '#FFF0E6', color: '#B85C24' },
-    scheduled: { background: '#EAF4EC', color: '#2B6B52' },
-    done: { background: '#EEF0EE', color: '#6B7785' },
+    overdue: { background: '#FFDAD6', color: '#BA1A1A' },
+    due: { background: '#FFF1CC', color: '#8A5A00' },
+    scheduled: { background: '#DAF1DE', color: '#235347' },
+    done: { background: '#E3ECE7', color: '#404945' },
   };
 
   return styles[status];
@@ -111,8 +110,8 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
       style={{
         minHeight: '100%',
         paddingBottom: "var(--ms-screen-padding-bottom)",
-        background: '#EAF4EC',
-        color: '#1F2933',
+        background: '#F4F9F6',
+        color: '#00201C',
       }}
     >
       {/* ===================== NARROW PHONE LAYOUT (@md and below) ===================== */}
@@ -120,7 +119,8 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
         <header
           style={{
             background: '#FFFFFF',
-            borderRadius: '0 0 32px 32px',
+            borderRadius: '0 0 24px 24px',
+            borderBottom: '1px solid #E3ECE7',
             padding: 'calc(20px + env(safe-area-inset-top, 0px)) 20px 18px',
           }}
         >
@@ -128,10 +128,10 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
             <h1
               style={{
                 margin: 0,
-                fontSize: 52,
+                fontSize: 44,
                 fontWeight: 800,
                 lineHeight: 1,
-                color: '#1F2933',
+                color: '#00201C',
               }}
             >
               {selectedDayItem.dayNumber}
@@ -140,8 +140,8 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
             <div
               style={{
                 lineHeight: 1.3,
-                color: '#6B7785',
-                fontSize: 15,
+                color: '#404945',
+                fontSize: 14,
                 fontWeight: 600,
               }}
             >
@@ -156,13 +156,13 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
               style={{
                 ...buttonBase,
                 marginLeft: 'auto',
-                minHeight: 48,
-                padding: '10px 20px',
+                minHeight: 40,
+                padding: '8px 16px',
                 borderRadius: 999,
-                fontSize: 15,
-                fontWeight: 800,
-                background: '#EAF4EC',
-                color: '#2B6B52',
+                fontSize: 14,
+                fontWeight: 700,
+                background: '#DAF1DE',
+                color: '#235347',
               }}
             >
               {t.today}
@@ -172,11 +172,11 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
           <ul
             style={{
               listStyle: 'none',
-              margin: '18px 0 0',
+              margin: '16px 0 0',
               padding: 0,
               display: 'grid',
               gridTemplateColumns: 'repeat(7, minmax(0, 1fr))',
-              gap: 3,
+              gap: 4,
             }}
           >
             {weekDays.map((item) => {
@@ -192,23 +192,25 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
                     style={{
                       ...buttonBase,
                       width: '100%',
-                      minHeight: 64,
-                      padding: '9px 0',
+                      minHeight: 60,
+                      padding: '8px 0',
                       display: 'flex',
                       flexDirection: 'column',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: 6,
-                      borderRadius: 18,
-                      background: selected ? 'var(--ms-orange)' : 'transparent',
-                      color: selected ? '#FFFFFF' : '#1F2933',
+                      gap: 4,
+                      borderRadius: 14,
+                      background: selected ? '#235347' : '#F8FAF9',
+                      color: selected ? '#FFFFFF' : '#00201C',
+                      border: selected ? '0' : '1px solid #E3ECE7',
+                      transition: 'all 0.15s ease',
                     }}
                   >
                     <span
                       style={{
-                        fontSize: 12,
+                        fontSize: 11,
                         fontWeight: 700,
-                        opacity: selected ? 1 : 0.55,
+                        color: selected ? '#DAF1DE' : '#404945',
                       }}
                     >
                       {item.weekdayNarrow}
@@ -221,7 +223,7 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
           </ul>
         </header>
 
-        <section style={{ padding: '22px 20px 24px' }}>
+        <section style={{ padding: '18px 16px 24px' }}>
           <div
             style={{
               display: 'flex',
@@ -234,9 +236,9 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
             <p
               style={{
                 margin: 0,
-                fontSize: 14,
+                fontSize: 13,
                 fontWeight: 700,
-                color: '#6B7785',
+                color: '#404945',
               }}
             >
               {visitCountText(list.length)}
@@ -247,10 +249,11 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
               aria-label={t.sortLabel}
               style={{
                 display: 'flex',
-                gap: 3,
-                padding: 4,
+                gap: 2,
+                padding: 3,
                 borderRadius: 999,
-                background: '#FFFFFF',
+                background: '#F1F5F3',
+                border: '1px solid #E3ECE7',
               }}
             >
               {(['time', 'priority'] as const).map((key) => {
@@ -264,15 +267,16 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
                     onClick={() => setSort(key)}
                     style={{
                       ...buttonBase,
-                      minHeight: 48,
+                      minHeight: 36,
                       display: 'inline-flex',
                       alignItems: 'center',
-                      padding: '8px 14px',
+                      padding: '6px 14px',
                       borderRadius: 999,
-                      fontSize: 13,
-                      fontWeight: 800,
-                      background: selected ? '#EAF4EC' : 'transparent',
-                      color: '#2B6B52',
+                      fontSize: 12,
+                      fontWeight: 700,
+                      background: selected ? '#235347' : 'transparent',
+                      color: selected ? '#FFFFFF' : '#404945',
+                      transition: 'all 0.15s ease',
                     }}
                   >
                     {key === 'time' ? t.byTime : t.byPriority}
@@ -287,7 +291,7 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
               style={{
                 margin: '40px 0',
                 textAlign: 'center',
-                color: '#6B7785',
+                color: '#404945',
                 fontSize: 14,
               }}
             >
@@ -297,10 +301,10 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
             <ol
               style={{
                 listStyle: 'none',
-                margin: '20px 0 0',
+                margin: '16px 0 0',
                 padding: 0,
                 display: 'grid',
-                gap: 16,
+                gap: 12,
               }}
             >
               {list.map((visit) => (
@@ -308,19 +312,19 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
                   key={visit.id}
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: '76px minmax(0, 1fr)',
+                    gridTemplateColumns: '70px minmax(0, 1fr)',
                     alignItems: 'start',
                     gap: 10,
                   }}
                 >
-                  <div style={{ paddingTop: 12, fontSize: 14 }}>
-                    <div style={{ fontWeight: 800, color: '#1F2933' }}>
+                  <div style={{ paddingTop: 10, fontSize: 13 }}>
+                    <div style={{ fontWeight: 800, color: '#00201C' }}>
                       {visit.start}
                     </div>
                     <div
                       style={{
-                        color: '#6B7785',
-                        marginTop: 4,
+                        color: '#404945',
+                        marginTop: 2,
                       }}
                     >
                       {visit.end}
@@ -335,36 +339,55 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
                       ...buttonBase,
                       width: '100%',
                       minWidth: 0,
-                      minHeight: 180,
-                      padding: '20px',
+                      minHeight: 140,
+                      padding: '16px',
                       textAlign: 'left',
-                      borderRadius: 24,
+                      borderRadius: 16,
                       background: '#FFFFFF',
-                      color: '#1F2933',
-                      boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
+                      color: '#00201C',
+                      border: '1px solid #E3ECE7',
+                      boxShadow: '0 2px 8px rgba(0, 33, 17, 0.04)',
                       transition: 'box-shadow 150ms ease',
                     }}
                   >
-                    <span
-                      style={{
-                        display: 'block',
-                        fontSize: 18,
-                        lineHeight: 1.3,
-                        fontWeight: 800,
-                        color: '#2B6B52',
-                        overflowWrap: 'anywhere',
-                      }}
-                    >
-                      {visit.name[lang]}
-                    </span>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
+                      <span
+                        style={{
+                          display: 'block',
+                          fontSize: 16,
+                          lineHeight: 1.3,
+                          fontWeight: 800,
+                          color: '#00201C',
+                          overflowWrap: 'anywhere',
+                        }}
+                      >
+                        {visit.name[lang]}
+                      </span>
+
+                      <span
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          padding: '3px 10px',
+                          borderRadius: 999,
+                          fontSize: 11,
+                          fontWeight: 700,
+                          whiteSpace: 'nowrap',
+                          ...pillStyle(visit.status),
+                        }}
+                      >
+                        {t.status[visit.status]}
+                      </span>
+                    </div>
 
                     <span
                       style={{
                         display: 'block',
-                        marginTop: 5,
-                        fontSize: 14,
+                        marginTop: 4,
+                        fontSize: 13,
                         fontWeight: 600,
-                        color: '#1F2933',
+                        color: '#404945',
                       }}
                     >
                       {t.types[visit.type]}
@@ -374,45 +397,14 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
                       style={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: 8,
-                        marginTop: 14,
-                        fontSize: 14,
-                        color: '#6B7785',
-                      }}
-                    >
-                      <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        aria-hidden="true"
-                        focusable="false"
-                      >
-                        <path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z" />
-                        <circle cx="12" cy="10" r="2.2" />
-                      </svg>
-                      {visit.village[lang]}
-                    </span>
-
-                    <span
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        marginTop: 16,
-                        minHeight: 36,
-                        padding: '6px 15px',
-                        borderRadius: 999,
+                        gap: 6,
+                        marginTop: 10,
                         fontSize: 13,
-                        fontWeight: 800,
-                        ...pillStyle(visit.status),
+                        color: '#404945',
                       }}
                     >
-                      {t.status[visit.status]}
+                      <MapPin size={15} aria-hidden="true" />
+                      {visit.village[lang]}
                     </span>
                   </button>
                 </li>
@@ -428,9 +420,9 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
         <header
           style={{
             background: '#FFFFFF',
-            borderRadius: 28,
-            border: '1px solid var(--ms-border)',
-            boxShadow: 'var(--ms-shadow-card)',
+            borderRadius: 24,
+            border: '1px solid #E3ECE7',
+            boxShadow: '0 2px 8px rgba(0, 33, 17, 0.04)',
             padding: '24px 28px',
             marginBottom: 24,
           }}
@@ -439,16 +431,16 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
               <span
                 style={{
-                  fontSize: 48,
+                  fontSize: 44,
                   fontWeight: 800,
                   lineHeight: 1,
-                  color: '#1F2933',
+                  color: '#00201C',
                 }}
               >
                 {selectedDayItem.dayNumber}
               </span>
 
-              <div style={{ lineHeight: 1.3, color: '#6B7785', fontSize: 16, fontWeight: 700 }}>
+              <div style={{ lineHeight: 1.3, color: '#404945', fontSize: 15, fontWeight: 600 }}>
                 <div>{selectedDayItem.isToday ? t.today : selectedDayItem.weekdayLong}</div>
                 <div>{monthText}</div>
               </div>
@@ -459,13 +451,13 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
                 onClick={() => setSelectedOffset(0)}
                 style={{
                   ...buttonBase,
-                  minHeight: 40,
+                  minHeight: 38,
                   padding: '6px 16px',
                   borderRadius: 999,
                   fontSize: 13.5,
-                  fontWeight: 800,
-                  background: '#EAF4EC',
-                  color: '#2B6B52',
+                  fontWeight: 700,
+                  background: '#DAF1DE',
+                  color: '#235347',
                 }}
               >
                 {t.today}
@@ -474,7 +466,7 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
 
             {/* Sort & Count Controls */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-              <span style={{ fontSize: 14, fontWeight: 700, color: '#6B7785' }}>
+              <span style={{ fontSize: 14, fontWeight: 700, color: '#404945' }}>
                 {visitCountText(list.length)}
               </span>
 
@@ -483,11 +475,11 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
                 aria-label={t.sortLabel}
                 style={{
                   display: 'flex',
-                  gap: 3,
-                  padding: 4,
+                  gap: 2,
+                  padding: 3,
                   borderRadius: 999,
-                  background: '#F5F6F3',
-                  border: '1px solid var(--ms-border)',
+                  background: '#F1F5F3',
+                  border: '1px solid #E3ECE7',
                 }}
               >
                 {(['time', 'priority'] as const).map((key) => {
@@ -500,13 +492,13 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
                       onClick={() => setSort(key)}
                       style={{
                         ...buttonBase,
-                        minHeight: 38,
+                        minHeight: 34,
                         padding: '6px 14px',
                         borderRadius: 999,
                         fontSize: 12.5,
-                        fontWeight: 800,
-                        background: selected ? '#2B6B52' : 'transparent',
-                        color: selected ? '#FFFFFF' : '#2B6B52',
+                        fontWeight: 700,
+                        background: selected ? '#235347' : 'transparent',
+                        color: selected ? '#FFFFFF' : '#404945',
                         transition: 'all 0.15s ease',
                       }}
                     >
@@ -542,29 +534,30 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
                     style={{
                       ...buttonBase,
                       width: '100%',
-                      minHeight: 64,
+                      minHeight: 62,
                       padding: '10px 0',
                       display: 'flex',
                       flexDirection: 'column',
                       alignItems: 'center',
                       justifyContent: 'center',
                       gap: 4,
-                      borderRadius: 18,
-                      background: selected ? 'var(--ms-orange)' : '#F5F6F3',
-                      color: selected ? '#FFFFFF' : '#1F2933',
+                      borderRadius: 14,
+                      background: selected ? '#235347' : '#F8FAF9',
+                      color: selected ? '#FFFFFF' : '#00201C',
+                      border: selected ? 0 : '1px solid #E3ECE7',
                       transition: 'all 0.15s ease',
                     }}
                   >
                     <span
                       style={{
-                        fontSize: 12,
+                        fontSize: 11,
                         fontWeight: 700,
-                        opacity: selected ? 1 : 0.6,
+                        color: selected ? '#DAF1DE' : '#404945',
                       }}
                     >
                       {item.weekdayNarrow}
                     </span>
-                    <span style={{ fontSize: 17, fontWeight: 800 }}>{item.dayNumber}</span>
+                    <span style={{ fontSize: 16, fontWeight: 800 }}>{item.dayNumber}</span>
                   </button>
                 </li>
               );
@@ -579,17 +572,17 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
               padding: '64px 20px',
               textAlign: 'center',
               background: '#FFFFFF',
-              borderRadius: 24,
-              border: '1px solid var(--ms-border)',
+              borderRadius: 20,
+              border: '1px solid #E3ECE7',
             }}
           >
-            <p style={{ margin: 0, color: '#6B7785', fontSize: 16, fontWeight: 600 }}>{t.empty}</p>
+            <p style={{ margin: 0, color: '#404945', fontSize: 15, fontWeight: 600 }}>{t.empty}</p>
           </div>
         ) : (
           <div className="grid grid-cols-12 @md:grid-cols-12 @2xl:grid-cols-12 @4xl:grid-cols-12 gap-6" style={{ alignItems: 'start' }}>
             {/* Left: Time and visit cards */}
             <div className="col-span-12 @2xl:col-span-7 @4xl:col-span-7">
-              <ol style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 14 }}>
+              <ol style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 12 }}>
                 {list.map((visit) => {
                   const isSelected = selectedVisit?.id === visit.id;
                   return (
@@ -597,15 +590,15 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
                       key={visit.id}
                       style={{
                         display: 'grid',
-                        gridTemplateColumns: '84px minmax(0, 1fr)',
+                        gridTemplateColumns: '76px minmax(0, 1fr)',
                         alignItems: 'start',
                         gap: 12,
                       }}
                     >
                       {/* Time Column */}
-                      <div style={{ paddingTop: 16, fontSize: 14 }}>
-                        <div style={{ fontWeight: 800, color: '#1F2933' }}>{visit.start}</div>
-                        <div style={{ color: '#6B7785', marginTop: 4, fontWeight: 600 }}>{visit.end}</div>
+                      <div style={{ paddingTop: 14, fontSize: 13 }}>
+                        <div style={{ fontWeight: 800, color: '#00201C' }}>{visit.start}</div>
+                        <div style={{ color: '#404945', marginTop: 3, fontWeight: 600 }}>{visit.end}</div>
                       </div>
 
                       {/* Visit Card */}
@@ -617,21 +610,21 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
                           ...buttonBase,
                           width: '100%',
                           minWidth: 0,
-                          padding: '18px 20px',
+                          padding: '16px 18px',
                           textAlign: 'left',
-                          borderRadius: 20,
-                          background: isSelected ? '#FFFFFF' : '#FFFFFF',
-                          border: isSelected ? '2.5px solid #2B6B52' : '1px solid var(--ms-border)',
-                          boxShadow: isSelected ? '0 8px 24px rgba(43, 107, 82, 0.14)' : '0 4px 16px rgba(0,0,0,0.04)',
+                          borderRadius: 16,
+                          background: '#FFFFFF',
+                          border: isSelected ? '2px solid #235347' : '1px solid #E3ECE7',
+                          boxShadow: isSelected ? '0 4px 14px rgba(35, 83, 71, 0.12)' : '0 2px 8px rgba(0, 33, 17, 0.04)',
                           transition: 'all 0.15s ease',
                         }}
                       >
                         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 }}>
                           <div>
-                            <span style={{ display: 'block', fontSize: 18, lineHeight: 1.25, fontWeight: 800, color: '#2B6B52' }}>
+                            <span style={{ display: 'block', fontSize: 16, lineHeight: 1.25, fontWeight: 800, color: '#00201C' }}>
                               {visit.name[lang]}
                             </span>
-                            <span style={{ display: 'block', marginTop: 4, fontSize: 13.5, fontWeight: 700, color: '#1F2933' }}>
+                            <span style={{ display: 'block', marginTop: 4, fontSize: 13, fontWeight: 600, color: '#404945' }}>
                               {t.types[visit.type]}
                             </span>
                           </div>
@@ -639,10 +632,10 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
                             style={{
                               display: 'inline-flex',
                               alignItems: 'center',
-                              padding: '4px 12px',
+                              padding: '3px 10px',
                               borderRadius: 999,
-                              fontSize: 12,
-                              fontWeight: 800,
+                              fontSize: 11,
+                              fontWeight: 700,
                               ...pillStyle(visit.status),
                             }}
                           >
@@ -650,11 +643,8 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
                           </span>
                         </div>
 
-                        <span style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, fontSize: 13.5, color: '#6B7785', fontWeight: 600 }}>
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                            <path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z" />
-                            <circle cx="12" cy="10" r="2.2" />
-                          </svg>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10, fontSize: 13, color: '#404945', fontWeight: 600 }}>
+                          <MapPin size={15} aria-hidden="true" />
                           {visit.village[lang]}
                         </span>
                       </button>
@@ -670,23 +660,23 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
                 <div
                   style={{
                     background: '#FFFFFF',
-                    borderRadius: 24,
-                    border: '1px solid var(--ms-border)',
-                    boxShadow: 'var(--ms-shadow-card)',
-                    padding: '24px 22px',
+                    borderRadius: 20,
+                    border: '1px solid #E3ECE7',
+                    boxShadow: '0 2px 8px rgba(0, 33, 17, 0.04)',
+                    padding: '22px 20px',
                     position: 'sticky',
                     top: 88,
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10, paddingBottom: 16, borderBottom: '1px solid var(--ms-border)' }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10, paddingBottom: 16, borderBottom: '1px solid #E3ECE7' }}>
                     <div>
-                      <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--ms-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: '#404945', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                         {lang === 'hi' ? 'दौरे का विवरण' : 'Visit Details'}
                       </span>
-                      <h2 style={{ margin: '4px 0 0', fontSize: 22, fontWeight: 800, color: '#2B6B52' }}>
+                      <h2 style={{ margin: '4px 0 0', fontSize: 20, fontWeight: 800, color: '#00201C' }}>
                         {selectedVisit.name[lang]}
                       </h2>
-                      <p style={{ margin: '4px 0 0', fontSize: 14, color: '#6B7785', fontWeight: 600 }}>
+                      <p style={{ margin: '4px 0 0', fontSize: 13, color: '#404945', fontWeight: 600 }}>
                         {selectedVisit.village[lang]} • {selectedVisit.start} - {selectedVisit.end}
                       </p>
                     </div>
@@ -694,8 +684,8 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
                       style={{
                         padding: '4px 12px',
                         borderRadius: 999,
-                        fontSize: 12.5,
-                        fontWeight: 800,
+                        fontSize: 12,
+                        fontWeight: 700,
                         ...pillStyle(selectedVisit.status),
                       }}
                     >
@@ -703,28 +693,28 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
                     </span>
                   </div>
 
-                  <dl style={{ margin: '18px 0', display: 'grid', gap: 12 }}>
+                  <dl style={{ margin: '16px 0', display: 'grid', gap: 12 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <dt style={{ fontSize: 13.5, color: '#6B7785', fontWeight: 600 }}>
+                      <dt style={{ fontSize: 13, color: '#404945', fontWeight: 600 }}>
                         {lang === 'hi' ? 'दौरे का प्रकार' : 'Visit Type'}
                       </dt>
-                      <dd style={{ margin: 0, fontSize: 14, fontWeight: 700, color: '#1F2933' }}>
+                      <dd style={{ margin: 0, fontSize: 13.5, fontWeight: 700, color: '#00201C' }}>
                         {t.types[selectedVisit.type]}
                       </dd>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <dt style={{ fontSize: 13.5, color: '#6B7785', fontWeight: 600 }}>
+                      <dt style={{ fontSize: 13, color: '#404945', fontWeight: 600 }}>
                         {lang === 'hi' ? 'समय' : 'Schedule'}
                       </dt>
-                      <dd style={{ margin: 0, fontSize: 14, fontWeight: 700, color: '#1F2933' }}>
+                      <dd style={{ margin: 0, fontSize: 13.5, fontWeight: 700, color: '#00201C' }}>
                         {selectedVisit.start} - {selectedVisit.end}
                       </dd>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <dt style={{ fontSize: 13.5, color: '#6B7785', fontWeight: 600 }}>
+                      <dt style={{ fontSize: 13, color: '#404945', fontWeight: 600 }}>
                         {lang === 'hi' ? 'गाँव' : 'Village'}
                       </dt>
-                      <dd style={{ margin: 0, fontSize: 14, fontWeight: 700, color: '#1F2933' }}>
+                      <dd style={{ margin: 0, fontSize: 13.5, fontWeight: 700, color: '#00201C' }}>
                         {selectedVisit.village[lang]}
                       </dd>
                     </div>
@@ -741,14 +731,14 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
                       alignItems: 'center',
                       justifyContent: 'center',
                       gap: 8,
-                      borderRadius: 16,
+                      borderRadius: 14,
                       border: 0,
-                      background: 'var(--ms-orange)',
+                      background: '#235347',
                       color: '#FFFFFF',
                       fontSize: 15,
-                      fontWeight: 800,
+                      fontWeight: 700,
                       cursor: 'pointer',
-                      boxShadow: '0 6px 18px rgba(240, 121, 75, 0.3)',
+                      boxShadow: '0 4px 14px rgba(35, 83, 71, 0.25)',
                     }}
                   >
                     <span>
@@ -758,7 +748,7 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
                         ? (lang === 'hi' ? 'परामर्श देखें' : 'View Consultation')
                         : (lang === 'hi' ? 'रेफ़रल देखें' : 'Track Referral')}
                     </span>
-                    <span>→</span>
+                    <ArrowRight size={18} />
                   </button>
                 </div>
               ) : null}

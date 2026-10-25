@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { User, Languages, Smartphone, Monitor, RefreshCw, Check, ArrowRight, RotateCcw } from 'lucide-react';
 import type { ScreenProps } from '../App';
 import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
@@ -6,7 +7,6 @@ import { useViewMode } from '../ViewModeContext';
 import { useCaseStore, type SyncItem } from '../store/CaseStore';
 
 const COPY = { en: enLocale.screens.Profile, hi: hiLocale.screens.Profile } as const;
-
 
 export default function Profile({
   lang,
@@ -38,7 +38,7 @@ export default function Profile({
   };
 
   const pageTitle = isHindi ? 'प्रोफ़ाइल' : 'Profile';
-    const allSyncedText = isHindi ? 'सब सिंक है (सिम्युलेटेड)' : 'All synced (Simulated)';
+  const allSyncedText = isHindi ? 'सब सिंक है (सिम्युलेटेड)' : 'All synced (Simulated)';
   const pendingText = isHindi ? `${waitingSyncCount || 4} लंबित (सिम्युलेटेड)` : `${waitingSyncCount || 4} pending (Simulated)`;
   const activeText = isHindi ? 'सक्रिय' : 'Active';
   const subCenterText = isHindi ? 'कोटरा उप-केंद्र' : 'Kotra Sub-Center';
@@ -55,31 +55,31 @@ export default function Profile({
     <section
       aria-label={t.title}
       style={{
-        background: 'var(--ms-surface)',
-        borderRadius: 24,
-        border: '1px solid var(--ms-border)',
-        boxShadow: 'var(--ms-shadow-card)',
-        padding: '24px',
+        background: '#FFFFFF',
+        borderRadius: 20,
+        border: '1px solid #E3ECE7',
+        boxShadow: '0 2px 8px rgba(0, 33, 17, 0.04)',
+        padding: '22px',
         display: 'flex',
         flexDirection: 'column',
-        gap: 20,
+        gap: 18,
       }}
     >
       {/* Identity block */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
         <div
           aria-hidden="true"
           style={{
-            width: 58,
-            height: 58,
+            width: 54,
+            height: 54,
             flexShrink: 0,
-            borderRadius: 18,
-            background: 'var(--ms-green-100)',
-            color: 'var(--ms-forest)',
+            borderRadius: 16,
+            background: '#DAF1DE',
+            color: '#235347',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: 24,
+            fontSize: 22,
             fontWeight: 800,
           }}
         >
@@ -87,7 +87,7 @@ export default function Profile({
         </div>
         <div style={{ minWidth: 0, flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-            <h2 style={{ margin: 0, fontSize: 22, fontWeight: 800, color: 'var(--ms-ink)', lineHeight: 1.2 }}>
+            <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: '#00201C', lineHeight: 1.2 }}>
               {t.name}
             </h2>
             <span
@@ -95,26 +95,25 @@ export default function Profile({
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 5,
-                padding: '3px 10px',
+                padding: '2px 8px',
                 borderRadius: 999,
-                fontSize: 12,
-                fontWeight: 800,
-                background: 'var(--ms-green-100)',
-                color: 'var(--ms-forest)',
+                fontSize: 11,
+                fontWeight: 700,
+                background: '#DAF1DE',
+                color: '#235347',
               }}
             >
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--ms-ok)' }} />
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#2E7D4F' }} />
               {activeText}
             </span>
           </div>
-          <p style={{ margin: '4px 0 0', fontSize: 13.5, color: 'var(--ms-muted)', fontWeight: 600 }}>
+          <p style={{ margin: '4px 0 0', fontSize: 13, color: '#404945', fontWeight: 600 }}>
             {t.role} • {subCenterText}
           </p>
-
         </div>
       </div>
 
-      <hr style={{ height: 1, background: 'var(--ms-border)', border: 0, margin: 0 }} />
+      <hr style={{ height: 1, background: '#E3ECE7', border: 0, margin: 0 }} />
 
       {/* Shared status chip text only */}
       <div
@@ -123,10 +122,10 @@ export default function Profile({
           alignItems: 'center',
           gap: 8,
           padding: '10px 14px',
-          borderRadius: 16,
-          background: online ? 'var(--ms-green-100)' : 'var(--ms-orange-100)',
-          color: online ? 'var(--ms-green-900)' : 'var(--ms-orange-700)',
-          fontSize: 13.5,
+          borderRadius: 14,
+          background: online ? '#DAF1DE' : '#FFF1CC',
+          color: online ? '#235347' : '#8A5A00',
+          fontSize: 13,
           fontWeight: 700,
         }}
       >
@@ -136,7 +135,7 @@ export default function Profile({
             width: 8,
             height: 8,
             borderRadius: '50%',
-            background: online ? 'var(--ms-green-500)' : 'var(--ms-orange)',
+            background: online ? '#2E7D4F' : '#8A5A00',
             flexShrink: 0,
           }}
         />
@@ -147,7 +146,7 @@ export default function Profile({
         </span>
       </div>
 
-      <hr style={{ height: 1, background: 'var(--ms-border)', border: 0, margin: 0 }} />
+      <hr style={{ height: 1, background: '#E3ECE7', border: 0, margin: 0 }} />
 
       {/* Language Selection */}
       <div>
@@ -180,9 +179,9 @@ export default function Profile({
               minHeight: 48,
               padding: '10px 16px',
               borderRadius: 14,
-              border: `2px solid ${lang === 'en' ? 'var(--ms-forest)' : 'var(--ms-border)'}`,
-              background: lang === 'en' ? 'var(--ms-forest)' : 'var(--ms-surface)',
-              color: lang === 'en' ? '#FFFFFF' : 'var(--ms-ink)',
+              border: `2px solid ${lang === 'en' ? '#235347' : '#CCD9D2'}`,
+              background: lang === 'en' ? '#235347' : '#FFFFFF',
+              color: lang === 'en' ? '#FFFFFF' : '#00201C',
               fontSize: 14,
               fontWeight: 700,
               cursor: 'pointer',
@@ -194,7 +193,7 @@ export default function Profile({
             }}
           >
             <span>{t.english}</span>
-            {lang === 'en' && <span aria-hidden="true">✓</span>}
+            {lang === 'en' && <Check size={16} aria-hidden="true" />}
           </button>
           <button
             type="button"
@@ -206,9 +205,9 @@ export default function Profile({
               minHeight: 48,
               padding: '10px 16px',
               borderRadius: 14,
-              border: `2px solid ${lang === 'hi' ? 'var(--ms-forest)' : 'var(--ms-border)'}`,
-              background: lang === 'hi' ? 'var(--ms-forest)' : 'var(--ms-surface)',
-              color: lang === 'hi' ? '#FFFFFF' : 'var(--ms-ink)',
+              border: `2px solid ${lang === 'hi' ? '#235347' : '#CCD9D2'}`,
+              background: lang === 'hi' ? '#235347' : '#FFFFFF',
+              color: lang === 'hi' ? '#FFFFFF' : '#00201C',
               fontSize: 14,
               fontWeight: 700,
               cursor: 'pointer',
@@ -220,7 +219,7 @@ export default function Profile({
             }}
           >
             <span>{t.hindi}</span>
-            {lang === 'hi' && <span aria-hidden="true">✓</span>}
+            {lang === 'hi' && <Check size={16} aria-hidden="true" />}
           </button>
         </div>
       </div>
@@ -233,7 +232,7 @@ export default function Profile({
             display: 'block',
             fontSize: 12,
             fontWeight: 700,
-            color: 'var(--ms-muted)',
+            color: '#404945',
             textTransform: 'uppercase',
             letterSpacing: '0.04em',
             marginBottom: 10,
@@ -255,9 +254,9 @@ export default function Profile({
               minHeight: 48,
               padding: '10px 16px',
               borderRadius: 14,
-              border: `2px solid ${mode === 'phone' ? 'var(--ms-forest)' : 'var(--ms-border)'}`,
-              background: mode === 'phone' ? 'var(--ms-forest)' : 'var(--ms-surface)',
-              color: mode === 'phone' ? '#FFFFFF' : 'var(--ms-ink)',
+              border: `2px solid ${mode === 'phone' ? '#235347' : '#CCD9D2'}`,
+              background: mode === 'phone' ? '#235347' : '#FFFFFF',
+              color: mode === 'phone' ? '#FFFFFF' : '#00201C',
               fontSize: 14,
               fontWeight: 700,
               cursor: 'pointer',
@@ -268,12 +267,9 @@ export default function Profile({
               transition: 'all 0.15s ease',
             }}
           >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <rect x="5" y="2" width="14" height="20" rx="3" />
-              <line x1="12" y1="18" x2="12" y2="18" />
-            </svg>
+            <Smartphone size={16} aria-hidden="true" />
             <span>{isHindi ? 'फ़ोन' : 'Phone'}</span>
-            {mode === 'phone' && <span aria-hidden="true">✓</span>}
+            {mode === 'phone' && <Check size={15} aria-hidden="true" />}
           </button>
           <button
             type="button"
@@ -284,9 +280,9 @@ export default function Profile({
               minHeight: 48,
               padding: '10px 16px',
               borderRadius: 14,
-              border: `2px solid ${mode !== 'phone' ? 'var(--ms-forest)' : 'var(--ms-border)'}`,
-              background: mode !== 'phone' ? 'var(--ms-forest)' : 'var(--ms-surface)',
-              color: mode !== 'phone' ? '#FFFFFF' : 'var(--ms-ink)',
+              border: `2px solid ${mode !== 'phone' ? '#235347' : '#CCD9D2'}`,
+              background: mode !== 'phone' ? '#235347' : '#FFFFFF',
+              color: mode !== 'phone' ? '#FFFFFF' : '#00201C',
               fontSize: 14,
               fontWeight: 700,
               cursor: 'pointer',
@@ -297,13 +293,9 @@ export default function Profile({
               transition: 'all 0.15s ease',
             }}
           >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <rect x="2" y="3" width="20" height="14" rx="2" />
-              <line x1="8" y1="21" x2="16" y2="21" />
-              <line x1="12" y1="17" x2="12" y2="21" />
-            </svg>
+            <Monitor size={16} aria-hidden="true" />
             <span>{isHindi ? 'वेब' : 'Web'}</span>
-            {mode !== 'phone' && <span aria-hidden="true">✓</span>}
+            {mode !== 'phone' && <Check size={15} aria-hidden="true" />}
           </button>
         </div>
       </div>
@@ -316,12 +308,12 @@ export default function Profile({
           width: '100%',
           minHeight: 48,
           padding: '12px 18px',
-          borderRadius: 16,
-          border: '1.5px solid var(--ms-border)',
-          background: 'var(--ms-bg)',
-          color: 'var(--ms-ink)',
+          borderRadius: 14,
+          border: '1px solid #CCD9D2',
+          background: '#F8FAF9',
+          color: '#00201C',
           fontSize: 14,
-          fontWeight: 800,
+          fontWeight: 700,
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
@@ -330,15 +322,10 @@ export default function Profile({
         }}
       >
         <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-            <circle cx="9" cy="7" r="4" />
-            <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-          </svg>
+          <User size={18} aria-hidden="true" />
           <span>{t.changeRole}</span>
         </span>
-        <span aria-hidden="true" style={{ fontSize: 16, color: 'var(--ms-muted)' }}>→</span>
+        <ArrowRight size={16} color="#404945" aria-hidden="true" />
       </button>
 
       {/* Reset Demo Data Button */}
@@ -349,12 +336,12 @@ export default function Profile({
           width: '100%',
           minHeight: 46,
           padding: '10px 16px',
-          borderRadius: 16,
-          border: '1.5px solid #FFCCBC',
-          background: '#FBE9E7',
-          color: 'var(--ms-orange-700)',
+          borderRadius: 14,
+          border: '1.5px solid #FFDAD6',
+          background: '#FFDAD6',
+          color: '#BA1A1A',
           fontSize: 13.5,
-          fontWeight: 800,
+          fontWeight: 700,
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
@@ -363,6 +350,7 @@ export default function Profile({
           transition: 'all 0.15s ease',
         }}
       >
+        <RotateCcw size={15} aria-hidden="true" />
         <span>{common.resetDemoData}</span>
       </button>
 
@@ -372,8 +360,8 @@ export default function Profile({
           style={{
             padding: '10px 14px',
             borderRadius: 12,
-            background: 'var(--ms-mint)',
-            color: 'var(--ms-forest)',
+            background: '#DAF1DE',
+            color: '#235347',
             fontSize: 13,
             fontWeight: 700,
             textAlign: 'center',
@@ -402,47 +390,45 @@ export default function Profile({
     <section
       aria-label={syncQueueTitle}
       style={{
-        background: 'var(--ms-surface)',
-        borderRadius: 24,
-        border: '1px solid var(--ms-border)',
-        boxShadow: 'var(--ms-shadow-card)',
-        padding: '24px',
+        background: '#FFFFFF',
+        borderRadius: 20,
+        border: '1px solid #E3ECE7',
+        boxShadow: '0 2px 8px rgba(0, 33, 17, 0.04)',
+        padding: '22px',
         display: 'flex',
         flexDirection: 'column',
-        gap: 18,
+        gap: 16,
       }}
     >
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 14, borderBottom: '1px solid var(--ms-border)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 14, borderBottom: '1px solid #E3ECE7' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <div
             style={{
               width: 34,
               height: 34,
               borderRadius: 10,
-              background: 'var(--ms-green-100)',
-              color: 'var(--ms-forest)',
+              background: '#DAF1DE',
+              color: '#235347',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
             }}
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" />
-            </svg>
+            <RefreshCw size={17} aria-hidden="true" />
           </div>
-          <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: 'var(--ms-ink)' }}>
+          <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: '#00201C' }}>
             {syncQueueTitle}
           </h3>
         </div>
         <span
           style={{
-            padding: '4px 12px',
+            padding: '3px 10px',
             borderRadius: 999,
-            fontSize: 12,
-            fontWeight: 800,
-            background: online && waitingSyncCount === 0 ? 'var(--ms-green-100)' : 'var(--ms-orange-100)',
-            color: online && waitingSyncCount === 0 ? 'var(--ms-forest)' : 'var(--ms-orange-700)',
+            fontSize: 11.5,
+            fontWeight: 700,
+            background: online && waitingSyncCount === 0 ? '#DAF1DE' : '#FFF1CC',
+            color: online && waitingSyncCount === 0 ? '#235347' : '#8A5A00',
           }}
         >
           {online && waitingSyncCount === 0 ? allSyncedText : pendingText}
@@ -452,7 +438,7 @@ export default function Profile({
       {/* Sync Queue List */}
       <div style={{ display: 'flex', flexDirection: 'column' }}>
         {queueItems.length === 0 ? (
-          <div style={{ padding: '20px 0', textAlign: 'center', color: 'var(--ms-muted)', fontSize: 14, fontWeight: 600 }}>
+          <div style={{ padding: '20px 0', textAlign: 'center', color: '#404945', fontSize: 13, fontWeight: 600 }}>
             {isHindi ? 'भेजने के लिए कुछ नहीं' : 'Nothing waiting to send'}
           </div>
         ) : queueItems.map((item: any, idx: number) => (
@@ -464,12 +450,12 @@ export default function Profile({
               justifyContent: 'space-between',
               gap: 12,
               padding: '12px 0',
-              borderBottom: idx === queueItems.length - 1 ? 'none' : '1px solid var(--ms-border)',
+              borderBottom: idx === queueItems.length - 1 ? 'none' : '1px solid #E3ECE7',
             }}
           >
             <div style={{ minWidth: 0, flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--ms-ink)', lineHeight: 1.3 }}>
+                <span style={{ fontSize: 13.5, fontWeight: 700, color: '#00201C', lineHeight: 1.3 }}>
                   {isHindi ? (item.nameHi || `${item.typeHi}: ${item.nameHi}`) : (item.nameEn || `${item.typeEn}: ${item.nameEn}`)}
                 </span>
                 <span
@@ -477,29 +463,29 @@ export default function Profile({
                     fontFamily: 'ui-monospace, SFMono-Regular, monospace',
                     fontSize: 11,
                     fontWeight: 700,
-                    color: 'var(--ms-muted)',
-                    background: 'var(--ms-bg)',
+                    color: '#404945',
+                    background: '#F1F5F3',
                     padding: '2px 6px',
                     borderRadius: 6,
-                    border: '1px solid var(--ms-border)',
+                    border: '1px solid #E3ECE7',
                   }}
                 >
                   {item.recordId}
                 </span>
               </div>
-              <div style={{ fontSize: 12, color: 'var(--ms-muted)', marginTop: 4, fontWeight: 500 }}>
+              <div style={{ fontSize: 12, color: '#404945', marginTop: 3, fontWeight: 500 }}>
                 {isHindi ? item.timeHi : item.timeEn}
               </div>
             </div>
             <span
               style={{
                 flexShrink: 0,
-                padding: '4px 10px',
+                padding: '3px 9px',
                 borderRadius: 999,
-                fontSize: 12,
-                fontWeight: 800,
-                background: !item.isQueued ? 'var(--ms-green-100)' : 'var(--ms-orange-100)',
-                color: !item.isQueued ? 'var(--ms-forest)' : 'var(--ms-orange-700)',
+                fontSize: 11,
+                fontWeight: 700,
+                background: !item.isQueued ? '#DAF1DE' : '#FFF1CC',
+                color: !item.isQueued ? '#235347' : '#8A5A00',
               }}
             >
               {!item.isQueued ? syncedBadgeText : queuedBadgeText}
@@ -517,37 +503,28 @@ export default function Profile({
           width: '100%',
           minHeight: 48,
           padding: '12px 18px',
-          borderRadius: 16,
+          borderRadius: 14,
           border: 0,
-          background: 'var(--ms-forest)',
+          background: '#235347',
           color: '#FFFFFF',
           fontSize: 15,
-          fontWeight: 800,
+          fontWeight: 700,
           cursor: syncingState ? 'default' : 'pointer',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           gap: 8,
-          boxShadow: '0 4px 14px rgba(43, 107, 82, 0.2)',
+          boxShadow: '0 4px 14px rgba(35, 83, 71, 0.25)',
           transition: 'all 0.15s ease',
         }}
       >
-        <svg
+        <RefreshCw
+          size={16}
           style={{
-            width: 16,
-            height: 16,
             animation: syncingState ? 'ms-spin 1s linear infinite' : 'none',
           }}
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
           aria-hidden="true"
-        >
-          <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" />
-        </svg>
+        />
         <span>
           {syncingState
             ? (isHindi ? 'सिंक हो रहा है...' : 'Syncing...')
@@ -558,25 +535,25 @@ export default function Profile({
       {/* Storage and Auto-sync Info */}
       <div
         style={{
-          padding: '14px 16px',
-          borderRadius: 16,
-          background: 'var(--ms-bg)',
-          border: '1px solid var(--ms-border)',
+          padding: '12px 14px',
+          borderRadius: 14,
+          background: '#F8FAF9',
+          border: '1px solid #E3ECE7',
           display: 'flex',
           flexDirection: 'column',
-          gap: 8,
+          gap: 6,
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span style={{ fontSize: 13, color: 'var(--ms-muted)', fontWeight: 600 }}>
+          <span style={{ fontSize: 12.5, color: '#404945', fontWeight: 600 }}>
             {localStorageLabel}
           </span>
-          <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--ms-ink)' }}>
+          <span style={{ fontSize: 12.5, fontWeight: 700, color: '#00201C' }}>
             12.4 MB
           </span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span style={{ fontSize: 13, color: 'var(--ms-muted)', fontWeight: 600 }}>
+          <span style={{ fontSize: 12.5, color: '#404945', fontWeight: 600 }}>
             {autoSyncLabel}
           </span>
           <span
@@ -584,12 +561,12 @@ export default function Profile({
               display: 'inline-flex',
               alignItems: 'center',
               gap: 5,
-              fontSize: 13,
-              fontWeight: 800,
-              color: 'var(--ms-ok)',
+              fontSize: 12.5,
+              fontWeight: 700,
+              color: '#2E7D4F',
             }}
           >
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--ms-ok)' }} />
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#2E7D4F' }} />
             {activeText}
           </span>
         </div>
@@ -598,26 +575,26 @@ export default function Profile({
   );
 
   return (
-    <div className="@container w-full min-h-screen" style={{ background: 'var(--ms-bg)' }}>
+    <div className="@container w-full min-h-screen" style={{ background: '#F4F9F6' }}>
       {/* ─── Narrow Phone Layout (@md and below) ─── */}
       <div className="block @2xl:hidden" style={{ minHeight: '100%', paddingBottom: "var(--ms-screen-padding-bottom)" }}>
         {/* Phone Header */}
         <header
+          className="on-dark-900"
           style={{
             position: 'relative',
-            background: 'var(--ms-green-700)',
+            background: '#051F20',
             color: '#FFFFFF',
-            borderRadius: '0 0 32px 32px',
-            padding: 'calc(24px + env(safe-area-inset-top, 0px)) 20px 48px',
+            borderRadius: '0 0 24px 24px',
+            padding: 'calc(20px + env(safe-area-inset-top, 0px)) 20px 44px',
             overflow: 'hidden',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
             <div>
-              <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, lineHeight: 1.2 }}>
+              <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, lineHeight: 1.2, color: '#FFFFFF' }}>
                 {pageTitle}
               </h1>
-
             </div>
             <button
               type="button"
@@ -628,24 +605,24 @@ export default function Profile({
                 alignItems: 'center',
                 gap: 6,
                 padding: '6px 12px',
-                minHeight: 48,
+                minHeight: 40,
                 borderRadius: 999,
                 border: 0,
                 cursor: 'pointer',
-                fontSize: 12.5,
+                fontSize: 12,
                 fontWeight: 700,
-                background: online ? 'var(--ms-green-100)' : 'var(--ms-orange-100)',
-                color: online ? 'var(--ms-green-900)' : 'var(--ms-orange-700)',
+                background: online ? '#DAF1DE' : '#FFF1CC',
+                color: online ? '#235347' : '#8A5A00',
                 flexShrink: 0,
               }}
             >
               <span
                 aria-hidden="true"
                 style={{
-                  width: 8,
-                  height: 8,
+                  width: 7,
+                  height: 7,
                   borderRadius: '50%',
-                  background: online ? 'var(--ms-green-500)' : 'var(--ms-orange)',
+                  background: online ? '#2E7D4F' : '#8A5A00',
                 }}
               />
               {online ? allSyncedText : pendingText}
@@ -654,10 +631,10 @@ export default function Profile({
         </header>
 
         {/* Phone Stacked Content */}
-        <main style={{ marginTop: -24, position: 'relative', padding: '0 16px 20px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <main style={{ marginTop: -20, position: 'relative', padding: '0 16px 20px', display: 'flex', flexDirection: 'column', gap: 16 }}>
           {renderProfileCard()}
           {renderSyncCard()}
-          <p style={{ margin: '8px 0 0', textAlign: 'center', color: 'var(--ms-muted)', fontSize: 12, lineHeight: 1.5 }}>
+          <p style={{ margin: '8px 0 0', textAlign: 'center', color: '#404945', fontSize: 12, lineHeight: 1.5 }}>
             {isHindi ? 'आपकी स्वास्थ्य सेवा, आपकी भाषा में।' : 'Community healthcare, closer to you.'}
           </p>
         </main>
@@ -670,7 +647,7 @@ export default function Profile({
           style={{
             marginBottom: 24,
             paddingBottom: 16,
-            borderBottom: '1px solid var(--ms-border)',
+            borderBottom: '1px solid #E3ECE7',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -678,10 +655,9 @@ export default function Profile({
           }}
         >
           <div>
-            <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800, color: 'var(--ms-ink)', lineHeight: 1.2 }}>
+            <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800, color: '#00201C', lineHeight: 1.2 }}>
               {pageTitle}
             </h1>
-
           </div>
           <button
             type="button"
@@ -693,13 +669,13 @@ export default function Profile({
               gap: 8,
               padding: '8px 16px',
               borderRadius: 999,
-              border: '1px solid var(--ms-border)',
+              border: '1px solid #E3ECE7',
               cursor: 'pointer',
               fontSize: 13,
               fontWeight: 700,
-              background: online ? 'var(--ms-green-100)' : 'var(--ms-orange-100)',
-              color: online ? 'var(--ms-forest)' : 'var(--ms-orange-700)',
-              boxShadow: 'var(--ms-shadow-card)',
+              background: online ? '#DAF1DE' : '#FFF1CC',
+              color: online ? '#235347' : '#8A5A00',
+              boxShadow: '0 2px 8px rgba(0, 33, 17, 0.04)',
             }}
           >
             <span
@@ -708,7 +684,7 @@ export default function Profile({
                 width: 8,
                 height: 8,
                 borderRadius: '50%',
-                background: online ? 'var(--ms-ok)' : 'var(--ms-warn)',
+                background: online ? '#2E7D4F' : '#8A5A00',
               }}
             />
             {online ? allSyncedText : pendingText}

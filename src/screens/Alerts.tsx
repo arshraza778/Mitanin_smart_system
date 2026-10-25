@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, type ReactElement } from 'react';
+import { AlertTriangle, MessageSquare, CalendarClock, ChevronRight, ArrowRight, Bell, Check } from 'lucide-react';
 import type { ScreenProps } from '../App';
 import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
@@ -20,20 +21,23 @@ const ALERTS = dataService.getAlerts() as Alert[];
 const COPY = { en: enLocale.screens.Alerts, hi: hiLocale.screens.Alerts } as const;
 
 const COLORS = {
-  page: '#F5F6F3',
+  page: '#F4F9F6',
   card: '#FFFFFF',
-  green: '#286749',
-  greenTint: '#E5F1E8',
-  orange: '#E97848',
-  ink: '#263238',
-  muted: '#66736D',
-  border: '#E3E8E2',
+  green: '#235347',
+  greenTint: '#DAF1DE',
+  red: '#BA1A1A',
+  redTint: '#FFDAD6',
+  amber: '#8A5A00',
+  amberTint: '#FFF1CC',
+  ink: '#00201C',
+  muted: '#404945',
+  border: '#E3ECE7',
 };
 
 const KIND_STYLE: Record<Kind, { stripe: string; tint: string; fg: string }> = {
-  overdue: { stripe: COLORS.orange, tint: '#FCE9E1', fg: '#B84C27' },
-  replied: { stripe: COLORS.green, tint: COLORS.greenTint, fg: COLORS.green },
-  followup: { stripe: '#6875D9', tint: '#EEF0FF', fg: '#4A56C7' },
+  overdue: { stripe: '#BA1A1A', tint: '#FFDAD6', fg: '#BA1A1A' },
+  replied: { stripe: '#235347', tint: '#DAF1DE', fg: '#235347' },
+  followup: { stripe: '#8A5A00', tint: '#FFF1CC', fg: '#8A5A00' },
 };
 
 const KIND_LABEL: Record<Kind, Record<'en' | 'hi', string>> = {
@@ -42,58 +46,31 @@ const KIND_LABEL: Record<Kind, Record<'en' | 'hi', string>> = {
   followup: { en: 'Follow-up', hi: 'फ़ॉलो-अप' },
 };
 
-const ic = {
-  width: 22,
-  height: 22,
-  viewBox: '0 0 24 24',
-  fill: 'none',
-  stroke: 'currentColor',
-  strokeWidth: 2,
-  strokeLinecap: 'round' as const,
-  strokeLinejoin: 'round' as const,
-  'aria-hidden': true,
-};
-
 const KIND_ICON: Record<Kind, ReactElement> = {
-  overdue: (
-    <svg {...ic}>
-      <path d="M12 3.5 2.8 19.5h18.4z" />
-      <path d="M12 10v4.5M12 17.2v.1" />
-    </svg>
-  ),
-  replied: (
-    <svg {...ic}>
-      <path d="M4 5.5A1.5 1.5 0 0 1 5.5 4h13A1.5 1.5 0 0 1 20 5.5v9a1.5 1.5 0 0 1-1.5 1.5H10l-4.5 4v-4A1.5 1.5 0 0 1 4 14.5z" />
-      <path d="m8.5 10 2.5 2.5 4.5-5" />
-    </svg>
-  ),
-  followup: (
-    <svg {...ic}>
-      <rect x="5" y="4" width="14" height="17" rx="2.5" />
-      <path d="M9 3v3M15 3v3M8.5 11h7M8.5 15h4" />
-    </svg>
-  ),
+  overdue: <AlertTriangle size={20} aria-hidden />,
+  replied: <MessageSquare size={20} aria-hidden />,
+  followup: <CalendarClock size={20} aria-hidden />,
 };
 
 function EmptyIllustration() {
   return (
     <svg viewBox="0 0 220 180" width="220" height="180" aria-hidden>
-      <circle cx="110" cy="92" r="70" fill={COLORS.greenTint} />
-      <circle cx="162" cy="40" r="14" fill="#FFF1C9" />
+      <circle cx="110" cy="92" r="70" fill="#E7F0EA" />
+      <circle cx="162" cy="40" r="14" fill="#DAF1DE" />
       <g transform="translate(110 96) rotate(-12) scale(0.95)">
-        <path d="M0 62C-32 32-26-16 0-50C26-16 32 32 0 62Z" fill="#6BAF7D" />
+        <path d="M0 62C-32 32-26-16 0-50C26-16 32 32 0 62Z" fill="#2E7D4F" />
         <path
           d="M0 62L0-38M0 30L-12 14M0 12L12-4"
-          stroke="#E5F1E8"
+          stroke="#E7F0EA"
           strokeWidth="2"
           strokeLinecap="round"
           fill="none"
         />
       </g>
       <g transform="translate(66 118) rotate(28) scale(0.5)">
-        <path d="M0 62C-32 32-26-16 0-50C26-16 32 32 0 62Z" fill="#8CC79D" />
+        <path d="M0 62C-32 32-26-16 0-50C26-16 32 32 0 62Z" fill="#8EB69B" />
       </g>
-      <circle cx="150" cy="128" r="22" fill={COLORS.orange} />
+      <circle cx="150" cy="128" r="22" fill="#235347" />
       <path
         d="m140 128 7 7 14-15"
         fill="none"
@@ -102,7 +79,7 @@ function EmptyIllustration() {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <rect x="30" y="152" width="160" height="8" rx="4" fill={COLORS.green} opacity="0.25" />
+      <rect x="30" y="152" width="160" height="8" rx="4" fill="#235347" opacity="0.25" />
     </svg>
   );
 }
@@ -190,25 +167,39 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
       {/* ===================== NARROW PHONE LAYOUT (@md and below) ===================== */}
       <div className="block @2xl:hidden">
         <header
+          className="on-dark-900"
           style={{
-            background: COLORS.green,
+            background: '#051F20',
             color: '#FFFFFF',
-            borderRadius: '0 0 28px 28px',
-            padding: 'calc(22px + env(safe-area-inset-top, 0px)) 20px 26px',
-            boxShadow: '0 5px 18px rgba(38, 50, 56, 0.08)',
+            borderRadius: '0 0 24px 24px',
+            padding: 'calc(20px + env(safe-area-inset-top, 0px)) 20px 22px',
           }}
         >
-          <h1
-            style={{
-              margin: 0,
-              fontSize: 26,
-              fontWeight: 750,
-              lineHeight: 1.25,
-              letterSpacing: '-0.4px',
-            }}
-          >
-            {t.title}
-          </h1>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <h1
+              style={{
+                margin: 0,
+                fontSize: 24,
+                fontWeight: 800,
+                lineHeight: 1.25,
+                color: '#FFFFFF',
+              }}
+            >
+              {t.title}
+            </h1>
+            <span
+              style={{
+                fontSize: 11,
+                fontWeight: 700,
+                padding: '3px 9px',
+                borderRadius: 999,
+                background: '#FFDAD6',
+                color: '#BA1A1A',
+              }}
+            >
+              {items.length} {lang === 'hi' ? 'सूचनाएं' : 'Alerts'}
+            </span>
+          </div>
         </header>
 
         <section style={{ padding: '20px 18px 24px' }}>
@@ -448,8 +439,8 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
                                       minHeight: 48,
                                       padding: '0 16px',
                                       borderRadius: 14,
-                                      border: '1.5px solid var(--ms-orange)',
-                                      background: 'var(--ms-orange)',
+                                      border: '1.5px solid #BA1A1A',
+                                      background: '#BA1A1A',
                                       color: '#FFFFFF',
                                       fontSize: 13.5,
                                       fontWeight: 800,
@@ -585,20 +576,7 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
                               </div>
                             </span>
 
-                            <svg
-                              width="18"
-                              height="18"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke={COLORS.muted}
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              aria-hidden
-                              style={{ flex: '0 0 auto' }}
-                            >
-                              <path d="m9 6 6 6-6 6" />
-                            </svg>
+                            <ChevronRight size={18} color={COLORS.muted} style={{ flex: '0 0 auto' }} />
                           </button>
                         </li>
                       );
@@ -876,7 +854,7 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
                           }}
                         >
                           <span>{lang === 'hi' ? 'जवाब देखें' : 'View reply'}</span>
-                          <span>→</span>
+                          <ArrowRight size={16} />
                         </button>
 
                         {selectedAlert.decision === 'send_to_hospital' && !hasReferral(selectedAlert.caseId, selectedAlert.patientId) && (
@@ -891,8 +869,8 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
                               justifyContent: 'center',
                               gap: 8,
                               borderRadius: 16,
-                              border: '1.5px solid var(--ms-orange)',
-                              background: 'var(--ms-orange)',
+                              border: '1.5px solid #BA1A1A',
+                              background: '#BA1A1A',
                               color: '#FFFFFF',
                               fontSize: 15,
                               fontWeight: 800,
@@ -900,7 +878,7 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
                             }}
                           >
                             <span>{lang === 'hi' ? 'अस्पताल भेजें' : 'Send to hospital'}</span>
-                            <span>→</span>
+                            <ArrowRight size={16} />
                           </button>
                         )}
 
@@ -961,7 +939,7 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
                         }}
                       >
                         <span>{lang === 'hi' ? 'केस समयरेखा देखें' : 'View Case Timeline'}</span>
-                        <span>→</span>
+                        <ArrowRight size={16} />
                       </button>
                     </>
                   )}
