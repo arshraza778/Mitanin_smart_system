@@ -1,10 +1,12 @@
 /// <reference types="vite/client" />
 import { useCallback, useEffect, useRef, useState, type ComponentType } from 'react';
+import { Menu, X } from 'lucide-react';
 import BottomNav, { TABS, isActive, type Lang, type Role, type Tab } from './BottomNav';
 import enLocale from './i18n/en.json';
 import hiLocale from './i18n/hi.json';
 import { ViewModeProvider, useViewMode, type ViewMode } from './ViewModeContext';
 import { CaseProvider, useCaseStore } from './store/CaseStore';
+import { ScreenDraftProvider } from './ScreenDraftContext';
 
 export { ViewModeProvider, useViewMode, type ViewMode };
 
@@ -83,22 +85,47 @@ const roleLabels: Record<Role, { en: string; hi: string }> = {
   supervisor: { en: 'Supervisor', hi: 'पर्यवेक्षक' },
 };
 
+const screenTitles: Record<string, { en: string; hi: string }> = {
+  '/role': { en: 'Select Role', hi: 'भूमिका चयन' },
+  '/mitanin/home': { en: 'Mitanin Home', hi: 'मितानिन होम' },
+  '/mitanin/visits': { en: 'Visits', hi: 'दौरे' },
+  '/mitanin/screening/patient': { en: 'Patient Screening', hi: 'मरीज स्क्रीनिंग' },
+  '/mitanin/screening/symptoms': { en: 'Symptoms', hi: 'लक्षण' },
+  '/mitanin/screening/test': { en: 'Rapid Test Photo', hi: 'रैपिड टेस्ट' },
+  '/mitanin/screening/result': { en: 'Screening Result', hi: 'परिणाम' },
+  '/mitanin/consult': { en: 'Doctor Consult', hi: 'डॉक्टर परामर्श' },
+  '/mitanin/referral': { en: 'Referral Tracker', hi: 'रेफरल ट्रैकर' },
+  '/doctor/inbox': { en: 'Doctor Inbox', hi: 'इनबॉक्स' },
+  '/doctor/review': { en: 'Case Review', hi: 'केस समीक्षा' },
+  '/supervisor/overview': { en: 'Overview', hi: 'अवलोकन' },
+  '/case': { en: 'Case Timeline', hi: 'केस टाइमलाइन' },
+  '/alerts': { en: 'Alerts', hi: 'अलर्ट' },
+  '/profile': { en: 'Profile', hi: 'प्रोफ़ाइल' },
+};
+
 function WebSidebar({
   role,
   currentRoute,
   lang,
   onNavigate,
   onSwitchRole,
+  onClose,
 }: {
   role: Role | null;
   currentRoute: string;
   lang: Lang;
   onNavigate: (route: string) => void;
   onSwitchRole: (newRole: Role | 'role') => void;
+  onClose?: () => void;
 }) {
   const t = lang === 'hi' ? hiLocale : enLocale;
   const tabs: Tab[] = role ? TABS[role] : [];
   const { unreadAlertsCount } = useCaseStore();
+
+  const handleNav = (targetRoute: string) => {
+    onNavigate(targetRoute);
+    onClose?.();
+  };
 
   return (
     <aside
@@ -124,45 +151,67 @@ function WebSidebar({
           borderBottom: '1px solid var(--ms-dark-800)',
           display: 'flex',
           alignItems: 'center',
+          justifyContent: 'space-between',
           gap: 12,
         }}
       >
-        <div
-          style={{
-            width: 40,
-            height: 40,
-            borderRadius: 'var(--ms-radius-sm)',
-            background: 'var(--ms-primary)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'var(--ms-text-white)',
-            boxShadow: 'var(--ms-shadow)',
-          }}
-        >
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-            <path d="M12 8v8" />
-            <path d="M8 12h8" />
-          </svg>
-        </div>
-        <div>
-          <h2
-            className="ms-title"
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div
             style={{
-              margin: 0,
-              fontSize: 18,
-              fontWeight: 800,
-              letterSpacing: '-0.3px',
-              lineHeight: 1.2,
+              width: 40,
+              height: 40,
+              borderRadius: 'var(--ms-radius-sm)',
+              background: 'var(--ms-primary)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'var(--ms-text-white)',
+              boxShadow: 'var(--ms-shadow)',
             }}
           >
-            Mitanin Signal
-          </h2>
-          <span className="ms-meta" style={{ fontSize: 12, fontWeight: 600 }}>
-            {lang === 'hi' ? 'सामुदायिक स्वास्थ्य' : 'Community Health'}
-          </span>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              <path d="M12 8v8" />
+              <path d="M8 12h8" />
+            </svg>
+          </div>
+          <div>
+            <h2
+              className="ms-title"
+              style={{
+                margin: 0,
+                fontSize: 18,
+                fontWeight: 800,
+                letterSpacing: '-0.3px',
+                lineHeight: 1.2,
+              }}
+            >
+              Mitanin Signal
+            </h2>
+            <span className="ms-meta" style={{ fontSize: 12, fontWeight: 600 }}>
+              {lang === 'hi' ? 'सामुदायिक स्वास्थ्य' : 'Community Health'}
+            </span>
+          </div>
         </div>
+        {onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close drawer"
+            style={{
+              background: 'transparent',
+              border: 0,
+              color: 'var(--ms-text-light)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 4,
+            }}
+          >
+            <X size={20} />
+          </button>
+        )}
       </div>
 
       {/* Role Navigation Items */}
@@ -188,7 +237,7 @@ function WebSidebar({
                   <button
                     key={tab.id}
                     type="button"
-                    onClick={() => onNavigate(tab.route)}
+                    onClick={() => handleNav(tab.route)}
                     className={active ? 'on-primary' : ''}
                     style={{
                       display: 'flex',
@@ -237,7 +286,7 @@ function WebSidebar({
                             lineHeight: 1,
                           }}
                         >
-                          {unreadAlertsCount > 9 ? '9+' : unreadAlertsCount}
+                          {unreadAlertsCount > 99 ? '99+' : unreadAlertsCount}
                         </span>
                       )}
                     </span>
@@ -263,7 +312,10 @@ function WebSidebar({
               <button
                 key={r}
                 type="button"
-                onClick={() => onSwitchRole(r)}
+                onClick={() => {
+                  onSwitchRole(r);
+                  onClose?.();
+                }}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -301,7 +353,10 @@ function WebSidebar({
           </span>
           <button
             type="button"
-            onClick={() => onNavigate('/role')}
+            onClick={() => {
+              onNavigate('/role');
+              onClose?.();
+            }}
             style={{
               background: 'none',
               border: 0,
@@ -326,63 +381,110 @@ function WebSidebar({
 
 function WebTopbar({
   role,
+  currentRoute,
   lang,
   online,
+  isDrawerRange,
   onNavigate,
   onSetLang,
   onToggleOnline,
   onSwitchRole,
+  onToggleDrawer,
 }: {
   role: Role | null;
+  currentRoute: string;
   lang: Lang;
   online: boolean;
+  isDrawerRange: boolean;
   onNavigate: (route: string) => void;
   onSetLang: (lang: Lang) => void;
   onToggleOnline: () => void;
   onSwitchRole: (newRole: Role | 'role') => void;
+  onToggleDrawer: () => void;
 }) {
   const { mode, setMode } = useViewMode();
   const { syncNow, waitingSyncCount } = useCaseStore();
 
   return (
     <header className="ms-web-topbar">
-      {/* Left: Role Quick Switcher */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        <label
-          htmlFor="ms-role-switcher"
-          style={{ fontSize: 13, fontWeight: 700, color: 'var(--ms-muted)' }}
-        >
-          {lang === 'hi' ? 'भूमिका:' : 'Role:'}
-        </label>
-        <select
-          id="ms-role-switcher"
-          value={role ?? 'role'}
-          onChange={(e) => onSwitchRole(e.target.value as Role | 'role')}
-          style={{
-            padding: '6px 12px',
-            borderRadius: 10,
-            border: '1px solid var(--ms-border)',
-            background: 'var(--ms-surface)',
-            color: 'var(--ms-ink)',
-            fontSize: 13,
-            fontWeight: 700,
-            cursor: 'pointer',
-          }}
-        >
-          <option value="role">{lang === 'hi' ? 'भूमिका चयन (सभी)' : 'Role Select (None)'}</option>
-          <option value="mitanin">{roleLabels.mitanin[lang]}</option>
-          <option value="doctor">{roleLabels.doctor[lang]}</option>
-          <option value="supervisor">{roleLabels.supervisor[lang]}</option>
-        </select>
+      {/* Left: Hamburger (if drawer range and not role), Page Title, Role Quick Switcher */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14, minWidth: 0 }}>
+        {isDrawerRange && currentRoute !== '/role' && (
+          <button
+            type="button"
+            onClick={onToggleDrawer}
+            aria-label={lang === 'hi' ? 'नेविगेशन खोलें' : 'Toggle navigation'}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 40,
+              height: 40,
+              borderRadius: 'var(--ms-radius-sm)',
+              border: '1px solid var(--ms-border)',
+              background: 'var(--ms-surface)',
+              color: 'var(--ms-text)',
+              cursor: 'pointer',
+            }}
+          >
+            <Menu size={20} />
+          </button>
+        )}
+
+        <div style={{ minWidth: 0 }}>
+          <h1
+            style={{
+              margin: 0,
+              fontSize: 17,
+              fontWeight: 800,
+              color: 'var(--ms-text)',
+              letterSpacing: '-0.2px',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}
+          >
+            {screenTitles[currentRoute]?.[lang] || 'Mitanin Signal'}
+          </h1>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <label
+            htmlFor="ms-role-switcher"
+            style={{ fontSize: 13, fontWeight: 700, color: 'var(--ms-muted)', whiteSpace: 'nowrap' }}
+          >
+            {lang === 'hi' ? 'भूमिका:' : 'Role:'}
+          </label>
+          <select
+            id="ms-role-switcher"
+            value={role ?? 'role'}
+            onChange={(e) => onSwitchRole(e.target.value as Role | 'role')}
+            style={{
+              padding: '6px 12px',
+              borderRadius: 10,
+              border: '1px solid var(--ms-border)',
+              background: 'var(--ms-surface)',
+              color: 'var(--ms-ink)',
+              fontSize: 13,
+              fontWeight: 700,
+              cursor: 'pointer',
+            }}
+          >
+            <option value="role">{lang === 'hi' ? 'भूमिका चयन (सभी)' : 'Role Select (None)'}</option>
+            <option value="mitanin">{roleLabels.mitanin[lang]}</option>
+            <option value="doctor">{roleLabels.doctor[lang]}</option>
+            <option value="supervisor">{roleLabels.supervisor[lang]}</option>
+          </select>
+        </div>
       </div>
 
-      {/* Right Controls: EN/HI Toggle, Offline/Synced Chip, View Switch Segmented Control */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+      {/* Right Controls: Offline/Synced Chip, EN/HI Toggle, View Switch Segmented Control */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
         {/* Offline / Synced Chip */}
         <button
           type="button"
           onClick={onToggleOnline}
-          title={online ? (lang === 'hi' ? 'ऑनलाइन स्थिति' : 'Synced - Click to test offline') : (lang === 'hi' ? 'ऑफ़लाइन स्थिति' : 'Offline - Click to test online')}
+          title={online ? (lang === 'hi' ? 'सुरक्षित और भेजा गया' : 'Saved and sent') : (lang === 'hi' ? 'सिग्नल नहीं। फ़ोन पर सहेजा गया' : 'No signal. Saved on phone')}
           style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -407,10 +509,8 @@ function WebTopbar({
           />
           <span>
             {online
-              ? (lang === 'hi' ? 'सिंक किया गया (सिम्युलेटेड)' : 'Synced (Simulated)')
-              : (lang === 'hi'
-                  ? `ऑफ़लाइन (${waitingSyncCount ? `${waitingSyncCount} लंबित` : 'सिम्युलेटेड'})`
-                  : `Offline (${waitingSyncCount ? `${waitingSyncCount} waiting` : 'Simulated'})`)}
+              ? (lang === 'hi' ? 'सुरक्षित और भेजा गया' : 'Saved and sent')
+              : (lang === 'hi' ? 'सिग्नल नहीं। फ़ोन पर सहेजा गया' : 'No signal. Saved on phone')}
           </span>
         </button>
 
@@ -577,9 +677,20 @@ function AppContent() {
   const [lang, setLang] = useState<Lang>('en');
   const [online, setOnline] = useState<boolean>(true);
 
-  const { isWeb, setMode } = useViewMode();
+  const { isWeb, isDrawerRange } = useViewMode();
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const { syncNow, demoDataResetNotice, dismissResetNotice } = useCaseStore();
   const prevOnline = useRef(online);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setDrawerOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   useEffect(() => {
     if (!prevOnline.current && online) {
@@ -591,6 +702,7 @@ function AppContent() {
   const onNavigate = useCallback((next: string) => {
     // Reject unknown route strings instead of silently rendering an arbitrary screen.
     if (!Object.prototype.hasOwnProperty.call(ROUTES, next)) return;
+    setDrawerOpen(false);
     if (typeof window !== 'undefined' && window.location.pathname !== next) {
       window.history.pushState(null, '', next);
     }
@@ -620,6 +732,7 @@ function AppContent() {
 
   const onSwitchRole = useCallback(
     (newRole: Role | 'role') => {
+      setDrawerOpen(false);
       if (newRole === 'role') {
         onNavigate('/role');
       } else {
@@ -642,28 +755,56 @@ function AppContent() {
   const props: ScreenProps = { lang, online, onNavigate, onSetLang: setLang, onToggleOnline };
 
   if (isWeb) {
+    const isRoleScreen = current === '/role';
+
     return (
       <div className="ms-web-layout">
-        {/* Left Sidebar (approx 256px) */}
-        <WebSidebar
-          role={role}
-          currentRoute={current}
-          lang={lang}
-          onNavigate={onNavigate}
-          onSwitchRole={onSwitchRole}
-        />
+        {/* Left Sidebar (fixed on wide desktop >= 1024; hidden on /role) */}
+        {!isRoleScreen && !isDrawerRange && (
+          <WebSidebar
+            role={role}
+            currentRoute={current}
+            lang={lang}
+            onNavigate={onNavigate}
+            onSwitchRole={onSwitchRole}
+          />
+        )}
+
+        {/* Drawer for 768px-1023px tablet range */}
+        {!isRoleScreen && isDrawerRange && drawerOpen && (
+          <>
+            <div
+              className="ms-drawer-backdrop"
+              onClick={() => setDrawerOpen(false)}
+              aria-hidden="true"
+            />
+            <div className="ms-web-drawer">
+              <WebSidebar
+                role={role}
+                currentRoute={current}
+                lang={lang}
+                onNavigate={onNavigate}
+                onSwitchRole={onSwitchRole}
+                onClose={() => setDrawerOpen(false)}
+              />
+            </div>
+          </>
+        )}
 
         {/* Main Section */}
         <div className="ms-web-main">
           {/* Top Bar */}
           <WebTopbar
             role={role}
+            currentRoute={current}
             lang={lang}
             online={online}
+            isDrawerRange={isDrawerRange}
             onNavigate={onNavigate}
             onSetLang={setLang}
             onToggleOnline={onToggleOnline}
             onSwitchRole={onSwitchRole}
+            onToggleDrawer={() => setDrawerOpen((v) => !v)}
           />
 
           {demoDataResetNotice && (
@@ -699,34 +840,20 @@ function AppContent() {
             </div>
           )}
 
-          {/* Content Area: Doctor/Supervisor up to 1200px wide; Mitanin centered up to 640px wide */}
+          {/* Content Area: RoleSelect centered up to 960px; all other screens centered up to 1200px */}
           <div className="ms-web-content-wrap">
-            {current.startsWith('/doctor') || current.startsWith('/supervisor') ? (
-              <div className="@container ms-container-wrap ms-web-container" style={{ width: '100%', maxWidth: 1200, margin: '0 auto' }}>
-                <main className="ms-screen-content">
-                  {Screen ? <Screen {...props} /> : <Placeholder route={current} lang={lang} />}
-                </main>
-              </div>
-            ) : (
-              <div
-                className="@container ms-container-wrap"
-                style={{
-                  width: '100%',
-                  maxWidth: 640,
-                  margin: '0 auto',
-                  background: 'var(--ms-card)',
-                  border: '1px solid var(--ms-border)',
-                  borderRadius: 'var(--ms-radius-lg)',
-                  boxShadow: 'var(--ms-shadow)',
-                  padding: '16px 20px',
-                  boxSizing: 'border-box',
-                }}
-              >
-                <main className="ms-screen-content">
-                  {Screen ? <Screen {...props} /> : <Placeholder route={current} lang={lang} />}
-                </main>
-              </div>
-            )}
+            <div
+              className="@container ms-container-wrap ms-web-container"
+              style={{
+                width: '100%',
+                maxWidth: isRoleScreen ? 960 : 1200,
+                margin: '0 auto',
+              }}
+            >
+              <main className="ms-screen-content">
+                {Screen ? <Screen {...props} /> : <Placeholder route={current} lang={lang} />}
+              </main>
+            </div>
           </div>
         </div>
       </div>
@@ -844,7 +971,9 @@ export default function App() {
   return (
     <ViewModeProvider>
       <CaseProvider>
-        <AppContent />
+        <ScreenDraftProvider>
+          <AppContent />
+        </ScreenDraftProvider>
       </CaseProvider>
     </ViewModeProvider>
   );

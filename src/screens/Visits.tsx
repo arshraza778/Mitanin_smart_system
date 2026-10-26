@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { MapPin, Calendar, Clock, ArrowRight } from 'lucide-react';
 import type { ScreenProps } from '../App';
 import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
 import { useCaseStore } from '../store/CaseStore';
+import { useScreenDraft } from '../ScreenDraftContext';
 import { dataService } from '../services';
 import { getDemoDate, getCenteredWeekDays } from '../domain';
 
@@ -59,7 +60,7 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
 
   const [selectedOffset, setSelectedOffset] = useState<number>(0);
   const [sort, setSort] = useState<Sort>('time');
-  const [selectedVisitId, setSelectedVisitId] = useState<string | null>(null);
+  const { selectedVisitId, setSelectedVisitId } = useScreenDraft();
 
   const selectedDayItem = weekDays.find((w) => w.offset === selectedOffset) || weekDays[3] || weekDays[0];
   const selectedDate = selectedDayItem.date;
@@ -94,6 +95,29 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
   }, [rawVisitsByDay, selectedOffset, sort]);
 
   const selectedVisit = list.find((v) => v.id === selectedVisitId) || list[0] || null;
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (list.length === 0) return;
+      const currentIndex = list.findIndex((v) => v.id === (selectedVisit?.id || selectedVisitId));
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        const nextIndex = currentIndex < list.length - 1 ? currentIndex + 1 : 0;
+        setSelectedVisitId(list[nextIndex].id);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        const prevIndex = currentIndex > 0 ? currentIndex - 1 : list.length - 1;
+        setSelectedVisitId(list[prevIndex].id);
+      } else if (e.key === 'Enter') {
+        if (selectedVisit) {
+          e.preventDefault();
+          handleVisitClick(selectedVisit);
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [list, selectedVisit, selectedVisitId, setSelectedVisitId]);
 
   const visitCountText = (n: number) =>
     lang === 'hi' ? `${n} ${t.visitPlural}` : `${n} ${n === 1 ? t.visitSingular : t.visitPlural}`;
@@ -751,7 +775,23 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
                     <ArrowRight size={18} />
                   </button>
                 </div>
-              ) : null}
+              ) : (
+                <div
+                  style={{
+                    background: '#FFFFFF',
+                    borderRadius: 20,
+                    border: '1px solid #E3ECE7',
+                    boxShadow: '0 2px 8px rgba(0, 33, 17, 0.04)',
+                    padding: '36px 20px',
+                    textAlign: 'center',
+                    color: '#404945',
+                    fontSize: 14,
+                    fontWeight: 600,
+                  }}
+                >
+                  {lang === 'hi' ? 'दौरे का विवरण देखने के लिए सूची से चुनें' : 'Select a visit to view details'}
+                </div>
+              )}
             </div>
           </div>
         )}

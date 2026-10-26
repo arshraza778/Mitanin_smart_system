@@ -325,7 +325,7 @@ export default function ReferralTracker({ lang, online = true }: ScreenProps) {
       </div>
 
       {/* ===================== WIDE CONTAINER LAYOUT (@2xl and above) ===================== */}
-      <div className="hidden @2xl:block" style={{ padding: '24px 28px 40px' }}>
+      <div className="hidden @2xl:block" style={{ maxWidth: 1200, margin: '0 auto', padding: '24px 28px 40px' }}>
         {/* Wide Header */}
         <header style={{ marginBottom: 24 }}>
           <h1 style={{ margin: 0, fontSize: 28, fontWeight: 800, color: '#00201C' }}>{t.title}</h1>

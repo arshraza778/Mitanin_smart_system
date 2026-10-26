@@ -399,7 +399,7 @@ export default function ScreeningResult({ lang, online = true, onNavigate }: Scr
 
       {/* ===================== WIDE CONTAINER LAYOUT (@2xl and above) ===================== */}
       <div className="hidden @2xl:block" style={{ padding: '32px 24px 48px' }}>
-        <div style={{ maxWidth: 860, margin: '0 auto' }}>
+        <div style={{ maxWidth: 1040, margin: '0 auto' }}>
           <header
             style={{
               background: '#FFFFFF',
@@ -407,11 +407,10 @@ export default function ScreeningResult({ lang, online = true, onNavigate }: Scr
               border: '1px solid #E3ECE7',
               padding: '24px 28px',
               boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-              marginBottom: 20,
+              marginBottom: 24,
             }}
           >
             {renderStepper()}
-            {renderPatientSummaryBar()}
             <div style={{ marginTop: 18, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
                 <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: '#00201C' }}>
@@ -438,64 +437,225 @@ export default function ScreeningResult({ lang, online = true, onNavigate }: Scr
 
           <main
             style={{
-              background: '#FFFFFF',
-              borderRadius: 20,
-              border: '1px solid #E3ECE7',
-              padding: '28px',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+              display: 'grid',
+              gridTemplateColumns: 'minmax(0, 1.1fr) minmax(0, 1.15fr)',
+              gap: 28,
+              alignItems: 'start',
             }}
           >
-            {renderResultContent()}
-
-            <div style={{ marginTop: 24, display: 'flex', gap: 14, borderTop: '1px solid #E3ECE7', paddingTop: 20 }}>
-              <button
-                type="button"
-                disabled={saved}
-                onClick={handleAskDoctor}
-                className="ms-btn-primary"
+            {/* Left: Patient and Key Findings */}
+            <div style={{ display: 'grid', gap: 20 }}>
+              <div
                 style={{
-                  flex: 1,
-                  height: 52,
-                  border: 0,
-                  borderRadius: 14,
-                  cursor: saved ? 'default' : 'pointer',
-                  fontSize: 16,
-                  fontWeight: 700,
-                  background: saved ? '#CCD9D2' : '#235347',
-                  color: saved ? '#707975' : '#FFFFFF',
-                  boxShadow: saved ? 'none' : '0 4px 14px rgba(35, 83, 71, 0.25)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 8,
-                }}
-              >
-                <Send size={18} />
-                <span>{t.ask}</span>
-                <ArrowRight size={18} />
-              </button>
-              <button
-                type="button"
-                disabled={saved}
-                onClick={save}
-                style={{
-                  padding: '0 24px',
-                  height: 52,
-                  border: `1.5px solid ${saved ? '#CCD9D2' : '#235347'}`,
-                  borderRadius: 14,
-                  cursor: saved ? 'default' : 'pointer',
-                  fontSize: 15,
-                  fontWeight: 700,
                   background: '#FFFFFF',
-                  color: saved ? '#707975' : '#235347',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
+                  borderRadius: 20,
+                  border: '1px solid #E3ECE7',
+                  padding: '24px',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
                 }}
               >
-                <Save size={16} />
-                <span>{t.save}</span>
-              </button>
+                <h2 style={{ margin: '0 0 16px', fontSize: 17, fontWeight: 800, color: '#00201C' }}>
+                  {lang === 'hi' ? 'रोगी सारांश' : 'Patient Summary'}
+                </h2>
+                {renderPatientSummaryBar()}
+
+                <div style={{ marginTop: 24 }}>
+                  <h3
+                    style={{
+                      margin: '0 0 12px',
+                      fontSize: 13,
+                      fontWeight: 700,
+                      color: '#163832',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.04em',
+                    }}
+                  >
+                    {lang === 'hi' ? 'जाँच तथ्य' : 'Key Findings'}
+                  </h3>
+                  <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    {t.facts.map((f) => (
+                      <li
+                        key={f}
+                        style={{
+                          padding: '10px 16px',
+                          borderRadius: 12,
+                          fontSize: 13.5,
+                          fontWeight: 600,
+                          background: '#DAF1DE',
+                          color: '#235347',
+                          border: '1px solid rgba(142, 182, 155, 0.4)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 10,
+                        }}
+                      >
+                        <CheckCircle2 size={16} color="#235347" style={{ flexShrink: 0 }} />
+                        <span>{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Right: Priority, Suggested Action, Ask Doctor, Save and decide later */}
+            <div style={{ display: 'grid', gap: 20 }}>
+              <div
+                style={{
+                  background: '#FFFFFF',
+                  borderRadius: 20,
+                  border: '1px solid #E3ECE7',
+                  padding: '24px',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                  display: 'grid',
+                  gap: 16,
+                }}
+              >
+                {/* Priority alert card */}
+                <div
+                  style={{
+                    padding: 18,
+                    borderRadius: 16,
+                    background: '#FFFFFF',
+                    border: '1px solid #FFDAD6',
+                    boxShadow: '0 2px 8px rgba(186, 26, 26, 0.06)',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        padding: '4px 12px',
+                        borderRadius: 999,
+                        fontSize: 12.5,
+                        fontWeight: 700,
+                        background: '#FFDAD6',
+                        color: '#BA1A1A',
+                      }}
+                    >
+                      <AlertTriangle size={14} color="#BA1A1A" />
+                      <span>{t.priority}</span>
+                    </span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: '#707975', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                      {lang === 'hi' ? 'प्रोटोकॉल मिलान' : 'Protocol Match'}
+                    </span>
+                  </div>
+                  <p style={{ margin: '12px 0 0', fontSize: 15, fontWeight: 600, lineHeight: 1.45, color: '#00201C' }}>
+                    {t.why}
+                  </p>
+                </div>
+
+                {/* Recommended action card */}
+                <div
+                  style={{
+                    padding: 20,
+                    borderRadius: 18,
+                    background: '#053C31',
+                    color: '#FFFFFF',
+                    boxShadow: '0 4px 16px rgba(5, 60, 49, 0.18)',
+                  }}
+                >
+                  <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: '#C0EACC', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                    {t.actionLabel}
+                  </p>
+                  <p style={{ margin: '6px 0 0', fontSize: 20, fontWeight: 800, lineHeight: 1.25, color: '#FFFFFF' }}>
+                    {t.action}
+                  </p>
+                  <span
+                    style={{
+                      marginTop: 14,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      padding: '4px 12px',
+                      borderRadius: 999,
+                      fontSize: 12,
+                      fontWeight: 600,
+                      background: 'rgba(255, 255, 255, 0.15)',
+                      color: '#FFFFFF',
+                    }}
+                  >
+                    <HelpCircle size={14} color="#C0EACC" />
+                    <span>{t.rule}</span>
+                  </span>
+                </div>
+
+                {/* Actions: Ask doctor, Save and decide later */}
+                <div style={{ marginTop: 8, display: 'grid', gap: 12 }}>
+                  <button
+                    type="button"
+                    disabled={saved}
+                    onClick={handleAskDoctor}
+                    className="ms-btn-primary"
+                    style={{
+                      height: 52,
+                      border: 0,
+                      borderRadius: 14,
+                      cursor: saved ? 'default' : 'pointer',
+                      fontSize: 16,
+                      fontWeight: 700,
+                      background: saved ? '#CCD9D2' : '#235347',
+                      color: saved ? '#707975' : '#FFFFFF',
+                      boxShadow: saved ? 'none' : '0 4px 14px rgba(35, 83, 71, 0.25)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 8,
+                    }}
+                  >
+                    <Send size={18} />
+                    <span>{t.ask}</span>
+                    <ArrowRight size={18} />
+                  </button>
+                  <button
+                    type="button"
+                    disabled={saved}
+                    onClick={save}
+                    style={{
+                      height: 48,
+                      border: `1.5px solid ${saved ? '#CCD9D2' : '#235347'}`,
+                      borderRadius: 14,
+                      cursor: saved ? 'default' : 'pointer',
+                      fontSize: 15,
+                      fontWeight: 700,
+                      background: '#FFFFFF',
+                      color: saved ? '#707975' : '#235347',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 8,
+                    }}
+                  >
+                    <Save size={16} />
+                    <span>{t.save}</span>
+                  </button>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+                <button
+                  type="button"
+                  onClick={() => onNavigate('/mitanin/screening/test')}
+                  style={{
+                    padding: '12px 20px',
+                    borderRadius: 12,
+                    border: '1px solid #CCD9D2',
+                    background: '#F8FAF9',
+                    cursor: 'pointer',
+                    fontSize: 15,
+                    fontWeight: 700,
+                    color: '#235347',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                  }}
+                >
+                  <ArrowLeft size={18} />
+                  <span>{lang === 'hi' ? 'पीछे' : 'Back'}</span>
+                </button>
+              </div>
             </div>
           </main>
         </div>

@@ -14,6 +14,7 @@ export interface ViewModeContextValue {
   mode: ViewMode;
   effectiveMode: EffectiveViewMode;
   isWeb: boolean;
+  isDrawerRange: boolean;
   setMode: (mode: ViewMode) => void;
   toggleMode: () => void;
 }
@@ -30,24 +31,33 @@ export function ViewModeProvider({
   const [mode, setMode] = useState<ViewMode>(initialMode);
   const [isWide, setIsWide] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
-      return window.innerWidth >= 1024;
+      return window.innerWidth >= 768;
+    }
+    return false;
+  });
+  const [isDrawerRange, setIsDrawerRange] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth >= 768 && window.innerWidth < 1024;
     }
     return false;
   });
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const mql = window.matchMedia('(min-width: 1024px)');
-    const update = (matches: boolean) => setIsWide(matches);
-    update(mql.matches);
+    const update = () => {
+      const w = window.innerWidth;
+      setIsWide(w >= 768);
+      setIsDrawerRange(w >= 768 && w < 1024);
+    };
+    update();
 
-    const listener = (e: MediaQueryListEvent) => update(e.matches);
-    mql.addEventListener('change', listener);
-    return () => mql.removeEventListener('change', listener);
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
   }, []);
 
+  // Web layout applies at 768 px and above; below that always show the Phone layout.
   const effectiveMode: EffectiveViewMode =
-    mode === 'auto' ? (isWide ? 'web' : 'phone') : mode;
+    !isWide ? 'phone' : (mode === 'auto' ? 'web' : mode);
 
   const isWeb = effectiveMode === 'web';
 
@@ -55,7 +65,7 @@ export function ViewModeProvider({
     setMode((prev) => {
       const current =
         prev === 'auto'
-          ? (typeof window !== 'undefined' && window.innerWidth >= 1024 ? 'web' : 'phone')
+          ? (typeof window !== 'undefined' && window.innerWidth >= 768 ? 'web' : 'phone')
           : prev;
       return current === 'phone' ? 'web' : 'phone';
     });
@@ -67,6 +77,7 @@ export function ViewModeProvider({
         mode,
         effectiveMode,
         isWeb,
+        isDrawerRange,
         setMode,
         toggleMode,
       }}

@@ -450,8 +450,8 @@ export default function CaseTimeline({ lang, onNavigate }: ScreenProps) {
             fill="#FFFFFF"
             stroke={C.border}
           />
-          <rect x="152" y="91" width="4" height="48" fill="#D9534F" />
-          <rect x="190" y="91" width="4" height="48" fill="#D9534F" />
+          <rect x="152" y="91" width="4" height="48" fill="#BA1A1A" />
+          <rect x="190" y="91" width="4" height="48" fill="#BA1A1A" />
         </svg>
       </div>
 
@@ -565,7 +565,7 @@ export default function CaseTimeline({ lang, onNavigate }: ScreenProps) {
       </div>
 
       {/* ===================== WIDE CONTAINER LAYOUT (@2xl and above) ===================== */}
-      <div className="hidden @2xl:block">
+      <div className="hidden @2xl:block" style={{ maxWidth: 1200, margin: '0 auto' }}>
         <header
           className="on-dark-900"
           style={{

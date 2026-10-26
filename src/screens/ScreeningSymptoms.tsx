@@ -16,6 +16,7 @@ import type { ScreenProps } from '../App';
 import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
 import { useCaseStore } from '../store/CaseStore';
+import { useScreenDraft } from '../ScreenDraftContext';
 
 const STEP = 2;
 
@@ -32,15 +33,28 @@ const SYMPTOM_ICONS: ReactElement[] = [
 export default function ScreeningSymptoms({ lang, online = true, onNavigate }: ScreenProps) {
   const t = COPY[lang];
   const { updateScreening, getCaseByPatientId, currentScreening, getPatientSummary } = useCaseStore();
+  const { getSymptomTicks, setSymptomTicks } = useScreenDraft();
   const patientId = currentScreening?.patientId || 'p1';
   const existingCase = getCaseByPatientId(patientId);
-  const [checked, setChecked] = useState<boolean[]>(() => {
+  const [checked, setCheckedState] = useState<boolean[]>(() => {
+    const draft = getSymptomTicks(patientId);
+    if (draft && draft.length === t.items.length) {
+      return draft;
+    }
     if (existingCase?.symptomFlags?.length) {
       const flags = ['fever', 'drink', 'fits', 'sleepy', 'palm'];
       return flags.map((f) => existingCase.symptomFlags?.includes(f) ?? false);
     }
     return t.items.map((_, i) => i === 0);
   });
+
+  const setChecked = (fnOrVal: boolean[] | ((prev: boolean[]) => boolean[])) => {
+    setCheckedState((prev) => {
+      const next = typeof fnOrVal === 'function' ? fnOrVal(prev) : fnOrVal;
+      setSymptomTicks(patientId, next);
+      return next;
+    });
+  };
   const [speaking, setSpeaking] = useState<number | null>(null);
 
   const handleNext = () => {
@@ -165,6 +179,80 @@ export default function ScreeningSymptoms({ lang, online = true, onNavigate }: S
         })}
       </div>
     </div>
+  );
+
+  const renderVerticalStepper = () => (
+    <nav aria-label="Screening steps" style={{ padding: '8px 0' }}>
+      <ol style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column' }}>
+        {t.steps.map((label, i) => {
+          const stepNum = i + 1;
+          const isActive = stepNum === STEP;
+          const isDone = stepNum < STEP;
+          const isLast = i === t.steps.length - 1;
+
+          return (
+            <li key={label} style={{ display: 'flex', gap: 16, position: 'relative' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <span
+                  style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 14,
+                    fontWeight: 800,
+                    background: isActive ? '#235347' : isDone ? '#DAF1DE' : '#F4F9F6',
+                    color: isActive ? '#FFFFFF' : isDone ? '#235347' : '#707975',
+                    border: `2px solid ${isActive ? '#235347' : isDone ? '#235347' : '#CCD9D2'}`,
+                    flexShrink: 0,
+                    zIndex: 2,
+                  }}
+                >
+                  {isDone ? <Check size={18} strokeWidth={3} /> : stepNum}
+                </span>
+                {!isLast && (
+                  <span
+                    style={{
+                      width: 2,
+                      height: 48,
+                      background: isDone ? '#235347' : '#E3ECE7',
+                      margin: '4px 0',
+                    }}
+                  />
+                )}
+              </div>
+              <div style={{ paddingTop: 6, paddingBottom: 24 }}>
+                <span
+                  style={{
+                    display: 'block',
+                    fontSize: 11,
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.04em',
+                    color: isActive ? '#235347' : '#707975',
+                  }}
+                >
+                  {t.stepOf} {stepNum}
+                </span>
+                <span
+                  style={{
+                    display: 'block',
+                    fontSize: 15,
+                    fontWeight: isActive ? 800 : 600,
+                    color: isActive ? '#00201C' : '#404945',
+                    marginTop: 2,
+                  }}
+                >
+                  {label}
+                </span>
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+    </nav>
   );
 
   const renderPatientSummaryBar = () => (
@@ -453,29 +541,80 @@ export default function ScreeningSymptoms({ lang, online = true, onNavigate }: S
 
       {/* ===================== WIDE CONTAINER LAYOUT (@2xl and above) ===================== */}
       <div className="hidden @2xl:block" style={{ padding: '32px 24px 48px' }}>
-        <div style={{ maxWidth: 860, margin: '0 auto' }}>
-          <header
+        <div
+          style={{
+            maxWidth: 960,
+            margin: '0 auto',
+            display: 'grid',
+            gridTemplateColumns: '240px minmax(0, 640px)',
+            gap: 32,
+            alignItems: 'start',
+            justifyContent: 'center',
+          }}
+        >
+          {/* Left vertical stepper */}
+          <aside
             style={{
               background: '#FFFFFF',
               borderRadius: 20,
               border: '1px solid #E3ECE7',
-              padding: '24px 28px',
+              padding: '24px 20px',
               boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-              marginBottom: 20,
+              position: 'sticky',
+              top: 88,
             }}
           >
-            {renderStepper()}
+            <div style={{ marginBottom: 16 }}>
+              <span
+                style={{
+                  fontSize: 12,
+                  fontWeight: 800,
+                  color: '#235347',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                }}
+              >
+                {t.stepOf} {STEP} / 4
+              </span>
+              <h2 style={{ margin: '4px 0 0', fontSize: 16, fontWeight: 800, color: '#00201C' }}>
+                {t.steps[STEP - 1]}
+              </h2>
+            </div>
+            {renderVerticalStepper()}
+          </aside>
+
+          {/* Right form card up to 640px */}
+          <main
+            style={{
+              maxWidth: 640,
+              width: '100%',
+              background: '#FFFFFF',
+              borderRadius: 20,
+              border: '1px solid #E3ECE7',
+              padding: '28px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+            }}
+          >
             {renderPatientSummaryBar()}
-            <div style={{ marginTop: 18, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+
+            <div
+              style={{
+                marginTop: 20,
+                marginBottom: 18,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
               <div>
-                <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: '#00201C' }}>{t.title}</h1>
+                <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800, color: '#00201C' }}>{t.title}</h1>
                 <p style={{ margin: '4px 0 0', fontSize: 14, color: '#707975', fontWeight: 500 }}>{t.sub}</p>
               </div>
               <span
                 style={{
                   padding: '6px 14px',
                   borderRadius: 999,
-                  fontSize: 12.5,
+                  fontSize: 12,
                   fontWeight: 700,
                   background: '#FFF1CC',
                   color: '#8A5A00',
@@ -485,23 +624,13 @@ export default function ScreeningSymptoms({ lang, online = true, onNavigate }: S
                 {t.tag}
               </span>
             </div>
-          </header>
 
-          <main
-            style={{
-              background: '#FFFFFF',
-              borderRadius: 20,
-              border: '1px solid #E3ECE7',
-              padding: '28px',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-            }}
-          >
             {renderSymptomsList()}
 
             <div
               style={{
-                marginTop: 24,
-                paddingTop: 18,
+                marginTop: 28,
+                paddingTop: 20,
                 borderTop: '1px solid #E3ECE7',
                 display: 'flex',
                 justifyContent: 'space-between',

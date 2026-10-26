@@ -628,7 +628,7 @@ export default function ConsultStatus({ lang, online = true, onNavigate }: Scree
 
       {/* ===================== WIDE CONTAINER LAYOUT (@2xl and above) ===================== */}
       <div className="hidden @2xl:block" style={{ padding: '32px 24px 48px' }}>
-        <div style={{ maxWidth: 860, margin: '0 auto' }}>
+        <div style={{ maxWidth: 1040, margin: '0 auto' }}>
           <header
             style={{
               background: '#FFFFFF',
@@ -636,7 +636,7 @@ export default function ConsultStatus({ lang, online = true, onNavigate }: Scree
               border: '1px solid #E3ECE7',
               padding: '24px 28px',
               boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-              marginBottom: 20,
+              marginBottom: 24,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
@@ -666,21 +666,22 @@ export default function ConsultStatus({ lang, online = true, onNavigate }: Scree
 
           <main
             style={{
-              background: '#FFFFFF',
-              borderRadius: 20,
-              border: '1px solid #E3ECE7',
-              padding: '28px',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+              display: 'grid',
+              gridTemplateColumns: '320px 1fr',
+              gap: 28,
+              alignItems: 'start',
             }}
           >
-            <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: 28, alignItems: 'start' }}>
-              {/* Left SLA Radial Panel */}
+            {/* Left Column: Countdown card and Case card */}
+            <div style={{ display: 'grid', gap: 20 }}>
+              {/* Countdown Card */}
               <div
                 style={{
-                  background: '#F8FAF9',
-                  borderRadius: 16,
-                  padding: '20px',
+                  background: '#FFFFFF',
+                  borderRadius: 20,
                   border: '1px solid #E3ECE7',
+                  padding: '24px 20px',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
@@ -694,10 +695,10 @@ export default function ConsultStatus({ lang, online = true, onNavigate }: Scree
                   label={t.ringLabel}
                   countdownText={countdownText}
                 />
-                <h3 style={{ margin: '14px 0 0', fontSize: 15, fontWeight: 700, color: '#00201C' }}>
+                <h3 style={{ margin: '14px 0 0', fontSize: 16, fontWeight: 700, color: '#00201C' }}>
                   {t.expected}
                 </h3>
-                <p style={{ margin: '4px 0 0', fontSize: 13, fontWeight: 600, color: replied ? '#2E7D4F' : isLate ? '#BA1A1A' : '#707975' }}>
+                <p style={{ margin: '4px 0 0', fontSize: 13.5, fontWeight: 600, color: replied ? '#2E7D4F' : isLate ? '#BA1A1A' : '#707975' }}>
                   {countdownText}
                 </p>
 
@@ -733,132 +734,208 @@ export default function ConsultStatus({ lang, online = true, onNavigate }: Scree
                 )}
               </div>
 
-              {/* Right Steps & Advice */}
-              <div>
-                <h2 style={{ margin: '0 0 12px', fontSize: 16, fontWeight: 700, color: '#00201C' }}>
-                  {lang === 'hi' ? 'परामर्श प्रगति' : 'Consult Timeline'}
-                </h2>
-                {renderStepsList()}
-
-                {replied && (
-                  <article
+              {/* Case Card */}
+              <div
+                style={{
+                  background: '#FFFFFF',
+                  borderRadius: 20,
+                  border: '1px solid #E3ECE7',
+                  padding: '20px',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                  <span style={{ fontSize: 11, fontWeight: 800, color: '#707975', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                    {t.caseNo} • {caseId.toUpperCase()}
+                  </span>
+                  <span
                     style={{
-                      marginTop: 20,
-                      padding: 18,
-                      borderRadius: 16,
-                      background: '#F8FAF9',
-                      border: '1px solid #8EB69B',
+                      fontSize: 11,
+                      fontWeight: 700,
+                      padding: '2px 8px',
+                      borderRadius: 999,
+                      background: '#DAF1DE',
+                      color: '#235347',
                     }}
                   >
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <div
-                          style={{
-                            width: 36,
-                            height: 36,
-                            borderRadius: 10,
-                            background: '#DAF1DE',
-                            color: '#235347',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                          }}
-                        >
-                          <Stethoscope size={18} />
-                        </div>
-                        <div>
-                          <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#00201C' }}>
-                            {consult?.doctorName || t.from}
-                          </h3>
-                          <span style={{ fontSize: 12, color: '#707975' }}>{countdownText}</span>
-                        </div>
-                      </div>
-                      <span
-                        style={{
-                          padding: '4px 10px',
-                          borderRadius: 999,
-                          fontSize: 11.5,
-                          fontWeight: 700,
-                          background: isSendToHospital ? '#FFDAD6' : '#DAF1DE',
-                          color: isSendToHospital ? '#BA1A1A' : '#235347',
-                        }}
-                      >
-                        {isSendToHospital
-                          ? (lang === 'hi' ? 'अस्पताल भेजें' : 'Send to hospital')
-                          : (lang === 'hi' ? 'स्थानीय स्तर पर इलाज करें' : 'Treat locally')}
-                      </span>
-                    </div>
+                    {caseRecord?.state || 'CONSULT_REQUESTED'}
+                  </span>
+                </div>
 
-                    <p style={{ margin: '12px 0 0', fontSize: 14, lineHeight: 1.45, fontWeight: 500, color: '#00201C', whiteSpace: 'pre-wrap' }}>
-                      {consult?.advice || caseRecord?.doctorAdvice || t.advice}
-                    </p>
-                  </article>
-                )}
-
-                {replied && (
-                  <div style={{ marginTop: 20 }}>
-                    {isSendToHospital ? (
-                      <button
-                        type="button"
-                        disabled={hasReferral || isSubmitting}
-                        onClick={handleCreateReferral}
-                        className="ms-btn-primary"
-                        style={{
-                          padding: '0 28px',
-                          height: 52,
-                          border: 0,
-                          borderRadius: 14,
-                          cursor: hasReferral ? 'default' : 'pointer',
-                          fontSize: 15.5,
-                          fontWeight: 700,
-                          background: hasReferral ? '#CCD9D2' : '#235347',
-                          color: hasReferral ? '#707975' : '#FFFFFF',
-                          boxShadow: hasReferral ? 'none' : '0 4px 14px rgba(35, 83, 71, 0.25)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 8,
-                        }}
-                      >
-                        <span>
-                          {hasReferral
-                            ? (lang === 'hi' ? 'रेफ़रल पहले से मौजूद' : 'Referral exists')
-                            : (lang === 'hi' ? 'अस्पताल भेजें' : 'Send to hospital')}
-                        </span>
-                        <ArrowRight size={18} />
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        disabled={isOutcomeRecorded || isSubmitting}
-                        onClick={handleMarkDone}
-                        className="ms-btn-primary"
-                        style={{
-                          padding: '0 28px',
-                          height: 52,
-                          border: 0,
-                          borderRadius: 14,
-                          cursor: isOutcomeRecorded ? 'default' : 'pointer',
-                          fontSize: 15.5,
-                          fontWeight: 700,
-                          background: isOutcomeRecorded ? '#CCD9D2' : '#235347',
-                          color: isOutcomeRecorded ? '#707975' : '#FFFFFF',
-                          boxShadow: isOutcomeRecorded ? 'none' : '0 4px 14px rgba(35, 83, 71, 0.25)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 8,
-                        }}
-                      >
-                        <CheckCircle2 size={18} />
-                        <span>
-                          {isOutcomeRecorded
-                            ? (lang === 'hi' ? 'पूर्ण' : 'Completed')
-                            : (lang === 'hi' ? 'पूर्ण चिह्नित करें' : 'Mark done')}
-                        </span>
-                      </button>
-                    )}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                  <div
+                    style={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: 10,
+                      background: '#235347',
+                      color: '#FFFFFF',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                    }}
+                  >
+                    <User size={18} />
                   </div>
-                )}
+                  <div>
+                    <h4 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#00201C' }}>
+                      {getPatientSummary(patientId, lang) || caseRecord?.name[lang]}
+                    </h4>
+                    <p style={{ margin: '2px 0 0', fontSize: 12, color: '#707975' }}>
+                      {typeof caseRecord?.village === 'string' ? caseRecord?.village : caseRecord?.village?.[lang] || 'Kotra'}
+                    </p>
+                  </div>
+                </div>
+
+                <div style={{ borderTop: '1px solid #E3ECE7', paddingTop: 10, display: 'grid', gap: 6 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12.5 }}>
+                    <span style={{ color: '#707975' }}>{lang === 'hi' ? 'जाँच परिणाम:' : 'Test result:'}</span>
+                    <span style={{ fontWeight: 700, color: '#00201C' }}>{caseRecord?.testResult || 'positive'}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12.5 }}>
+                    <span style={{ color: '#707975' }}>{lang === 'hi' ? 'लक्षण:' : 'Symptoms:'}</span>
+                    <span style={{ fontWeight: 600, color: '#00201C', textAlign: 'right', maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {caseRecord?.symptoms?.[lang] || 'Fever'}
+                    </span>
+                  </div>
+                </div>
               </div>
+            </div>
+
+            {/* Right Column: Timeline and Doctor's Advice with Send to hospital */}
+            <div
+              style={{
+                background: '#FFFFFF',
+                borderRadius: 20,
+                border: '1px solid #E3ECE7',
+                padding: '28px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+              }}
+            >
+              <h2 style={{ margin: '0 0 12px', fontSize: 17, fontWeight: 800, color: '#00201C' }}>
+                {lang === 'hi' ? 'परामर्श प्रगति' : 'Consult Timeline'}
+              </h2>
+              {renderStepsList()}
+
+              {replied && (
+                <article
+                  style={{
+                    marginTop: 20,
+                    padding: 20,
+                    borderRadius: 16,
+                    background: '#F8FAF9',
+                    border: '1px solid #8EB69B',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div
+                        style={{
+                          width: 38,
+                          height: 38,
+                          borderRadius: 10,
+                          background: '#DAF1DE',
+                          color: '#235347',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <Stethoscope size={20} />
+                      </div>
+                      <div>
+                        <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#00201C' }}>
+                          {consult?.doctorName || t.from}
+                        </h3>
+                        <span style={{ fontSize: 12, color: '#707975' }}>{countdownText}</span>
+                      </div>
+                    </div>
+                    <span
+                      style={{
+                        padding: '4px 10px',
+                        borderRadius: 999,
+                        fontSize: 11.5,
+                        fontWeight: 700,
+                        background: isSendToHospital ? '#FFDAD6' : '#DAF1DE',
+                        color: isSendToHospital ? '#BA1A1A' : '#235347',
+                      }}
+                    >
+                      {isSendToHospital
+                        ? (lang === 'hi' ? 'अस्पताल भेजें' : 'Send to hospital')
+                        : (lang === 'hi' ? 'स्थानीय स्तर पर इलाज करें' : 'Treat locally')}
+                    </span>
+                  </div>
+
+                  <p style={{ margin: '14px 0 0', fontSize: 14.5, lineHeight: 1.5, fontWeight: 500, color: '#00201C', whiteSpace: 'pre-wrap' }}>
+                    {consult?.advice || caseRecord?.doctorAdvice || t.advice}
+                  </p>
+                </article>
+              )}
+
+              {replied && (
+                <div style={{ marginTop: 24 }}>
+                  {isSendToHospital ? (
+                    <button
+                      type="button"
+                      disabled={hasReferral || isSubmitting}
+                      onClick={handleCreateReferral}
+                      className="ms-btn-primary"
+                      style={{
+                        padding: '0 28px',
+                        height: 52,
+                        border: 0,
+                        borderRadius: 14,
+                        cursor: hasReferral ? 'default' : 'pointer',
+                        fontSize: 15.5,
+                        fontWeight: 700,
+                        background: hasReferral ? '#CCD9D2' : '#235347',
+                        color: hasReferral ? '#707975' : '#FFFFFF',
+                        boxShadow: hasReferral ? 'none' : '0 4px 14px rgba(35, 83, 71, 0.25)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 8,
+                      }}
+                    >
+                      <span>
+                        {hasReferral
+                          ? (lang === 'hi' ? 'रेफ़रल पहले से मौजूद' : 'Referral exists')
+                          : (lang === 'hi' ? 'अस्पताल भेजें' : 'Send to hospital')}
+                      </span>
+                      <ArrowRight size={18} />
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      disabled={isOutcomeRecorded || isSubmitting}
+                      onClick={handleMarkDone}
+                      className="ms-btn-primary"
+                      style={{
+                        padding: '0 28px',
+                        height: 52,
+                        border: 0,
+                        borderRadius: 14,
+                        cursor: isOutcomeRecorded ? 'default' : 'pointer',
+                        fontSize: 15.5,
+                        fontWeight: 700,
+                        background: isOutcomeRecorded ? '#CCD9D2' : '#235347',
+                        color: isOutcomeRecorded ? '#707975' : '#FFFFFF',
+                        boxShadow: isOutcomeRecorded ? 'none' : '0 4px 14px rgba(35, 83, 71, 0.25)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 8,
+                      }}
+                    >
+                      <CheckCircle2 size={18} />
+                      <span>
+                        {isOutcomeRecorded
+                          ? (lang === 'hi' ? 'पूर्ण' : 'Completed')
+                          : (lang === 'hi' ? 'पूर्ण चिह्नित करें' : 'Mark done')}
+                      </span>
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           </main>
         </div>

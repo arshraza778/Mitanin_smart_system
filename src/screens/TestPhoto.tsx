@@ -15,6 +15,7 @@ import type { ScreenProps } from '../App';
 import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
 import { useCaseStore } from '../store/CaseStore';
+import { useScreenDraft } from '../ScreenDraftContext';
 import {
   createCassetteJpeg,
   downscaleImageToJpeg,
@@ -91,6 +92,7 @@ export function CassetteDemo({ type = 'positive' }: { type?: 'positive' | 'negat
 export default function TestPhoto({ lang, online = true, onNavigate }: ScreenProps) {
   const t = COPY[lang];
   const { updateScreening, getCaseByPatientId, currentScreening, getPatientSummary } = useCaseStore();
+  const { getTestResult, setTestResult, getTestPhoto, setTestPhoto } = useScreenDraft();
   const patientId = currentScreening?.patientId || 'p1';
   const existingCase = getCaseByPatientId(patientId);
 
@@ -107,15 +109,36 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
   const [camFeedbackMessage, setCamFeedbackMessage] = useState<string | null>(null);
   const [cameraActive, setCameraActive] = useState<boolean>(false);
   const [quality, setQuality] = useState<[boolean, boolean, boolean]>([false, false, false]);
-  const [photo, setPhoto] = useState<string | null>(() => {
+  const [photo, setPhotoState] = useState<string | null>(() => {
+    const draftPhoto = getTestPhoto(patientId);
+    if (draftPhoto !== null) return draftPhoto;
     if (existingCase?.photoData) return existingCase.photoData;
     if (typeof existingCase?.photo === 'string' && existingCase.photo.startsWith('data:image')) {
       return existingCase.photo;
     }
     return null;
   });
+  const setPhoto = (valOrFn: string | null | ((prev: string | null) => string | null)) => {
+    setPhotoState((prev) => {
+      const next = typeof valOrFn === 'function' ? valOrFn(prev) : valOrFn;
+      setTestPhoto(patientId, next);
+      return next;
+    });
+  };
+
   const [isDemoPhoto, setIsDemoPhoto] = useState<boolean>(() => Boolean(existingCase?.photoIsDemo));
-  const [result, setResult] = useState<Result | null>(() => existingCase?.testResult ?? 'positive');
+  const [result, setResultState] = useState<Result | null>(() => {
+    const draftRes = getTestResult(patientId);
+    if (draftRes !== null) return draftRes;
+    return existingCase?.testResult ?? 'positive';
+  });
+  const setResult = (valOrFn: Result | null | ((prev: Result | null) => Result | null)) => {
+    setResultState((prev) => {
+      const next = typeof valOrFn === 'function' ? valOrFn(prev) : valOrFn;
+      if (next) setTestResult(patientId, next);
+      return next;
+    });
+  };
   const [showDemoMenu, setShowDemoMenu] = useState<boolean>(false);
   const [storageError, setStorageError] = useState<string | null>(null);
 
@@ -449,196 +472,577 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
     </div>
   );
 
-  const renderCameraSection = () => (
-    <>
-      <div
-        data-testid="camera-area"
-        style={{
-          position: 'relative',
-          overflow: 'hidden',
-          aspectRatio: '4 / 3.2',
-          borderRadius: 20,
-          background: '#051F20',
-          border: '2px solid #163832',
-        }}
-      >
-        {photo ? (
-          <img
-            src={photo}
-            alt={t.photoAlt}
-            data-testid="photo-preview"
-            style={{
-              position: 'absolute',
-              inset: 0,
-              width: '100%',
-              height: '100%',
-              objectFit: 'contain',
-              background: '#051F20',
-            }}
-          />
-        ) : cameraActive && cam === 'ready' ? (
-          <video
-            ref={videoRef}
-            playsInline
-            muted
-            autoPlay
-            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
-          />
-        ) : camFeedbackMessage || cam === 'unavailable' ? (
+  const renderCameraBox = () => (
+    <div
+      data-testid="camera-area"
+      style={{
+        position: 'relative',
+        overflow: 'hidden',
+        aspectRatio: '4 / 3.2',
+        borderRadius: 20,
+        background: '#051F20',
+        border: '2px solid #163832',
+      }}
+    >
+      {photo ? (
+        <img
+          src={photo}
+          alt={t.photoAlt}
+          data-testid="photo-preview"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'contain',
+            background: '#051F20',
+          }}
+        />
+      ) : cameraActive && cam === 'ready' ? (
+        <video
+          ref={videoRef}
+          playsInline
+          muted
+          autoPlay
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+        />
+      ) : camFeedbackMessage || cam === 'unavailable' ? (
+        <div
+          data-testid="camera-unavailable"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '24px 20px',
+            textAlign: 'center',
+            background: '#051F20',
+            color: '#FFFFFF',
+            gap: 12,
+          }}
+        >
           <div
-            data-testid="camera-unavailable"
             style={{
-              position: 'absolute',
-              inset: 0,
+              width: 48,
+              height: 48,
+              borderRadius: '50%',
+              background: 'rgba(255,255,255,0.1)',
               display: 'flex',
-              flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              padding: '24px 20px',
-              textAlign: 'center',
-              background: '#051F20',
-              color: '#FFFFFF',
-              gap: 12,
+              color: '#FFDAD6',
             }}
           >
+            <AlertCircle size={24} color="#FFDAD6" />
+          </div>
+          <p style={{ margin: 0, fontSize: 14.5, fontWeight: 700, lineHeight: 1.35, maxWidth: 300, color: '#FFFFFF' }}>
+            {camFeedbackMessage || t.cameraUnavailableMsg}
+          </p>
+          {camReason && (
             <div
               style={{
-                width: 48,
-                height: 48,
-                borderRadius: '50%',
-                background: 'rgba(255,255,255,0.1)',
-                display: 'flex',
+                display: 'inline-flex',
                 alignItems: 'center',
-                justifyContent: 'center',
-                color: '#FFDAD6',
+                gap: 6,
+                padding: '4px 12px',
+                borderRadius: 999,
+                background: '#FFF1CC',
+                border: '1px solid #FFF1CC',
+                fontSize: 12,
+                fontWeight: 700,
+                color: '#8A5A00',
               }}
             >
-              <AlertCircle size={24} color="#FFDAD6" />
+              <span>{t.reasons[camReason] || t.reasons.unknown}</span>
             </div>
-            <p style={{ margin: 0, fontSize: 14.5, fontWeight: 700, lineHeight: 1.35, maxWidth: 300, color: '#FFFFFF' }}>
-              {camFeedbackMessage || t.cameraUnavailableMsg}
-            </p>
-            {camReason && (
-              <div
+          )}
+          <button
+            type="button"
+            onClick={handleOpenCamera}
+            style={{
+              marginTop: 6,
+              padding: '8px 20px',
+              borderRadius: 999,
+              border: 0,
+              background: '#FFFFFF',
+              color: '#00201C',
+              fontSize: 13.5,
+              fontWeight: 700,
+              cursor: 'pointer',
+              minHeight: 38,
+            }}
+          >
+            {t.tryAgain}
+          </button>
+        </div>
+      ) : (
+        /* Idle Frame placeholder */
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '24px 20px',
+            textAlign: 'center',
+            background: '#051F20',
+            color: '#FFFFFF',
+            gap: 12,
+          }}
+        >
+          <div
+            style={{
+              width: 50,
+              height: 50,
+              borderRadius: '50%',
+              background: 'rgba(255,255,255,0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#FFFFFF',
+            }}
+          >
+            <Camera size={26} color="#FFFFFF" />
+          </div>
+          <p style={{ margin: 0, fontSize: 14.5, fontWeight: 600, color: '#DAF1DE' }}>
+            {t.place}
+          </p>
+        </div>
+      )}
+
+      {/* Viewfinder Alignment Guide Box (Overlay) */}
+      {!photo && cameraActive && cam === 'ready' && (
+        <div
+          aria-hidden
+          style={{
+            position: 'absolute',
+            inset: '16px 24px',
+            pointerEvents: 'none',
+            border: '2px solid #8EB69B',
+            borderRadius: 14,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            padding: 10,
+            boxShadow: '0 0 0 9999px rgba(5, 31, 32, 0.45)',
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <span style={{ width: 14, height: 14, borderTop: '2px solid #FFFFFF', borderLeft: '2px solid #FFFFFF' }} />
+            <span style={{ width: 14, height: 14, borderTop: '2px solid #FFFFFF', borderRight: '2px solid #FFFFFF' }} />
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <div
+              style={{
+                display: 'inline-flex',
+                gap: 10,
+                padding: '4px 10px',
+                borderRadius: 6,
+                background: 'rgba(0,0,0,0.75)',
+                border: '1px solid #8EB69B',
+                fontSize: 11,
+                fontFamily: 'monospace',
+                fontWeight: 700,
+                color: '#DAF1DE',
+              }}
+            >
+              <span>[ C ] Control</span>
+              <span>[ T ] Test</span>
+            </div>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <span style={{ width: 14, height: 14, borderBottom: '2px solid #FFFFFF', borderLeft: '2px solid #FFFFFF' }} />
+            <span style={{ width: 14, height: 14, borderBottom: '2px solid #FFFFFF', borderRight: '2px solid #FFFFFF' }} />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  const renderQualityChips = () => {
+    if (!cameraActive && !photo) return null;
+    return (
+      <ul
+        aria-live="polite"
+        style={{ listStyle: 'none', margin: '14px 0 0', padding: 0, display: 'flex', flexWrap: 'wrap', gap: 8 }}
+      >
+        {t.chips.map((label, i) => {
+          const ok = quality[i];
+          return (
+            <li
+              key={label}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '5px 12px 5px 8px',
+                borderRadius: 999,
+                fontSize: 12,
+                fontWeight: 700,
+                background: ok ? '#DAF1DE' : '#FFDAD6',
+                color: ok ? '#235347' : '#BA1A1A',
+                border: `1px solid ${ok ? 'rgba(142, 182, 155, 0.4)' : '#FFDAD6'}`,
+              }}
+            >
+              <span
+                aria-hidden
                 style={{
-                  display: 'inline-flex',
+                  width: 18,
+                  height: 18,
+                  borderRadius: '50%',
+                  display: 'flex',
                   alignItems: 'center',
-                  gap: 6,
-                  padding: '4px 12px',
-                  borderRadius: 999,
-                  background: '#FFF1CC',
-                  border: '1px solid #FFF1CC',
-                  fontSize: 12,
-                  fontWeight: 700,
-                  color: '#8A5A00',
+                  justifyContent: 'center',
+                  background: ok ? '#2E7D4F' : '#BA1A1A',
+                  color: '#FFFFFF',
                 }}
               >
-                <span>{t.reasons[camReason] || t.reasons.unknown}</span>
-              </div>
-            )}
-            <button
-              type="button"
-              onClick={handleOpenCamera}
-              style={{
-                marginTop: 6,
-                padding: '8px 20px',
-                borderRadius: 999,
-                border: 0,
-                background: '#FFFFFF',
-                color: '#00201C',
-                fontSize: 13.5,
-                fontWeight: 700,
-                cursor: 'pointer',
-                minHeight: 38,
-              }}
-            >
-              {t.tryAgain}
-            </button>
-          </div>
-        ) : (
-          /* Idle Frame placeholder */
+                {ok ? <Check size={12} strokeWidth={3} /> : <X size={12} strokeWidth={3} />}
+              </span>
+              {label}
+            </li>
+          );
+        })}
+      </ul>
+    );
+  };
+
+  const renderShutterButton = () => {
+    if (!cameraActive || photo) return null;
+    return (
+      <div style={{ marginTop: 16, display: 'flex', justifyContent: 'center' }}>
+        <button
+          type="button"
+          onClick={captureLive}
+          aria-label={t.capture}
+          data-testid="capture-button"
+          style={{
+            width: 64,
+            height: 64,
+            borderRadius: '50%',
+            padding: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            border: '3px solid #235347',
+            background: '#FFFFFF',
+          }}
+        >
+          <span
+            aria-hidden
+            style={{
+              width: 48,
+              height: 48,
+              borderRadius: '50%',
+              background: '#235347',
+            }}
+          />
+        </button>
+      </div>
+    );
+  };
+
+  const renderPhotoSources = () => {
+    if (photo) return null;
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {/* Option 1: Live Camera */}
+        <button
+          type="button"
+          onClick={handleOpenCamera}
+          data-testid="option-open-camera"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            width: '100%',
+            minHeight: 52,
+            padding: '0 16px',
+            borderRadius: 14,
+            border: `2px solid ${cameraActive ? '#235347' : '#E3ECE7'}`,
+            background: '#FFFFFF',
+            color: '#00201C',
+            fontSize: 14.5,
+            fontWeight: 700,
+            cursor: 'pointer',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
+            textAlign: 'left',
+          }}
+        >
           <div
             style={{
-              position: 'absolute',
-              inset: 0,
+              width: 34,
+              height: 34,
+              borderRadius: 8,
               display: 'flex',
-              flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              padding: '24px 20px',
-              textAlign: 'center',
-              background: '#051F20',
-              color: '#FFFFFF',
+              background: '#DAF1DE',
+              color: '#235347',
+              flexShrink: 0,
+            }}
+          >
+            <Camera size={18} />
+          </div>
+          <span style={{ flex: 1 }}>{t.openCamera}</span>
+          <span style={{ fontSize: 16, color: '#707975' }}>→</span>
+        </button>
+
+        {/* Option 2: Gallery */}
+        <button
+          type="button"
+          onClick={() => galleryInputRef.current?.click()}
+          data-testid="option-choose-gallery"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            width: '100%',
+            minHeight: 52,
+            padding: '0 16px',
+            borderRadius: 14,
+            border: '1px solid #E3ECE7',
+            background: '#FFFFFF',
+            color: '#00201C',
+            fontSize: 14.5,
+            fontWeight: 700,
+            cursor: 'pointer',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
+            textAlign: 'left',
+          }}
+        >
+          <div
+            style={{
+              width: 34,
+              height: 34,
+              borderRadius: 8,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: '#E7F0EA',
+              color: '#163832',
+              flexShrink: 0,
+            }}
+          >
+            <ImageIcon size={18} />
+          </div>
+          <span style={{ flex: 1 }}>{t.chooseGallery}</span>
+          <span style={{ fontSize: 16, color: '#707975' }}>→</span>
+        </button>
+
+        {/* Option 3: Demo Photo */}
+        <div style={{ borderRadius: 14, border: '1px solid #E3ECE7', background: '#FFFFFF', overflow: 'hidden' }}>
+          <button
+            type="button"
+            onClick={() => setShowDemoMenu((v) => !v)}
+            aria-expanded={showDemoMenu}
+            data-testid="option-use-demo"
+            style={{
+              width: '100%',
+              minHeight: 52,
+              display: 'flex',
+              alignItems: 'center',
               gap: 12,
+              padding: '0 16px',
+              border: 0,
+              background: 'none',
+              cursor: 'pointer',
+              color: '#00201C',
+              fontSize: 14.5,
+              fontWeight: 700,
+              textAlign: 'left',
             }}
           >
             <div
               style={{
-                width: 50,
-                height: 50,
-                borderRadius: '50%',
-                background: 'rgba(255,255,255,0.1)',
+                width: 34,
+                height: 34,
+                borderRadius: 8,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#FFFFFF',
+                background: '#DAF1DE',
+                color: '#2E7D4F',
+                flexShrink: 0,
               }}
             >
-              <Camera size={26} color="#FFFFFF" />
+              <FileCheck size={18} />
             </div>
-            <p style={{ margin: 0, fontSize: 14.5, fontWeight: 600, color: '#DAF1DE' }}>
-              {t.place}
-            </p>
+            <span style={{ flex: 1 }}>{t.useDemoPhoto}</span>
+            <ChevronDown
+              size={18}
+              color="#707975"
+              style={{
+                transform: showDemoMenu ? 'rotate(180deg)' : 'none',
+                transition: 'transform 0.15s ease',
+              }}
+            />
+          </button>
+
+          {showDemoMenu && (
+            <div style={{ padding: '0 12px 12px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+              {(['positive', 'negative', 'invalid'] as const).map((key) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => handleSelectDemo(key)}
+                  data-testid={`demo-cassette-${key}`}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '8px 4px',
+                    borderRadius: 12,
+                    border: '1px solid #E3ECE7',
+                    background: '#F8FAF9',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  <div style={{ position: 'relative', width: '100%', height: 38, borderRadius: 6, overflow: 'hidden' }}>
+                    <CassetteDemo type={key} />
+                  </div>
+                  <span style={{ fontSize: 11.5, fontWeight: 700, color: '#00201C', textAlign: 'center' }}>
+                    {t.demoCassettes[key]}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const renderRetakeButton = () => {
+    if (!photo) return null;
+    return (
+      <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: 12 }}>
+        <button
+          type="button"
+          onClick={retake}
+          data-testid="retake-button"
+          style={{
+            padding: '10px 18px',
+            border: '1px solid #CCD9D2',
+            borderRadius: 12,
+            background: '#F8FAF9',
+            cursor: 'pointer',
+            fontSize: 14,
+            fontWeight: 700,
+            color: '#235347',
+          }}
+        >
+          {t.retake}
+        </button>
+      </div>
+    );
+  };
+
+  const renderResultSelector = () => {
+    if (!photo) return null;
+    return (
+      <div style={{ marginTop: 8 }}>
+        <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#00201C' }}>{t.choose}</h2>
+        <div role="radiogroup" aria-label={t.choose} style={{ marginTop: 10, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+          {(['positive', 'negative', 'invalid'] as const).map((key) => {
+            const on = result === key;
+            const st = RESULT_STYLE[key];
+            return (
+              <button
+                key={key}
+                type="button"
+                role="radio"
+                aria-checked={on}
+                onClick={() => setResult(key)}
+                style={{
+                  minHeight: 82,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 6,
+                  padding: '10px 4px',
+                  borderRadius: 16,
+                  cursor: 'pointer',
+                  fontSize: 13.5,
+                  fontWeight: 700,
+                  border: `2px solid ${on ? st.activeBg : '#E3ECE7'}`,
+                  background: on ? st.activeBg : '#FFFFFF',
+                  color: on ? '#FFFFFF' : '#00201C',
+                  boxShadow: on ? '0 2px 10px rgba(0,0,0,0.1)' : '0 1px 3px rgba(0,0,0,0.03)',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                <span
+                  aria-hidden
+                  style={{
+                    width: 30,
+                    height: 30,
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 18,
+                    fontWeight: 800,
+                    lineHeight: 1,
+                    background: on ? 'rgba(255,255,255,0.25)' : st.bg,
+                    color: on ? '#FFFFFF' : st.text,
+                  }}
+                >
+                  {st.glyph}
+                </span>
+                {t.results[key]}
+              </button>
+            );
+          })}
+        </div>
+
+        {result === 'invalid' && (
+          <div
+            role="alert"
+            style={{
+              marginTop: 12,
+              padding: '12px 14px',
+              borderRadius: 14,
+              fontSize: 13.5,
+              fontWeight: 700,
+              background: '#FFF1CC',
+              color: '#8A5A00',
+              border: '1px solid #FFF1CC',
+            }}
+          >
+            {t.repeat}
           </div>
         )}
 
-        {/* Viewfinder Alignment Guide Box (Overlay) */}
-        {!photo && cameraActive && cam === 'ready' && (
-          <div
-            aria-hidden
-            style={{
-              position: 'absolute',
-              inset: '16px 24px',
-              pointerEvents: 'none',
-              border: '2px solid #8EB69B',
-              borderRadius: 14,
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              padding: 10,
-              boxShadow: '0 0 0 9999px rgba(5, 31, 32, 0.45)',
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ width: 14, height: 14, borderTop: '2px solid #FFFFFF', borderLeft: '2px solid #FFFFFF' }} />
-              <span style={{ width: 14, height: 14, borderTop: '2px solid #FFFFFF', borderRight: '2px solid #FFFFFF' }} />
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <div
-                style={{
-                  display: 'inline-flex',
-                  gap: 10,
-                  padding: '4px 10px',
-                  borderRadius: 6,
-                  background: 'rgba(0,0,0,0.75)',
-                  border: '1px solid #8EB69B',
-                  fontSize: 11,
-                  fontFamily: 'monospace',
-                  fontWeight: 700,
-                  color: '#DAF1DE',
-                }}
-              >
-                <span>[ C ] Control</span>
-                <span>[ T ] Test</span>
-              </div>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ width: 14, height: 14, borderBottom: '2px solid #FFFFFF', borderLeft: '2px solid #FFFFFF' }} />
-              <span style={{ width: 14, height: 14, borderBottom: '2px solid #FFFFFF', borderRight: '2px solid #FFFFFF' }} />
-            </div>
-          </div>
-        )}
+        <p
+          style={{
+            margin: '12px 2px 0',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            fontSize: 12.5,
+            color: '#707975',
+            fontWeight: 500,
+          }}
+        >
+          <AlertCircle size={16} color="#707975" style={{ flexShrink: 0 }} />
+          {t.note}
+        </p>
       </div>
+    );
+  };
+
+  const renderCameraSection = () => (
+    <>
+      {renderCameraBox()}
 
       {/* Hidden file input 1 */}
       <input
@@ -1179,7 +1583,7 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
 
       {/* ===================== WIDE CONTAINER LAYOUT (@2xl and above) ===================== */}
       <div className="hidden @2xl:block" style={{ padding: '32px 24px 48px' }}>
-        <div style={{ maxWidth: 860, margin: '0 auto' }}>
+        <div style={{ maxWidth: 1080, margin: '0 auto' }}>
           <header
             style={{
               background: '#FFFFFF',
@@ -1202,62 +1606,103 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
 
           <main
             style={{
-              background: '#FFFFFF',
-              borderRadius: 20,
-              border: '1px solid #E3ECE7',
-              padding: '28px',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+              display: 'grid',
+              gridTemplateColumns: 'minmax(0, 1.15fr) minmax(0, 1fr)',
+              gap: 28,
+              alignItems: 'start',
             }}
           >
-            {renderCameraSection()}
+            {/* Left: camera or photo frame with quality chips */}
+            <div
+              style={{
+                background: '#FFFFFF',
+                borderRadius: 20,
+                border: '1px solid #E3ECE7',
+                padding: '24px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+              }}
+            >
+              {renderCameraBox()}
+              {renderQualityChips()}
+              {renderShutterButton()}
+            </div>
 
-            <div style={{ marginTop: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, borderTop: '1px solid #E3ECE7', paddingTop: 20 }}>
-              <button
-                type="button"
-                onClick={() => onNavigate('/mitanin/screening/symptoms')}
-                style={{
-                  padding: '12px 20px',
-                  borderRadius: 12,
-                  border: '1px solid #CCD9D2',
-                  background: '#F8FAF9',
-                  cursor: 'pointer',
-                  fontSize: 15,
-                  fontWeight: 700,
-                  color: '#235347',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                }}
-              >
-                <ArrowLeft size={18} />
-                <span>{lang === 'hi' ? 'पीछे' : 'Back'}</span>
-              </button>
-              <button
-                type="button"
-                disabled={!canNext}
-                onClick={handleNext}
-                className="ms-btn-primary"
-                style={{
-                  padding: '0 32px',
-                  height: 52,
-                  border: 0,
-                  borderRadius: 14,
-                  cursor: canNext ? 'pointer' : 'default',
-                  fontSize: 16,
-                  fontWeight: 700,
-                  background: canNext ? '#235347' : '#CCD9D2',
-                  color: canNext ? '#FFFFFF' : '#707975',
-                  boxShadow: canNext ? '0 4px 14px rgba(35, 83, 71, 0.25)' : 'none',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                }}
-              >
-                <span>{t.next}</span>
-                <ArrowRight size={18} />
-              </button>
+            {/* Right: Open camera, Choose from files or gallery, Use demo photo, result selector, Retake, Next */}
+            <div
+              style={{
+                background: '#FFFFFF',
+                borderRadius: 20,
+                border: '1px solid #E3ECE7',
+                padding: '24px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                position: 'sticky',
+                top: 88,
+              }}
+            >
+              {renderPhotoSources()}
+              {renderRetakeButton()}
+              {renderResultSelector()}
             </div>
           </main>
+
+          <div
+            style={{
+              marginTop: 24,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 16,
+              background: '#FFFFFF',
+              borderRadius: 16,
+              border: '1px solid #E3ECE7',
+              padding: '16px 24px',
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => onNavigate('/mitanin/screening/symptoms')}
+              style={{
+                padding: '12px 20px',
+                borderRadius: 12,
+                border: '1px solid #CCD9D2',
+                background: '#F8FAF9',
+                cursor: 'pointer',
+                fontSize: 15,
+                fontWeight: 700,
+                color: '#235347',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+              }}
+            >
+              <ArrowLeft size={18} />
+              <span>{lang === 'hi' ? 'पीछे' : 'Back'}</span>
+            </button>
+            <button
+              type="button"
+              disabled={!canNext}
+              onClick={handleNext}
+              className="ms-btn-primary"
+              style={{
+                padding: '0 32px',
+                height: 52,
+                border: 0,
+                borderRadius: 14,
+                cursor: canNext ? 'pointer' : 'default',
+                fontSize: 16,
+                fontWeight: 700,
+                background: canNext ? '#235347' : '#CCD9D2',
+                color: canNext ? '#FFFFFF' : '#707975',
+                boxShadow: canNext ? '0 4px 14px rgba(35, 83, 71, 0.25)' : 'none',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+              }}
+            >
+              <span>{t.next}</span>
+              <ArrowRight size={18} />
+            </button>
+          </div>
         </div>
       </div>
     </div>

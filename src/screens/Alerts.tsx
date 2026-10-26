@@ -5,6 +5,7 @@ import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
 import { dataService } from '../services';
 import { useCaseStore } from '../store/CaseStore';
+import { useScreenDraft } from '../ScreenDraftContext';
 
 type Kind = 'overdue' | 'replied' | 'followup';
 type View = 'alerts' | 'empty';
@@ -95,11 +96,24 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
     selectScreeningPatient,
     createReferral,
   } = useCaseStore();
+  const { selectedAlertId: draftAlertId, setSelectedAlertId: setDraftAlertId } = useScreenDraft();
   const patientId = currentScreening?.patientId || 'p1';
   const alertsList = state.alerts;
   const isDev = typeof window !== 'undefined' && window.location.search.includes('dev=1');
   const [view, setView] = useState<View>('alerts');
-  const [selectedAlertId, setSelectedAlertId] = useState<string | null>(alertsList[0]?.id ?? null);
+  const [selectedAlertId, setSelectedAlertIdState] = useState<string | null>(() => {
+    if (draftAlertId && alertsList.some((a) => a.id === draftAlertId)) return draftAlertId;
+    return alertsList[0]?.id ?? null;
+  });
+
+  const setSelectedAlertId = useCallback(
+    (id: string | null) => {
+      setSelectedAlertIdState(id);
+      setDraftAlertId(id);
+    },
+    [setDraftAlertId]
+  );
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const items = view === 'alerts' ? alertsList : [];
 
@@ -110,6 +124,24 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
       markAlertRead(selectedAlert.id);
     }
   }, [selectedAlert?.id, markAlertRead]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: globalThis.KeyboardEvent) => {
+      if (items.length === 0) return;
+      const curIdx = items.findIndex((a) => a.id === selectedAlertId);
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        const nextIdx = curIdx < items.length - 1 ? curIdx + 1 : 0;
+        setSelectedAlertId(items[nextIdx].id);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        const prevIdx = curIdx > 0 ? curIdx - 1 : items.length - 1;
+        setSelectedAlertId(items[prevIdx].id);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [items, selectedAlertId, setSelectedAlertId]);
 
   const hasReferral = useCallback(
     (caseId: string, alertPatientId?: string) =>
@@ -590,7 +622,7 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
       </div>
 
       {/* ===================== WIDE CONTAINER LAYOUT (@2xl and above) ===================== */}
-      <div className="hidden @2xl:block" style={{ padding: '28px 32px 48px' }}>
+      <div className="hidden @2xl:block" style={{ maxWidth: 1200, margin: '0 auto', padding: '28px 32px 48px' }}>
         <header style={{ marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
             <h1 style={{ margin: 0, fontSize: 28, fontWeight: 800, color: COLORS.ink }}>{t.title}</h1>
@@ -944,7 +976,30 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
                     </>
                   )}
                 </div>
-              ) : null}
+              ) : (
+                <div
+                  style={{
+                    background: COLORS.card,
+                    borderRadius: 24,
+                    border: `1px solid ${COLORS.border}`,
+                    boxShadow: 'var(--ms-shadow-card)',
+                    padding: '48px 24px',
+                    textAlign: 'center',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    color: COLORS.muted,
+                  }}
+                >
+                  <Bell size={40} color="#707975" style={{ opacity: 0.5, marginBottom: 12 }} />
+                  <p style={{ margin: 0, fontSize: 16, fontWeight: 700, color: COLORS.ink }}>
+                    {lang === 'hi' ? 'कोई सूचना चुनें' : 'Select an alert'}
+                  </p>
+                  <p style={{ margin: '4px 0 0', fontSize: 13, color: COLORS.muted }}>
+                    {lang === 'hi' ? 'विवरण देखने के लिए बाईं सूची से सूचना चुनें' : 'Choose an alert from the left list to view details and advice'}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         )}

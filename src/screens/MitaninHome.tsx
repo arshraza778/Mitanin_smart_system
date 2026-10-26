@@ -1,9 +1,8 @@
 import { useMemo } from 'react';
-import { Search, Plus, ArrowRight, AlertTriangle, Clock, CheckCircle } from 'lucide-react';
+import { Plus, ArrowRight, Clock, Stethoscope, AlertTriangle, CheckCircle, ChevronRight } from 'lucide-react';
 import type { ScreenProps } from '../App';
 import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
-import { dataService } from '../services';
 import { useCaseStore } from '../store/CaseStore';
 
 const COPY = { en: enLocale.screens.MitaninHome, hi: hiLocale.screens.MitaninHome } as const;
@@ -35,380 +34,645 @@ export default function MitaninHome({ lang, online, onNavigate, onToggleOnline }
     onNavigate('/mitanin/consult');
   };
 
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: '16px 16px 32px' }}>
-      {/* Frontline Worker Card */}
-      <section
-        style={{
-          background: 'var(--ms-card)',
-          borderRadius: 'var(--ms-radius-md)',
-          padding: '16px',
-          border: '1px solid var(--ms-border)',
-          boxShadow: 'var(--ms-shadow)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 12,
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div
+  const needsAttentionList = useMemo(() => {
+    const list: Array<{
+      id: string;
+      name: string;
+      village: string;
+      reason: string;
+      statusPill: { label: string; className: string };
+      actionLabel: string;
+      onClick: () => void;
+    }> = [];
+
+    // 1. Replied cases without referral
+    for (const c of repliedCasesWithoutReferral) {
+      if (list.length >= 3) break;
+      list.push({
+        id: c.id,
+        name: c.name[lang],
+        village: typeof c.village === 'string' ? c.village : c.village[lang],
+        reason: lang === 'hi' ? 'डॉक्टर का परामर्श प्राप्त हुआ' : 'Doctor advice received',
+        statusPill: {
+          label: lang === 'hi' ? 'जवाब' : 'Replied',
+          className: 'ms-pill-due',
+        },
+        actionLabel: lang === 'hi' ? 'जवाब देखें' : 'View reply',
+        onClick: () => handleViewReply(c),
+      });
+    }
+
+    // 2. Overdue referrals
+    if (list.length < 3) {
+      const overdueRefs = state.referrals.filter((r) => r.status === 'in_progress');
+      for (const r of overdueRefs) {
+        if (list.length >= 3) break;
+        const patient = state.patients.find((p) => p.id === r.patientId);
+        if (patient) {
+          list.push({
+            id: r.id,
+            name: patient.name[lang],
+            village: typeof patient.village === 'string' ? patient.village : patient.village[lang],
+            reason: lang === 'hi' ? 'अस्पताल रेफरल लंबित' : 'Hospital referral overdue',
+            statusPill: {
+              label: lang === 'hi' ? 'विलंबित' : 'Late',
+              className: 'ms-pill-late',
+            },
+            actionLabel: lang === 'hi' ? 'रेफरल देखें' : 'Track referral',
+            onClick: () => {
+              selectScreeningPatient(patient.id);
+              onNavigate('/mitanin/referral');
+            },
+          });
+        }
+      }
+    }
+
+    // 3. Planned visits marked late
+    if (list.length < 3) {
+      for (const v of t.visits) {
+        if (list.length >= 3) break;
+        if (v.late) {
+          list.push({
+            id: v.name,
+            name: v.name,
+            village: v.village,
+            reason: v.task,
+            statusPill: {
+              label: v.status,
+              className: 'ms-pill-late',
+            },
+            actionLabel: lang === 'hi' ? 'दौरा देखें' : 'View visit',
+            onClick: () => onNavigate('/mitanin/visits'),
+          });
+        }
+      }
+    }
+
+    return list.slice(0, 3);
+  }, [repliedCasesWithoutReferral, state.referrals, state.patients, lang, t.visits]);
+
+  // Shared greeting card
+  const renderGreetingCard = () => (
+    <section
+      aria-label="Worker Profile"
+      style={{
+        background: 'var(--ms-card)',
+        borderRadius: 'var(--ms-radius-md)',
+        padding: '18px 20px',
+        border: '1px solid var(--ms-border)',
+        boxShadow: 'var(--ms-shadow)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 12,
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+        <div
+          style={{
+            position: 'relative',
+            width: 48,
+            height: 48,
+            borderRadius: 'var(--ms-radius-sm)',
+            background: 'var(--ms-dark-900)',
+            color: 'var(--ms-text-white)',
+            fontWeight: 800,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 15,
+            flexShrink: 0,
+          }}
+        >
+          <span>SN</span>
+          <span
             style={{
-              position: 'relative',
-              width: 44,
-              height: 44,
-              borderRadius: 'var(--ms-radius-sm)',
-              background: 'var(--ms-dark-900)',
+              position: 'absolute',
+              bottom: -2,
+              right: -2,
+              width: 16,
+              height: 16,
+              borderRadius: '50%',
+              background: 'var(--ms-primary)',
+              border: '2px solid var(--ms-card)',
+              display: 'grid',
+              placeItems: 'center',
               color: 'var(--ms-text-white)',
-              fontWeight: 800,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 14,
-              flexShrink: 0,
+              fontSize: 9,
             }}
           >
-            <span>SN</span>
+            ✓
+          </span>
+        </div>
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: 'var(--ms-text)', lineHeight: 1.2 }}>
+              {t.greeting}
+            </h2>
             <span
               style={{
-                position: 'absolute',
-                bottom: -2,
-                right: -2,
-                width: 14,
-                height: 14,
-                borderRadius: '50%',
-                background: 'var(--ms-primary)',
-                border: '2px solid var(--ms-card)',
-                display: 'grid',
-                placeItems: 'center',
-                color: 'var(--ms-text-white)',
-                fontSize: 8,
+                fontSize: 11.5,
+                fontWeight: 700,
+                padding: '3px 10px',
+                borderRadius: 'var(--ms-radius-pill)',
+                background: 'var(--ms-mint)',
+                color: 'var(--ms-primary)',
               }}
             >
-              ✓
+              Mitanin (ASHA)
             </span>
           </div>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: 'var(--ms-text)', lineHeight: 1.2 }}>
-                {t.greeting}
-              </h2>
-              <span
-                style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  padding: '2px 8px',
-                  borderRadius: 'var(--ms-radius-pill)',
-                  background: 'var(--ms-mint)',
-                  color: 'var(--ms-primary)',
-                }}
-              >
-                Mitanin (ASHA)
-              </span>
-            </div>
-            <p style={{ margin: '4px 0 0', fontSize: 12, color: 'var(--ms-muted)', fontWeight: 500 }}>
-              {lang === 'hi' ? 'कोदार बस्ती • उप-स्वास्थ्य केंद्र 04' : 'Kodar Basti • Sub-Center 04'}
-            </p>
-          </div>
+          <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--ms-muted)', fontWeight: 500 }}>
+            {lang === 'hi' ? 'कोदार बस्ती • उप-स्वास्थ्य केंद्र 04' : 'Kodar Basti • Sub-Center 04'}
+          </p>
         </div>
+      </div>
 
-        <button
-          type="button"
-          onClick={onToggleOnline}
-          className={online ? 'ms-pill-ok' : 'ms-pill-due'}
-          style={{ cursor: 'pointer', border: 0 }}
-        >
-          <span style={{ width: 6, height: 6, borderRadius: '50%', background: online ? 'var(--ms-primary)' : 'var(--ms-warn)' }} />
-          <span>{online ? t.synced : t.offline}</span>
-        </button>
-      </section>
-
-      {/* Primary Action Button: 56px height, high visual hierarchy */}
       <button
         type="button"
-        onClick={() => onNavigate('/mitanin/screening/patient')}
-        className="ms-btn-primary"
-        style={{
-          borderRadius: 'var(--ms-radius-md)',
-          justifyContent: 'space-between',
-          padding: '14px 18px',
-          boxShadow: 'var(--ms-shadow)',
-        }}
+        onClick={onToggleOnline}
+        className={online ? 'ms-pill-ok' : 'ms-pill-due'}
+        style={{ cursor: 'pointer', border: 0, padding: '6px 12px', fontSize: 12 }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <span style={{ width: 7, height: 7, borderRadius: '50%', background: online ? 'var(--ms-primary)' : 'var(--ms-warn)' }} />
+        <span>{online ? t.synced : t.offline}</span>
+      </button>
+    </section>
+  );
+
+  // Shared New Screening Button
+  const renderNewScreeningButton = () => (
+    <button
+      type="button"
+      onClick={() => onNavigate('/mitanin/screening/patient')}
+      className="ms-btn-primary"
+      style={{
+        width: '100%',
+        minHeight: 56,
+        borderRadius: 'var(--ms-radius-md)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '16px 20px',
+        boxShadow: 'var(--ms-shadow)',
+        cursor: 'pointer',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div
+          style={{
+            width: 34,
+            height: 34,
+            borderRadius: 'var(--ms-radius-sm)',
+            background: 'rgba(255, 255, 255, 0.2)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Plus size={22} strokeWidth={2.6} />
+        </div>
+        <span style={{ fontSize: 16.5, fontWeight: 800, letterSpacing: '-0.2px' }}>{t.newScreening}</span>
+      </div>
+      <ArrowRight size={22} />
+    </button>
+  );
+
+  // Shared Needs Attention List
+  const renderNeedsAttentionList = () => (
+    <section
+      aria-label={lang === 'hi' ? 'ध्यान देने योग्य' : 'Needs attention'}
+      style={{
+        background: 'var(--ms-card)',
+        borderRadius: 'var(--ms-radius-md)',
+        padding: '20px',
+        border: '1px solid var(--ms-border)',
+        boxShadow: 'var(--ms-shadow)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 14,
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <h3 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: 'var(--ms-text)' }}>
+          {lang === 'hi' ? 'ध्यान देने योग्य' : 'Needs attention'}
+        </h3>
+        <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--ms-muted)' }}>
+          {needsAttentionList.length} {lang === 'hi' ? 'मरीज' : 'cases'}
+        </span>
+      </div>
+
+      {needsAttentionList.length === 0 ? (
+        <div
+          style={{
+            padding: '24px 16px',
+            textAlign: 'center',
+            background: 'var(--ms-surface-alt)',
+            borderRadius: 'var(--ms-radius-sm)',
+            color: 'var(--ms-muted)',
+            fontSize: 14,
+            fontWeight: 600,
+          }}
+        >
+          {lang === 'hi' ? 'कोई मामला लंबित नहीं है' : 'All caught up! No urgent alerts.'}
+        </div>
+      ) : (
+        <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 10 }}>
+          {needsAttentionList.map((item) => (
+            <li
+              key={item.id}
+              style={{
+                background: 'var(--ms-surface-alt)',
+                borderRadius: 'var(--ms-radius-sm)',
+                padding: '12px 14px',
+                border: '1px solid var(--ms-border)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 12,
+              }}
+            >
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: 15, fontWeight: 800, color: 'var(--ms-text)' }}>
+                    {item.name}
+                  </span>
+                  <span className={item.statusPill.className} style={{ fontSize: 11, padding: '2px 8px' }}>
+                    {item.statusPill.label}
+                  </span>
+                </div>
+                <div style={{ fontSize: 12.5, color: 'var(--ms-muted)', marginTop: 3 }}>
+                  {item.village} • {item.reason}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={item.onClick}
+                className="ms-btn-primary"
+                style={{
+                  minHeight: 40,
+                  height: 40,
+                  padding: '6px 14px',
+                  borderRadius: 'var(--ms-radius-sm)',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  flexShrink: 0,
+                }}
+              >
+                {item.actionLabel}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+
+  // Shared Waiting for Doctor Count Card
+  const renderWaitingForDoctorCard = () => (
+    <button
+      type="button"
+      onClick={() => onNavigate('/mitanin/consult')}
+      style={{
+        width: '100%',
+        background: 'var(--ms-card)',
+        borderRadius: 'var(--ms-radius-md)',
+        padding: '20px',
+        border: '1.5px solid var(--ms-primary)',
+        boxShadow: 'var(--ms-shadow)',
+        textAlign: 'left',
+        cursor: 'pointer',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 12,
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div
             style={{
               width: 32,
               height: 32,
               borderRadius: 'var(--ms-radius-sm)',
-              background: 'rgba(255, 255, 255, 0.2)',
+              background: 'var(--ms-mint)',
+              color: 'var(--ms-primary)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
             }}
           >
-            <Plus size={20} strokeWidth={2.6} />
+            <Stethoscope size={18} />
           </div>
-          <span style={{ fontSize: 16, fontWeight: 800, letterSpacing: '-0.2px' }}>{t.newScreening}</span>
-        </div>
-        <ArrowRight size={20} />
-      </button>
-
-      {/* Doctor Replied Notice Banner (if any cases awaiting referral) */}
-      {repliedCasesWithoutReferral.length > 0 && (
-        <section
-          style={{
-            background: 'var(--ms-mint)',
-            borderRadius: 'var(--ms-radius-md)',
-            padding: '14px 16px',
-            border: '1.5px solid var(--ms-sage)',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-            <span className="ms-pill-due" style={{ fontSize: 11 }}>
-              {lang === 'hi' ? 'डॉक्टर का जवाब' : 'Doctor replied'}
-            </span>
-            <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--ms-primary)' }}>
-              {lang === 'hi' ? 'कार्रवाई आवश्यक' : 'Action required'}
-            </span>
-          </div>
-
-          <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 8 }}>
-            {repliedCasesWithoutReferral.map((c) => (
-              <li
-                key={c.id}
-                style={{
-                  background: 'var(--ms-card)',
-                  borderRadius: 'var(--ms-radius-sm)',
-                  padding: '12px 14px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: 12,
-                  border: '1px solid var(--ms-border)',
-                }}
-              >
-                <div style={{ minWidth: 0 }}>
-                  <span style={{ display: 'block', fontSize: 15, fontWeight: 800, color: 'var(--ms-text)' }}>
-                    {c.name[lang]}
-                  </span>
-                  <span style={{ display: 'block', fontSize: 12, color: 'var(--ms-muted)', marginTop: 2 }}>
-                    {typeof c.village === 'string' ? c.village : c.village[lang]}
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => handleViewReply(c)}
-                  className="ms-btn-primary"
-                  style={{
-                    width: 'auto',
-                    minHeight: 40,
-                    padding: '8px 14px',
-                    fontSize: 13,
-                    borderRadius: 'var(--ms-radius-sm)',
-                  }}
-                >
-                  {lang === 'hi' ? 'जवाब देखें' : 'View reply'}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {/* Priorities Section */}
-      <section aria-label="Priorities" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 2px' }}>
-          <h2 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: 'var(--ms-text)' }}>
-            {t.prioTitle}
-          </h2>
-          <span style={{ fontSize: 12, color: 'var(--ms-muted)', fontWeight: 600 }}>
-            {t.prioSub}
+          <span style={{ fontSize: 14, fontWeight: 800, color: 'var(--ms-text)' }}>
+            {lang === 'hi' ? 'डॉक्टर की प्रतीक्षा' : 'Waiting for doctor'}
           </span>
         </div>
+        <span className="ms-pill-ok" style={{ fontSize: 11, padding: '3px 8px' }}>
+          {lang === 'hi' ? 'समीक्षा' : 'Review'}
+        </span>
+      </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 8 }}>
-          {/* Card 0: Overdue Referrals (Late / Red status) */}
-          <button
-            type="button"
-            onClick={() => onNavigate('/mitanin/referral')}
-            style={{
-              background: 'var(--ms-card)',
-              border: '1.5px solid var(--ms-danger)',
-              borderRadius: 'var(--ms-radius-md)',
-              padding: '12px 8px',
-              textAlign: 'left',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              minHeight: 96,
-              boxShadow: 'var(--ms-shadow)',
-              cursor: 'pointer',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <AlertTriangle size={18} color="var(--ms-danger)" />
-              <span className="ms-pill-late" style={{ fontSize: 10, padding: '2px 6px' }}>
-                {lang === 'hi' ? 'विलंबित' : 'Late'}
-              </span>
-            </div>
-            <div>
-              <span style={{ fontSize: 24, fontWeight: 800, color: 'var(--ms-danger)', lineHeight: 1 }}>
-                {priorityCounts[0] ?? 0}
-              </span>
-              <p style={{ margin: '4px 0 0', fontSize: 11, fontWeight: 700, color: 'var(--ms-text)', lineHeight: 1.2 }}>
-                {t.priorities[0]}
-              </p>
-            </div>
-          </button>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
+        <span style={{ fontSize: 36, fontWeight: 900, color: 'var(--ms-primary)', lineHeight: 1 }}>
+          {priorityCounts[2] ?? 0}
+        </span>
+        <span style={{ fontSize: 13, color: 'var(--ms-muted)', fontWeight: 600 }}>
+          {lang === 'hi' ? 'परामर्श प्रतीक्षारत' : 'consultations awaiting reply'}
+        </span>
+      </div>
+      <p style={{ margin: 0, fontSize: 12, color: 'var(--ms-muted)', lineHeight: 1.4 }}>
+        {lang === 'hi'
+          ? 'मामले जिन पर डॉक्टर की प्रतिक्रिया की आवश्यकता है'
+          : 'Screened cases submitted for tele-consultation reply'}
+      </p>
+    </button>
+  );
 
-          {/* Card 1: Follow-ups Due (Due soon / Amber status) */}
-          <button
-            type="button"
-            onClick={() => onNavigate('/mitanin/visits')}
-            style={{
-              background: 'var(--ms-card)',
-              border: '1.5px solid var(--ms-warn)',
-              borderRadius: 'var(--ms-radius-md)',
-              padding: '12px 8px',
-              textAlign: 'left',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              minHeight: 96,
-              boxShadow: 'var(--ms-shadow)',
-              cursor: 'pointer',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Clock size={18} color="var(--ms-warn)" />
-              <span className="ms-pill-due" style={{ fontSize: 10, padding: '2px 6px' }}>
-                {lang === 'hi' ? 'नियत' : 'Due'}
-              </span>
-            </div>
-            <div>
-              <span style={{ fontSize: 24, fontWeight: 800, color: 'var(--ms-warn)', lineHeight: 1 }}>
-                {priorityCounts[1] ?? 0}
-              </span>
-              <p style={{ margin: '4px 0 0', fontSize: 11, fontWeight: 700, color: 'var(--ms-text)', lineHeight: 1.2 }}>
-                {t.priorities[1]}
-              </p>
-            </div>
-          </button>
-
-          {/* Card 2: Awaiting Doctor (Consult / Primary status) */}
-          <button
-            type="button"
-            onClick={() => onNavigate('/mitanin/consult')}
-            style={{
-              background: 'var(--ms-card)',
-              border: '1.5px solid var(--ms-primary)',
-              borderRadius: 'var(--ms-radius-md)',
-              padding: '12px 8px',
-              textAlign: 'left',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              minHeight: 96,
-              boxShadow: 'var(--ms-shadow)',
-              cursor: 'pointer',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <CheckCircle size={18} color="var(--ms-primary)" />
-              <span className="ms-pill-ok" style={{ fontSize: 10, padding: '2px 6px' }}>
-                {lang === 'hi' ? 'समीक्षा' : 'Review'}
-              </span>
-            </div>
-            <div>
-              <span style={{ fontSize: 24, fontWeight: 800, color: 'var(--ms-primary)', lineHeight: 1 }}>
-                {priorityCounts[2] ?? 0}
-              </span>
-              <p style={{ margin: '4px 0 0', fontSize: 11, fontWeight: 700, color: 'var(--ms-text)', lineHeight: 1.2 }}>
-                {t.priorities[2]}
-              </p>
-            </div>
-          </button>
+  // Shared Today's Visits List
+  const renderTodaysVisitsList = () => (
+    <section
+      aria-label="Today's Visits"
+      style={{
+        background: 'var(--ms-card)',
+        borderRadius: 'var(--ms-radius-md)',
+        padding: '20px',
+        border: '1px solid var(--ms-border)',
+        boxShadow: 'var(--ms-shadow)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 14,
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div>
+          <h3 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: 'var(--ms-text)' }}>
+            {t.visitsTitle}
+          </h3>
+          <p style={{ margin: '2px 0 0', fontSize: 12, color: 'var(--ms-muted)', fontWeight: 500 }}>
+            {t.visitsSub}
+          </p>
         </div>
-      </section>
+        <button
+          type="button"
+          onClick={() => onNavigate('/mitanin/visits')}
+          style={{
+            background: 'none',
+            border: 0,
+            fontSize: 13,
+            fontWeight: 700,
+            color: 'var(--ms-primary)',
+            cursor: 'pointer',
+            padding: '4px 6px',
+          }}
+        >
+          {lang === 'hi' ? 'सभी देखें →' : 'View all →'}
+        </button>
+      </div>
 
-      {/* Planned Visits List Section */}
-      <section aria-label="Visits" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 2px' }}>
-          <div>
-            <h2 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: 'var(--ms-text)' }}>
-              {t.visitsTitle}
-            </h2>
-            <p style={{ margin: '2px 0 0', fontSize: 12, color: 'var(--ms-muted)', fontWeight: 500 }}>
-              {t.visitsSub}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => onNavigate('/mitanin/visits')}
+      <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 10 }}>
+        {t.visits.map((v) => (
+          <li key={v.name}>
+            <button
+              type="button"
+              onClick={() => onNavigate('/mitanin/visits')}
+              style={{
+                width: '100%',
+                background: 'var(--ms-surface-alt)',
+                border: '1px solid var(--ms-border)',
+                borderRadius: 'var(--ms-radius-sm)',
+                padding: '12px 14px',
+                textAlign: 'left',
+                cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 6,
+                transition: 'border-color 0.15s ease',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: 14.5, fontWeight: 800, color: 'var(--ms-text)' }}>{v.name}</span>
+                <span className={v.late ? 'ms-pill-late' : 'ms-pill-ok'} style={{ fontSize: 10.5, padding: '2px 7px' }}>
+                  {v.status}
+                </span>
+              </div>
+              <div style={{ fontSize: 12, color: 'var(--ms-muted)' }}>
+                {v.village} • {v.task}
+              </div>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+
+  return (
+    <div style={{ width: '100%' }}>
+      {/* ─── Narrow Phone Layout (@md and below) ─── */}
+      <div className="block @2xl:hidden" style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: '16px 16px 32px' }}>
+        {renderGreetingCard()}
+        {renderNewScreeningButton()}
+
+        {/* Doctor Replied Notice Banner (if any cases awaiting referral) */}
+        {repliedCasesWithoutReferral.length > 0 && (
+          <section
             style={{
-              background: 'none',
-              border: 0,
-              fontSize: 13,
-              fontWeight: 700,
-              color: 'var(--ms-primary)',
-              cursor: 'pointer',
-              padding: '4px 8px',
+              background: 'var(--ms-mint)',
+              borderRadius: 'var(--ms-radius-md)',
+              padding: '14px 16px',
+              border: '1.5px solid var(--ms-sage)',
             }}
           >
-            {lang === 'hi' ? 'सभी देखें →' : 'View all →'}
-          </button>
-        </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+              <span className="ms-pill-due" style={{ fontSize: 11 }}>
+                {lang === 'hi' ? 'डॉक्टर का जवाब' : 'Doctor replied'}
+              </span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--ms-primary)' }}>
+                {lang === 'hi' ? 'कार्रवाई आवश्यक' : 'Action required'}
+              </span>
+            </div>
 
-        <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 10 }}>
-          {t.visits.map((v) => (
-            <li key={v.name}>
-              <button
-                type="button"
-                onClick={() => onNavigate('/mitanin/visits')}
-                style={{
-                  width: '100%',
-                  background: 'var(--ms-card)',
-                  border: '1px solid var(--ms-border)',
-                  borderRadius: 'var(--ms-radius-md)',
-                  boxShadow: 'var(--ms-shadow)',
-                  padding: '14px 16px',
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 8,
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div>
-                    <span style={{ fontSize: 15, fontWeight: 800, color: 'var(--ms-text)' }}>{v.name}</span>
-                    <span style={{ display: 'block', fontSize: 12, color: 'var(--ms-muted)', marginTop: 2 }}>
-                      {v.village}
-                    </span>
-                  </div>
-                  <span className={v.late ? 'ms-pill-late' : 'ms-pill-ok'}>
-                    {v.status}
-                  </span>
-                </div>
-                <div
+            <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 8 }}>
+              {repliedCasesWithoutReferral.map((c) => (
+                <li
+                  key={c.id}
                   style={{
-                    fontSize: 13,
-                    fontWeight: 600,
-                    color: 'var(--ms-text)',
-                    background: 'var(--ms-surface-alt)',
-                    padding: '6px 10px',
+                    background: 'var(--ms-card)',
                     borderRadius: 'var(--ms-radius-sm)',
+                    padding: '12px 14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 12,
+                    border: '1px solid var(--ms-border)',
                   }}
                 >
-                  {v.task}
-                </div>
-              </button>
-            </li>
-          ))}
-        </ul>
-      </section>
+                  <div style={{ minWidth: 0 }}>
+                    <span style={{ display: 'block', fontSize: 15, fontWeight: 800, color: 'var(--ms-text)' }}>
+                      {c.name[lang]}
+                    </span>
+                    <span style={{ display: 'block', fontSize: 12, color: 'var(--ms-muted)', marginTop: 2 }}>
+                      {typeof c.village === 'string' ? c.village : c.village[lang]}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleViewReply(c)}
+                    className="ms-btn-primary"
+                    style={{
+                      width: 'auto',
+                      minHeight: 40,
+                      padding: '8px 14px',
+                      fontSize: 13,
+                      borderRadius: 'var(--ms-radius-sm)',
+                    }}
+                  >
+                    {lang === 'hi' ? 'जवाब देखें' : 'View reply'}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {/* Priorities Section */}
+        <section aria-label="Priorities" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 2px' }}>
+            <h2 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: 'var(--ms-text)' }}>
+              {t.prioTitle}
+            </h2>
+            <span style={{ fontSize: 12, color: 'var(--ms-muted)', fontWeight: 600 }}>
+              {t.prioSub}
+            </span>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 8 }}>
+            {/* Card 0: Overdue Referrals */}
+            <button
+              type="button"
+              onClick={() => onNavigate('/mitanin/referral')}
+              style={{
+                background: 'var(--ms-card)',
+                border: '1.5px solid var(--ms-danger)',
+                borderRadius: 'var(--ms-radius-md)',
+                padding: '12px 8px',
+                textAlign: 'left',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                minHeight: 96,
+                boxShadow: 'var(--ms-shadow)',
+                cursor: 'pointer',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <AlertTriangle size={18} color="var(--ms-danger)" />
+                <span className="ms-pill-late" style={{ fontSize: 10, padding: '2px 6px' }}>
+                  {lang === 'hi' ? 'विलंबित' : 'Late'}
+                </span>
+              </div>
+              <div>
+                <span style={{ fontSize: 24, fontWeight: 800, color: 'var(--ms-danger)', lineHeight: 1 }}>
+                  {priorityCounts[0] ?? 0}
+                </span>
+                <p style={{ margin: '4px 0 0', fontSize: 11, fontWeight: 700, color: 'var(--ms-text)', lineHeight: 1.2 }}>
+                  {t.priorities[0]}
+                </p>
+              </div>
+            </button>
+
+            {/* Card 1: Follow-ups Due */}
+            <button
+              type="button"
+              onClick={() => onNavigate('/mitanin/visits')}
+              style={{
+                background: 'var(--ms-card)',
+                border: '1.5px solid var(--ms-warn)',
+                borderRadius: 'var(--ms-radius-md)',
+                padding: '12px 8px',
+                textAlign: 'left',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                minHeight: 96,
+                boxShadow: 'var(--ms-shadow)',
+                cursor: 'pointer',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Clock size={18} color="var(--ms-warn)" />
+                <span className="ms-pill-due" style={{ fontSize: 10, padding: '2px 6px' }}>
+                  {lang === 'hi' ? 'नियत' : 'Due'}
+                </span>
+              </div>
+              <div>
+                <span style={{ fontSize: 24, fontWeight: 800, color: 'var(--ms-warn)', lineHeight: 1 }}>
+                  {priorityCounts[1] ?? 0}
+                </span>
+                <p style={{ margin: '4px 0 0', fontSize: 11, fontWeight: 700, color: 'var(--ms-text)', lineHeight: 1.2 }}>
+                  {t.priorities[1]}
+                </p>
+              </div>
+            </button>
+
+            {/* Card 2: Awaiting Doctor */}
+            <button
+              type="button"
+              onClick={() => onNavigate('/mitanin/consult')}
+              style={{
+                background: 'var(--ms-card)',
+                border: '1.5px solid var(--ms-primary)',
+                borderRadius: 'var(--ms-radius-md)',
+                padding: '12px 8px',
+                textAlign: 'left',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                minHeight: 96,
+                boxShadow: 'var(--ms-shadow)',
+                cursor: 'pointer',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <CheckCircle size={18} color="var(--ms-primary)" />
+                <span className="ms-pill-ok" style={{ fontSize: 10, padding: '2px 6px' }}>
+                  {lang === 'hi' ? 'समीक्षा' : 'Review'}
+                </span>
+              </div>
+              <div>
+                <span style={{ fontSize: 24, fontWeight: 800, color: 'var(--ms-primary)', lineHeight: 1 }}>
+                  {priorityCounts[2] ?? 0}
+                </span>
+                <p style={{ margin: '4px 0 0', fontSize: 11, fontWeight: 700, color: 'var(--ms-text)', lineHeight: 1.2 }}>
+                  {t.priorities[2]}
+                </p>
+              </div>
+            </button>
+          </div>
+        </section>
+
+        {/* Planned Visits List Section */}
+        {renderTodaysVisitsList()}
+      </div>
+
+      {/* ─── Wide Web Layout (@2xl and above: 2 columns) ─── */}
+      <div className="hidden @2xl:block" style={{ padding: '8px 4px 32px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.4fr) minmax(0, 1fr)', gap: 24, alignItems: 'start' }}>
+          {/* Left Column (~60%): Greeting, New Screening Button, Needs Attention List */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            {renderGreetingCard()}
+            {renderNewScreeningButton()}
+            {renderNeedsAttentionList()}
+          </div>
+
+          {/* Right Column (~40%): Waiting for Doctor Card, Today's Visits List */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            {renderWaitingForDoctorCard()}
+            {renderTodaysVisitsList()}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
-

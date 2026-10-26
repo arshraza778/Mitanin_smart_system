@@ -28,7 +28,8 @@ export default function States({
     <div className="@container w-full p-4 @2xl:p-8 flex items-center justify-center">
       <section
         role="status"
-        className="w-full @2xl:max-w-[640px] @2xl:mx-auto rounded-3xl border border-[#E3ECE7] p-6 @2xl:p-8 text-center bg-white text-[#00201C] shadow-sm"
+        style={{ maxWidth: 480, margin: '0 auto' }}
+        className="w-full rounded-3xl border border-[#E3ECE7] p-6 @2xl:p-8 text-center bg-white text-[#00201C] shadow-sm"
       >
         <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center bg-[#DAF1DE] border border-[#C0EACC] text-[#235347]">
           {variant === 'offline' && <WifiOff size={28} />}
