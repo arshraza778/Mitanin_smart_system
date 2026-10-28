@@ -36,7 +36,8 @@
     "caseCompleted": "Case is completed",
     "noActiveConsult": "No active consult",
     "replyReadOnly": "Reply sent (read-only)",
-    "repliedGroup": "Replied"
+    "repliedGroup": "Replied",
+    "demoData": "Demo data"
   },
   "screens": {
     "Alerts": {
@@ -213,6 +214,7 @@
     },
     "MitaninHome": {
       "greeting": "Namaste, Sunita",
+      "demoDataAsOf": "Demo data, as of {time}",
       "synced": "Saved and sent",
       "offline": "Offline",
       "search": "Search patients",
@@ -247,6 +249,10 @@
       "title": "Profile",
       "name": "Sunita",
       "role": "Mitanin",
+      "assignedArea": "Assigned area (demo)",
+      "lastSent": "Last sent to server",
+      "never": "Never",
+      "simulated": "Simulated",
       "language": "Language",
       "english": "English",
       "hindi": "हिन्दी",
@@ -301,6 +307,9 @@
     "RoleSelect": {
       "title": "Choose your role",
       "footer": "Demo version. All data is fictional.",
+      "disclaimerLine1": "Demo only. Choosing a role is not a sign-in.",
+      "disclaimerLine2": "Fictional data. No real patient information.",
+      "continue": "Continue",
       "roles": {
         "mitanin": {
           "name": "Mitanin",
@@ -428,6 +437,7 @@
       "title": "Mr. Verma, District supervisor",
       "ringTitle": "Loop Closure Rate",
       "demo": "Demo",
+      "demoDataAsOf": "Demo data, as of {time}",
       "stats": [
         "Overdue",
         "Due soon",

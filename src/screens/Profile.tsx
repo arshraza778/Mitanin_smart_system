@@ -45,28 +45,23 @@ export default function Profile({
   const allSyncedText = isHindi ? 'सब सिंक है (सिम्युलेटेड)' : 'All synced (Simulated)';
   const pendingText = isHindi ? `${waitingSyncCount || 4} लंबित (सिम्युलेटेड)` : `${waitingSyncCount || 4} pending (Simulated)`;
   const activeText = isHindi ? 'सक्रिय' : 'Active';
-  const personInitial = isDoctor
-    ? (isHindi ? 'डॉ' : 'R')
-    : isSupervisor
-    ? (isHindi ? 'व' : 'V')
-    : (isHindi ? 'सु' : 'S');
-  const personName = isDoctor
-    ? 'Dr. Rao'
-    : isSupervisor
-    ? (isHindi ? 'श्री वर्मा' : 'Mr. Verma')
-    : t.name;
-  const personRole = isDoctor
-    ? (isHindi ? 'चिकित्सक' : 'Doctor')
-    : isSupervisor
-    ? (isHindi ? 'पर्यवेक्षक' : 'Supervisor')
-    : t.role;
-  const subCenterText = isDoctor
-    ? (isHindi ? 'ज़िला अस्पताल डेस्क' : 'District Hospital Desk')
-    : isSupervisor
-    ? (isHindi ? 'ज़िला स्वास्थ्य कार्यालय • सेक्टर 04' : 'District Health Office • Sector 04')
-    : (isHindi ? 'कोटरा उप-केंद्र' : 'Kotra Sub-Center');
-  const connectedText = isHindi ? 'सर्वर से जुड़ा है' : 'Connected to server';
-  const offlineStorageText = isHindi ? 'स्थानीय संग्रहण सक्रिय' : 'Local storage active';
+
+  // Read role profile from store if available, otherwise fallback to '--' (never invent data)
+  const storeProfile = (state as any)?.userProfile || (state as any)?.profile;
+  const personName = storeProfile?.name?.[lang] || storeProfile?.name || '--';
+  const personRole = currentRole
+    ? (isDoctor
+        ? (isHindi ? 'चिकित्सक' : 'Doctor')
+        : isSupervisor
+        ? (isHindi ? 'पर्यवेक्षक' : 'Supervisor')
+        : (isHindi ? 'मितानिन' : 'Mitanin'))
+    : '--';
+  const personInitial = personName !== '--' ? personName.charAt(0) : (isHindi ? 'प्रो' : 'P');
+  const assignedAreaText = storeProfile?.assignedArea?.[lang] || storeProfile?.assignedArea || '--';
+  const lastSentText = t.never || (isHindi ? 'कभी नहीं' : 'Never');
+
+  const connectedText = isHindi ? 'सर्वर से जुड़ा है (सिम्युलेटेड)' : 'Connected to server (Simulated)';
+  const offlineStorageText = isHindi ? 'स्थानीय संग्रहण सक्रिय (सिम्युलेटेड)' : 'Local storage active (Simulated)';
   const syncQueueTitle = isHindi ? 'सिंक कतार (सिम्युलेटेड सिंक)' : 'Sync Queue (Simulated sync)';
   const localStorageLabel = isHindi ? 'स्थानीय संग्रहण:' : 'Local storage:';
   const autoSyncLabel = isHindi ? 'ऑटो-सिंक:' : 'Auto-sync:';
@@ -131,7 +126,13 @@ export default function Profile({
             </span>
           </div>
           <p style={{ margin: '4px 0 0', fontSize: 13, color: '#404945', fontWeight: 600 }}>
-            {personRole} • {subCenterText}
+            {personRole}
+          </p>
+          <p style={{ margin: '2px 0 0', fontSize: 12, color: 'var(--ms-muted)', fontWeight: 500 }}>
+            {t.assignedArea}: {assignedAreaText}
+          </p>
+          <p style={{ margin: '2px 0 0', fontSize: 12, color: 'var(--ms-muted)', fontWeight: 500 }}>
+            {t.lastSent}: {lastSentText}
           </p>
         </div>
       </div>
@@ -164,8 +165,8 @@ export default function Profile({
         />
         <span>
           {online
-            ? (isHindi ? 'सहेजा और भेजा गया' : 'Saved and sent')
-            : (isHindi ? 'सिग्नल नहीं। फ़ोन पर सहेजा गया' : 'No signal. Saved on phone')}
+            ? (isHindi ? 'सहेजा और भेजा गया (सिम्युलेटेड)' : 'Saved and sent (Simulated)')
+            : (isHindi ? 'सिग्नल नहीं। फ़ोन पर सहेजा गया (सिम्युलेटेड)' : 'No signal. Saved on phone (Simulated)')}
         </span>
       </div>
 

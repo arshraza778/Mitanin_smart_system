@@ -448,6 +448,9 @@ function WebTopbar({
 
       {/* Right Controls: Offline/Synced Chip, EN/HI Toggle, View Switch Segmented Control */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+        {/* Demo data tag */}
+        <span className="ms-demo-tag">{lang === 'hi' ? 'डेमो डेटा' : 'Demo data'}</span>
+
         {/* Offline / Synced Chip */}
         <button
           type="button"
@@ -605,10 +608,20 @@ function WebTopbar({
   );
 }
 
-function AppContent() {
+function AppContent({ initialPath, initialLang, initialMode }: { initialPath?: string; initialLang?: Lang; initialMode?: 'phone' | 'web' | 'auto' }) {
   const { currentRole, setCurrentRole } = useScreenDraft();
+  const { setMode } = useViewMode();
+
+  useEffect(() => {
+    if (initialMode) {
+      setMode(initialMode);
+    }
+  }, [initialMode, setMode]);
 
   const [route, setRoute] = useState<string>(() => {
+    if (initialPath && ROUTES[initialPath]) {
+      return initialPath;
+    }
     if (typeof window !== 'undefined' && ROUTES[window.location.pathname]) {
       return window.location.pathname;
     }
@@ -616,16 +629,17 @@ function AppContent() {
   });
 
   const [role, setRole] = useState<Role | null>(() => {
-    if (typeof window !== 'undefined' && ROUTES[window.location.pathname]) {
-      const inferred = inferRoleFromRoute(window.location.pathname);
+    const p = initialPath || (typeof window !== 'undefined' ? window.location.pathname : '');
+    if (p && ROUTES[p]) {
+      const inferred = inferRoleFromRoute(p);
       if (inferred) return inferred;
-      const stored = localStorage.getItem('ms_current_role') as Role | null;
+      const stored = typeof localStorage !== 'undefined' ? (localStorage.getItem('ms_current_role') as Role | null) : null;
       if (stored) return stored;
     }
     return null;
   });
 
-  const [lang, setLang] = useState<Lang>('en');
+  const [lang, setLang] = useState<Lang>(initialLang || 'en');
   const [online, setOnline] = useState<boolean>(true);
 
   useEffect(() => {
@@ -866,6 +880,16 @@ function AppContent() {
             </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span
+              className="ms-demo-tag"
+              style={{
+                background: 'rgba(218, 241, 222, 0.15)',
+                color: '#DAF1DE',
+                borderColor: 'rgba(218, 241, 222, 0.25)',
+              }}
+            >
+              {lang === 'hi' ? 'डेमो डेटा' : 'Demo data'}
+            </span>
             <button
               type="button"
               onClick={onToggleOnline}
@@ -923,12 +947,12 @@ function AppContent() {
   );
 }
 
-export default function App() {
+export default function App({ initialPath, initialLang, initialMode }: { initialPath?: string; initialLang?: Lang; initialMode?: 'phone' | 'web' | 'auto' } = {}) {
   return (
     <ViewModeProvider>
       <CaseProvider>
         <ScreenDraftProvider>
-          <AppContent />
+          <AppContent initialPath={initialPath} initialLang={initialLang} initialMode={initialMode} />
         </ScreenDraftProvider>
       </CaseProvider>
     </ViewModeProvider>

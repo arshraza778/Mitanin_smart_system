@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import { useState, type ReactElement } from 'react';
 import type { ScreenProps } from '../App';
 import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
@@ -57,6 +57,7 @@ function Hero() {
 
 export default function RoleSelect({ lang, onNavigate, onSetLang }: ScreenProps) {
   const t = COPY[lang];
+  const [selectedRole, setSelectedRole] = useState<'mitanin' | 'doctor' | 'supervisor' | null>(null);
 
   return (
     <div className="@container w-full min-h-screen flex flex-col" style={{ background: '#F4F9F6' }}>
@@ -134,47 +135,86 @@ export default function RoleSelect({ lang, onNavigate, onSetLang }: ScreenProps)
           <h2 style={{ margin: '0 4px 18px', fontSize: 22, fontWeight: 800, color: '#00201C' }}>{t.title}</h2>
 
           <div style={{ display: 'grid', gap: 14 }}>
-            {CARDS.map((card) => (
-              <button
-                key={card.key}
-                type="button"
-                onClick={() => onNavigate(card.route)}
-                className="ms-btn ms-btn--card"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 16,
-                  width: '100%',
-                  padding: 16,
-                  textAlign: 'left',
-                  borderRadius: 20,
-                  boxShadow: '0 2px 6px rgba(0, 32, 28, 0.04)',
-                }}
-              >
-                <span
+            {CARDS.map((card) => {
+              const isSelected = selectedRole === card.key;
+              return (
+                <button
+                  key={card.key}
+                  type="button"
+                  aria-pressed={isSelected}
+                  onClick={() => setSelectedRole(card.key)}
+                  className={`ms-btn ms-btn--card ${isSelected ? 'ms-btn--card-primary' : ''}`}
                   style={{
-                    flex: '0 0 56px',
-                    height: 56,
-                    borderRadius: 16,
-                    display: 'grid',
-                    placeItems: 'center',
-                    background: card.tile,
-                    color: '#FFFFFF',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 16,
+                    width: '100%',
+                    padding: 16,
+                    textAlign: 'left',
+                    borderRadius: 20,
+                    boxShadow: '0 2px 6px rgba(0, 32, 28, 0.04)',
                   }}
                 >
-                  {card.icon}
-                </span>
-                <span style={{ flex: 1, minWidth: 0 }}>
-                  <span style={{ display: 'block', fontSize: 17, fontWeight: 800, color: '#00201C' }}>
-                    {t.roles[card.key].name}
+                  <span
+                    style={{
+                      flex: '0 0 56px',
+                      height: 56,
+                      borderRadius: 16,
+                      display: 'grid',
+                      placeItems: 'center',
+                      background: card.tile,
+                      color: '#FFFFFF',
+                    }}
+                  >
+                    {card.icon}
                   </span>
-                  <span style={{ display: 'block', marginTop: 3, fontSize: 13, color: '#404945', lineHeight: 1.35 }}>
-                    {t.roles[card.key].desc}
+                  <span style={{ flex: 1, minWidth: 0 }}>
+                    <span style={{ display: 'block', fontSize: 17, fontWeight: 800, color: '#00201C' }}>
+                      {t.roles[card.key].name}
+                    </span>
+                    <span style={{ display: 'block', marginTop: 3, fontSize: 13, color: '#404945', lineHeight: 1.35 }}>
+                      {t.roles[card.key].desc}
+                    </span>
                   </span>
-                </span>
-                <ChevronRight size={20} color="#404945" style={{ flexShrink: 0 }} />
-              </button>
-            ))}
+                  <ChevronRight size={20} color={isSelected ? '#235347' : '#404945'} style={{ flexShrink: 0 }} />
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Two role disclaimer lines */}
+          <div style={{ marginTop: 20, textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: '#00201C' }}>
+              {t.disclaimerLine1}
+            </p>
+            <p style={{ margin: 0, fontSize: 12.5, fontWeight: 500, color: '#404945' }}>
+              {t.disclaimerLine2}
+            </p>
+          </div>
+
+          {/* Continue button */}
+          <div style={{ marginTop: 18 }}>
+            <button
+              type="button"
+              disabled={!selectedRole}
+              aria-disabled={!selectedRole}
+              onClick={() => {
+                if (!selectedRole) return;
+                const card = CARDS.find((c) => c.key === selectedRole);
+                if (card) onNavigate(card.route);
+              }}
+              className="ms-btn ms-btn--primary ms-btn--lg"
+              style={{
+                width: '100%',
+                height: 52,
+                borderRadius: 16,
+                fontSize: 16,
+                fontWeight: 800,
+              }}
+            >
+              <span>{t.continue}</span>
+              <ArrowRight size={18} />
+            </button>
           </div>
 
           <p style={{ margin: 'auto 0 0', paddingTop: 28, textAlign: 'center', fontSize: 12.5, color: '#404945' }}>
@@ -244,34 +284,69 @@ export default function RoleSelect({ lang, onNavigate, onSetLang }: ScreenProps)
 
             {/* Three cards side-by-side */}
             <div className="grid grid-cols-1 @2xl:grid-cols-3 gap-6">
-              {CARDS.map((card) => (
-                <button
-                  key={card.key}
-                  type="button"
-                  onClick={() => onNavigate(card.route)}
-                  className="ms-btn ms-btn--card flex flex-col items-center text-center p-7 rounded-3xl transition-all hover:-translate-y-1 hover:shadow-lg cursor-pointer group"
-                >
-                  <span
-                    className="rounded-2xl flex items-center justify-center text-white mb-5 transition-transform group-hover:scale-105"
-                    style={{ background: card.tile, width: 68, height: 68 }}
+              {CARDS.map((card) => {
+                const isSelected = selectedRole === card.key;
+                return (
+                  <button
+                    key={card.key}
+                    type="button"
+                    aria-pressed={isSelected}
+                    onClick={() => setSelectedRole(card.key)}
+                    className={`ms-btn ms-btn--card ${isSelected ? 'ms-btn--card-primary' : ''} flex flex-col items-center text-center p-7 rounded-3xl transition-all hover:-translate-y-1 hover:shadow-lg cursor-pointer group`}
                   >
-                    {card.icon}
-                  </span>
+                    <span
+                      className="rounded-2xl flex items-center justify-center text-white mb-5 transition-transform group-hover:scale-105"
+                      style={{ background: card.tile, width: 68, height: 68 }}
+                    >
+                      {card.icon}
+                    </span>
 
-                  <h3 className="text-xl font-extrabold text-[#00201C] m-0 group-hover:text-[#235347] transition-colors">
-                    {t.roles[card.key].name}
-                  </h3>
+                    <h3 className="text-xl font-extrabold text-[#00201C] m-0 group-hover:text-[#235347] transition-colors">
+                      {t.roles[card.key].name}
+                    </h3>
 
-                  <p className="text-xs text-[#404945] mt-2 mb-6 font-medium leading-relaxed flex-1">
-                    {t.roles[card.key].desc}
-                  </p>
+                    <p className="text-xs text-[#404945] mt-2 mb-6 font-medium leading-relaxed flex-1">
+                      {t.roles[card.key].desc}
+                    </p>
 
-                  <span className="w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-[#DAF1DE] border border-[#C0EACC] text-[#0B2B26] group-hover:bg-[#235347] group-hover:text-white transition-colors flex items-center justify-center gap-1.5">
-                    <span>{lang === 'hi' ? 'प्रवेश करें' : 'Continue'}</span>
-                    <ArrowRight size={14} />
-                  </span>
-                </button>
-              ))}
+                    <span className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold border transition-colors flex items-center justify-center gap-1.5 ${isSelected ? 'bg-[#235347] text-white border-[#235347]' : 'bg-[#DAF1DE] border-[#C0EACC] text-[#0B2B26] group-hover:bg-[#235347] group-hover:text-white'}`}>
+                      <span>{isSelected ? (lang === 'hi' ? 'चयनित' : 'Selected') : (lang === 'hi' ? 'चुनें' : 'Select')}</span>
+                      <ArrowRight size={14} />
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Two role disclaimer lines */}
+            <div className="mt-8 text-center flex flex-col gap-1">
+              <p className="m-0 text-sm font-bold text-[#00201C]">{t.disclaimerLine1}</p>
+              <p className="m-0 text-xs font-medium text-[#404945]">{t.disclaimerLine2}</p>
+            </div>
+
+            {/* Central Continue button */}
+            <div className="mt-6 flex justify-center w-full">
+              <button
+                type="button"
+                disabled={!selectedRole}
+                aria-disabled={!selectedRole}
+                onClick={() => {
+                  if (!selectedRole) return;
+                  const card = CARDS.find((c) => c.key === selectedRole);
+                  if (card) onNavigate(card.route);
+                }}
+                className="ms-btn ms-btn--primary ms-btn--lg"
+                style={{
+                  minWidth: 260,
+                  height: 52,
+                  borderRadius: 16,
+                  fontSize: 16,
+                  fontWeight: 800,
+                }}
+              >
+                <span>{t.continue}</span>
+                <ArrowRight size={18} />
+              </button>
             </div>
 
             <p className="mt-12 text-center text-xs text-[#404945] font-medium">

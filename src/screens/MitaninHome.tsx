@@ -5,12 +5,14 @@ import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
 import { useCaseStore } from '../store/CaseStore';
 import { CountUp, Reveal } from '../motion';
+import { getDemoDate, formatTime } from '../domain/dateUtils';
 
 const COPY = { en: enLocale.screens.MitaninHome, hi: hiLocale.screens.MitaninHome } as const;
 
 export default function MitaninHome({ lang, online, onNavigate, onToggleOnline }: ScreenProps) {
   const t = COPY[lang];
   const { state, getPriorityStats, setCurrentCaseId, selectScreeningPatient } = useCaseStore();
+  const demoTimeStr = formatTime(getDemoDate(state.demoClockOffsetMinutes || 0), lang);
   const priorityStats = getPriorityStats();
   const priorityCounts = [
     priorityStats.overdueReferralsCount,
@@ -356,6 +358,9 @@ export default function MitaninHome({ lang, online, onNavigate, onToggleOnline }
           {lang === 'hi' ? 'डॉक्टर के जवाब की प्रतीक्षा' : 'cases awaiting doctor reply'}
         </span>
       </div>
+      <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ms-muted)' }}>
+        {t.demoDataAsOf.replace('{time}', demoTimeStr)}
+      </div>
       <p style={{ margin: 0, fontSize: 12, color: 'var(--ms-muted)', lineHeight: 1.4 }}>
         {lang === 'hi'
           ? 'मामले जिन पर डॉक्टर के जवाब की आवश्यकता है'
@@ -503,8 +508,8 @@ export default function MitaninHome({ lang, online, onNavigate, onToggleOnline }
             <h2 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: 'var(--ms-text)' }}>
               {t.prioTitle}
             </h2>
-            <span style={{ fontSize: 12, color: 'var(--ms-muted)', fontWeight: 600 }}>
-              {t.prioSub}
+            <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--ms-muted)' }}>
+              {t.demoDataAsOf.replace('{time}', demoTimeStr)}
             </span>
           </div>
 

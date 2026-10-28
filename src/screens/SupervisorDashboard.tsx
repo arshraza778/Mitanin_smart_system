@@ -8,6 +8,7 @@ import { useScreenDraft } from '../ScreenDraftContext';
 import { priority } from '../domain';
 import { CountUp, useCountUp, isMotionOff } from '../motion';
 import { PhoneCall, Bell, AlertTriangle, ArrowRight } from 'lucide-react';
+import { getDemoDate, formatTime } from '../domain/dateUtils';
 
 type Lang = 'en' | 'hi';
 type StatusKey = 'overdue' | 'soon' | 'awaiting';
@@ -68,6 +69,7 @@ const selectStyle = {
 export default function SupervisorDashboard({ lang, online = true, onNavigate, onToggleOnline }: ScreenProps) {
   const t = COPY[lang];
   const { syncedCases, getLoopClosureRate, isOverdue, demoClockOffsetMinutes } = useCaseStore();
+  const demoTimeStr = formatTime(getDemoDate(demoClockOffsetMinutes || 0), lang);
   const { selectedSupervisorCaseId, setSelectedSupervisorCaseId } = useScreenDraft();
   const loopRate = getLoopClosureRate(24);
   const loopRateFinal = loopRate != null ? Math.min(100, Math.round(loopRate * 100)) : null;
@@ -219,7 +221,7 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
     const linkedCase = syncedCases.find(
       (sc) => sc.patientId === r.id.replace('r', 'p') || sc.id === r.id
     );
-    const nowMs = Date.now() + (demoClockOffsetMinutes || 0) * 60 * 1000;
+    const nowMs = getDemoDate(demoClockOffsetMinutes || 0).getTime();
     if (linkedCase?.dueAt) {
       const dueMs = new Date(linkedCase.dueAt).getTime();
       if (nowMs > dueMs) {
@@ -361,6 +363,11 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
             padding: '24px 20px 28px',
           }}
         >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginBottom: 8 }}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: '#404945' }}>
+              {t.demoDataAsOf.replace('{time}', demoTimeStr)}
+            </span>
+          </div>
           <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
             {STRICT_STAT_STYLE.map((s, i) => (
               <li
@@ -473,6 +480,9 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
             <h1 style={{ margin: 0, fontSize: 28, fontWeight: 800, color: '#00201C', lineHeight: 1.2 }}>{t.title}</h1>
             <p style={{ margin: '4px 0 0', fontSize: 14, color: '#404945', fontWeight: 600 }}>
               {lang === 'hi' ? 'पर्यवेक्षक अवलोकन एवं प्राथमिक केस प्रबंधन' : 'Supervisor Overview & Priority Case Management'}
+            </p>
+            <p style={{ margin: '4px 0 0', fontSize: 12, color: '#404945', fontWeight: 700 }}>
+              {t.demoDataAsOf.replace('{time}', demoTimeStr)}
             </p>
           </div>
           <button
