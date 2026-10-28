@@ -4,6 +4,7 @@ import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
 import { dataService } from '../services';
 import { useCaseStore } from '../store/CaseStore';
+import { useScreenDraft } from '../ScreenDraftContext';
 import { priority } from '../domain';
 import { PhoneCall, Bell, AlertTriangle, ArrowRight } from 'lucide-react';
 
@@ -65,7 +66,8 @@ const selectStyle = {
 
 export default function SupervisorDashboard({ lang, online = true, onNavigate, onToggleOnline }: ScreenProps) {
   const t = COPY[lang];
-  const { syncedCases, getLoopClosureRate, isOverdue } = useCaseStore();
+  const { syncedCases, getLoopClosureRate, isOverdue, demoClockOffsetMinutes } = useCaseStore();
+  const { selectedSupervisorCaseId, setSelectedSupervisorCaseId } = useScreenDraft();
   const loopRate = getLoopClosureRate(24);
   const [village, setVillage] = useState('all');
   const [mitanin, setMitanin] = useState('all');
@@ -83,6 +85,10 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
   };
 
   const dynamicRows: Row[] = useMemo(() => {
+    if (syncedCases.length === 0) {
+      return [];
+    }
+
     const mappedBase = ROWS.map((baseRow) => {
       const c = syncedCases.find(
         (sc) => sc.patientId === baseRow.id.replace('r', 'p') || sc.id === baseRow.id
@@ -186,7 +192,83 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
     (r) => (village === 'all' || r.village === village) && (mitanin === 'all' || r.mitanin === mitanin),
   );
 
-  const selectedRow = rows.find((r) => r.id === selectedId) || rows[0] || null;
+  const activeSelectedId = useMemo(() => {
+    if (selectedSupervisorCaseId && rows.some((r) => r.id === selectedSupervisorCaseId)) {
+      return selectedSupervisorCaseId;
+    }
+    if (selectedId && rows.some((r) => r.id === selectedId)) {
+      return selectedId;
+    }
+    return rows[0]?.id || null;
+  }, [selectedSupervisorCaseId, selectedId, rows]);
+
+  const selectedRow = rows.find((r) => r.id === activeSelectedId) || null;
+
+  const handleSelectRow = (id: string) => {
+    setSelectedId(id);
+    setSelectedSupervisorCaseId(id);
+  };
+
+  const getLateBy = (r: Row): string => {
+    if (r.status !== 'overdue') return '--';
+    const linkedCase = syncedCases.find(
+      (sc) => sc.patientId === r.id.replace('r', 'p') || sc.id === r.id
+    );
+    const nowMs = Date.now() + (demoClockOffsetMinutes || 0) * 60 * 1000;
+    if (linkedCase?.dueAt) {
+      const dueMs = new Date(linkedCase.dueAt).getTime();
+      if (nowMs > dueMs) {
+        const diffMin = Math.round((nowMs - dueMs) / 60000);
+        if (diffMin >= 1440) {
+          const days = Math.floor(diffMin / 1440);
+          return lang === 'hi' ? `${days} दिन` : `${days}d`;
+        }
+        const hours = Math.max(1, Math.floor(diffMin / 60));
+        return lang === 'hi' ? `${hours} घंटे` : `${hours}h`;
+      }
+    }
+    return lang === 'hi' ? '1 दिन' : '1d';
+  };
+
+  const getPriorityInfo = (status: StatusKey) => {
+    if (status === 'overdue') {
+      return {
+        label: lang === 'hi' ? 'उच्च' : 'High',
+        bg: '#FFDAD6',
+        fg: '#BA1A1A',
+      };
+    }
+    if (status === 'soon') {
+      return {
+        label: lang === 'hi' ? 'मध्यम' : 'Medium',
+        bg: '#FFF1CC',
+        fg: '#8A5A00',
+      };
+    }
+    return {
+      label: lang === 'hi' ? 'सामान्य' : 'Low',
+      bg: '#DAF1DE',
+      fg: '#235347',
+    };
+  };
+
+  const handleTableKeyDown = (e: React.KeyboardEvent<HTMLTableSectionElement>) => {
+    if (rows.length === 0) return;
+    const currentIndex = rows.findIndex((r) => r.id === activeSelectedId);
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      const nextIndex = currentIndex < rows.length - 1 ? currentIndex + 1 : 0;
+      handleSelectRow(rows[nextIndex].id);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      const prevIndex = currentIndex > 0 ? currentIndex - 1 : rows.length - 1;
+      handleSelectRow(rows[prevIndex].id);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      onNavigate('/case');
+    }
+  };
 
   return (
     <div>
@@ -255,7 +337,7 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
               <p style={{ margin: 0, fontSize: 20, fontWeight: 800, lineHeight: 1.2, color: '#FFFFFF' }}>{t.ringTitle}</p>
               {loopRate == null && (
                 <p style={{ margin: '4px 0 0', fontSize: 13, color: '#DAF1DE' }}>
-                  {lang === 'hi' ? 'कोई केस नहीं' : 'No cases yet'}
+                  {lang === 'hi' ? 'अभी कोई केस नहीं' : 'No cases yet'}
                 </p>
               )}
               <span
@@ -484,7 +566,7 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
               <p style={{ margin: 0, fontSize: 16, fontWeight: 800, lineHeight: 1.25, color: '#FFFFFF' }}>{t.ringTitle}</p>
               {loopRate == null && (
                 <p style={{ margin: '2px 0 0', fontSize: 12, color: '#DAF1DE' }}>
-                  {lang === 'hi' ? 'कोई केस नहीं' : 'No cases yet'}
+                  {lang === 'hi' ? 'अभी कोई केस नहीं' : 'No cases yet'}
                 </p>
               )}
               <span
@@ -551,80 +633,137 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
         {/* 2. Priority List Table on the left (~2/3) and Case Detail Panel on the right (~1/3) */}
         {rows.length === 0 ? (
           <div style={{ padding: '64px 20px', textAlign: 'center', background: '#FFFFFF', borderRadius: 20, border: '1px solid #E3ECE7' }}>
-            <p style={{ margin: 0, color: '#404945', fontSize: 16, fontWeight: 600 }}>{t.empty}</p>
+            <p style={{ margin: 0, color: '#404945', fontSize: 16, fontWeight: 600 }}>
+              {lang === 'hi' ? 'अभी कोई केस नहीं' : 'No cases yet'}
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-12 @2xl:grid-cols-12 @4xl:grid-cols-12 gap-6">
-            {/* Priority List as a Table on the left (about two thirds) */}
-            <div className="col-span-8 @2xl:col-span-7 @4xl:col-span-8" style={{ background: '#FFFFFF', borderRadius: 24, border: '1px solid #E3ECE7', boxShadow: '0 2px 10px rgba(0, 32, 28, 0.04)', overflow: 'hidden' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-                <thead>
-                  <tr style={{ background: '#F4F9F6', borderBottom: '1px solid #E3ECE7' }}>
-                    <th style={{ padding: '14px 18px', fontSize: 12.5, fontWeight: 800, color: '#404945', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                      {lang === 'hi' ? 'मरीज़ / केस' : 'Patient / Case'}
-                    </th>
-                    <th style={{ padding: '14px 18px', fontSize: 12.5, fontWeight: 800, color: '#404945', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                      {lang === 'hi' ? 'गाँव / मितानिन' : 'Village / Mitanin'}
-                    </th>
-                    <th style={{ padding: '14px 18px', fontSize: 12.5, fontWeight: 800, color: '#404945', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                      {lang === 'hi' ? 'कारण' : 'Reason'}
-                    </th>
-                    <th style={{ padding: '14px 18px', fontSize: 12.5, fontWeight: 800, color: '#404945', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                      {lang === 'hi' ? 'स्थिति' : 'Status'}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map((r) => {
-                    const isSelected = selectedRow?.id === r.id;
-                    return (
-                      <tr
-                        key={r.id}
-                        onClick={() => setSelectedId(r.id)}
-                        tabIndex={0}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            setSelectedId(r.id);
-                          }
-                        }}
-                        style={{
-                          cursor: 'pointer',
-                          background: isSelected ? '#DAF1DE' : 'transparent',
-                          borderBottom: '1px solid #E3ECE7',
-                          transition: 'background 0.15s ease',
-                          outline: 'none',
-                        }}
-                      >
-                        <td style={{ padding: '14px 18px' }}>
-                          <span style={{ fontSize: 15, fontWeight: 800, color: isSelected ? '#235347' : '#00201C', display: 'block' }}>
-                            {r.name[lang]}
-                          </span>
-                          <span style={{ fontSize: 12, color: '#404945', fontWeight: 600 }}>
-                            {r.id.toUpperCase()}
-                          </span>
-                        </td>
-                        <td style={{ padding: '14px 18px' }}>
-                          <span style={{ fontSize: 13.5, color: '#00201C', fontWeight: 700, display: 'block' }}>
-                            {lang === 'hi' ? VILLAGE_HI[r.village] : r.village}
-                          </span>
-                          <span style={{ fontSize: 12, color: '#404945', fontWeight: 600 }}>
-                            {t.mitaninPrefix} {lang === 'hi' ? MITANIN_HI[r.mitanin] : r.mitanin}
-                          </span>
-                        </td>
-                        <td style={{ padding: '14px 18px', fontSize: 13.5, fontWeight: 600, color: '#00201C', maxWidth: 220 }}>
-                          {r.reason[lang]}
-                        </td>
-                        <td style={{ padding: '14px 18px' }}>
-                          <span style={{ display: 'inline-block', padding: '4px 12px', borderRadius: 999, fontSize: 12, fontWeight: 800, ...PILL[r.status] }}>
-                            {t.status[r.status]}
-                          </span>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+            {/* Priority List as a Table on the left (two-thirds) */}
+            <div
+              className="col-span-8 @2xl:col-span-7 @4xl:col-span-8"
+              style={{
+                background: '#FFFFFF',
+                borderRadius: 24,
+                border: '1px solid #E3ECE7',
+                boxShadow: '0 2px 10px rgba(0, 32, 28, 0.04)',
+                overflow: 'hidden',
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+            >
+              <div style={{ overflowX: 'auto', flex: 1 }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: 640 }}>
+                  <thead style={{ position: 'sticky', top: 0, zIndex: 2, background: '#F4F9F6' }}>
+                    <tr style={{ borderBottom: '1px solid #E3ECE7' }}>
+                      <th style={{ padding: '12px 14px', fontSize: 12.5, fontWeight: 800, color: '#404945', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                        {lang === 'hi' ? 'मरीज़' : 'Patient'}
+                      </th>
+                      <th style={{ padding: '12px 14px', fontSize: 12.5, fontWeight: 800, color: '#404945', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                        {lang === 'hi' ? 'गाँव' : 'Village'}
+                      </th>
+                      <th style={{ padding: '12px 14px', fontSize: 12.5, fontWeight: 800, color: '#404945', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                        {lang === 'hi' ? 'मितानिन' : 'Mitanin'}
+                      </th>
+                      <th style={{ padding: '12px 14px', fontSize: 12.5, fontWeight: 800, color: '#404945', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                        {lang === 'hi' ? 'समस्या' : 'Problem'}
+                      </th>
+                      <th style={{ padding: '12px 14px', fontSize: 12.5, fontWeight: 800, color: '#404945', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                        {lang === 'hi' ? 'देरी' : 'Late by'}
+                      </th>
+                      <th style={{ padding: '12px 14px', fontSize: 12.5, fontWeight: 800, color: '#404945', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                        {lang === 'hi' ? 'प्राथमिकता' : 'Priority'}
+                      </th>
+                      <th style={{ padding: '12px 14px', fontSize: 12.5, fontWeight: 800, color: '#404945', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                        {lang === 'hi' ? 'कार्रवाई' : 'Actions'}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody tabIndex={0} onKeyDown={handleTableKeyDown} style={{ outline: 'none' }}>
+                    {rows.map((r) => {
+                      const isSelected = selectedRow?.id === r.id;
+                      const prio = getPriorityInfo(r.status);
+                      const lateBy = getLateBy(r);
+
+                      return (
+                        <tr
+                          key={r.id}
+                          onClick={() => handleSelectRow(r.id)}
+                          style={{
+                            cursor: 'pointer',
+                            background: isSelected ? '#DAF1DE' : 'transparent',
+                            borderBottom: '1px solid #E3ECE7',
+                            transition: 'background 0.15s ease',
+                            outline: isSelected ? '2px solid #235347' : 'none',
+                          }}
+                        >
+                          <td style={{ padding: '12px 14px', minWidth: 120 }}>
+                            <span style={{ fontSize: 14.5, fontWeight: 800, color: isSelected ? '#235347' : '#00201C', display: 'block' }}>
+                              {r.name[lang]}
+                            </span>
+                            <span style={{ fontSize: 12, color: '#404945', fontWeight: 600 }}>
+                              #{r.id.toUpperCase()}
+                            </span>
+                          </td>
+                          <td style={{ padding: '12px 14px', fontSize: 13.5, color: '#00201C', fontWeight: 600 }}>
+                            {lang === 'hi' ? VILLAGE_HI[r.village] || r.village : r.village}
+                          </td>
+                          <td style={{ padding: '12px 14px', fontSize: 13.5, color: '#00201C', fontWeight: 600 }}>
+                            {lang === 'hi' ? MITANIN_HI[r.mitanin] || r.mitanin : r.mitanin}
+                          </td>
+                          <td title={r.reason[lang]} style={{ padding: '12px 14px', fontSize: 13.5, fontWeight: 600, color: '#00201C', maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {r.reason[lang]}
+                          </td>
+                          <td style={{ padding: '12px 14px', fontSize: 13, fontWeight: 800, color: r.status === 'overdue' ? '#BA1A1A' : '#404945' }}>
+                            {lateBy}
+                          </td>
+                          <td style={{ padding: '12px 14px' }}>
+                            <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: 999, fontSize: 11.5, fontWeight: 800, background: prio.bg, color: prio.fg, whiteSpace: 'nowrap' }}>
+                              {prio.label}
+                            </span>
+                          </td>
+                          <td style={{ padding: '12px 14px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                              {t.actions.map((label, i) => (
+                                <button
+                                  key={label}
+                                  type="button"
+                                  title={label}
+                                  aria-label={`${label} - ${r.name[lang]}`}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    act(r, i);
+                                  }}
+                                  style={{
+                                    height: 36,
+                                    minWidth: 36,
+                                    padding: '0 8px',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: 4,
+                                    borderRadius: 10,
+                                    cursor: 'pointer',
+                                    fontSize: 12,
+                                    fontWeight: 800,
+                                    border: i === 2 ? 0 : '1.5px solid #235347',
+                                    background: i === 2 ? '#BA1A1A' : '#FFFFFF',
+                                    color: i === 2 ? '#FFFFFF' : '#235347',
+                                    transition: 'opacity 0.15s ease',
+                                  }}
+                                >
+                                  {ACTION_ICONS[i]}
+                                  <span className="hidden @4xl:inline">{label}</span>
+                                </button>
+                              ))}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             </div>
 
             {/* Case Detail Panel on the right (~1/3) with Call, Remind, Escalate */}
@@ -650,9 +789,9 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
                         {selectedRow.name[lang]}
                       </h3>
                       <p style={{ margin: '2px 0 0', fontSize: 13, color: '#404945' }}>
-                        {lang === 'hi' ? VILLAGE_HI[selectedRow.village] : selectedRow.village}
+                        {lang === 'hi' ? VILLAGE_HI[selectedRow.village] || selectedRow.village : selectedRow.village}
                         {' • '}
-                        {t.mitaninPrefix} {lang === 'hi' ? MITANIN_HI[selectedRow.mitanin] : selectedRow.mitanin}
+                        {t.mitaninPrefix} {lang === 'hi' ? MITANIN_HI[selectedRow.mitanin] || selectedRow.mitanin : selectedRow.mitanin}
                       </p>
                     </div>
                     <span style={{ padding: '4px 12px', borderRadius: 999, fontSize: 12, fontWeight: 800, ...PILL[selectedRow.status] }}>
@@ -662,7 +801,7 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
 
                   <div style={{ padding: '16px 0', borderBottom: '1px solid #E3ECE7' }}>
                     <span style={{ fontSize: 12, fontWeight: 700, color: '#404945', textTransform: 'uppercase' }}>
-                      {lang === 'hi' ? 'आवश्यक कार्रवाई / कारण:' : 'Priority Reason:'}
+                      {lang === 'hi' ? 'प्राथमिकता का कारण:' : 'Priority Reason:'}
                     </span>
                     <p style={{ margin: '6px 0 0', fontSize: 14.5, fontWeight: 700, color: '#00201C', lineHeight: 1.4 }}>
                       {selectedRow.reason[lang]}
@@ -728,7 +867,22 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
                     </button>
                   </div>
                 </div>
-              ) : null}
+              ) : (
+                <div
+                  style={{
+                    background: '#FFFFFF',
+                    borderRadius: 24,
+                    border: '1px solid #E3ECE7',
+                    padding: '32px 20px',
+                    textAlign: 'center',
+                    color: '#404945',
+                  }}
+                >
+                  <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#00201C' }}>
+                    {lang === 'hi' ? 'एक केस चुनें' : 'Select a case'}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         )}

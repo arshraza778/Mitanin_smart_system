@@ -8,6 +8,7 @@ import { useCaseStore } from '../store/CaseStore';
 import { useViewMode } from '../ViewModeContext';
 import { useScreenDraft } from '../ScreenDraftContext';
 import { DoctorCasesTable } from '../DoctorCasesTable';
+import { SupervisorCasesTable } from '../SupervisorCasesTable';
 import States from './States';
 import { formatDateTime } from '../domain';
 
@@ -148,6 +149,17 @@ export default function CaseTimeline({ lang, online, onNavigate, onToggleOnline 
   if (isWeb && currentRole === 'doctor') {
     return (
       <DoctorCasesTable
+        lang={lang}
+        online={online}
+        onNavigate={onNavigate}
+        onToggleOnline={onToggleOnline}
+      />
+    );
+  }
+
+  if (isWeb && currentRole === 'supervisor') {
+    return (
+      <SupervisorCasesTable
         lang={lang}
         online={online}
         onNavigate={onNavigate}

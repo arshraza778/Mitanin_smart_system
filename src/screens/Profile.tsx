@@ -40,15 +40,30 @@ export default function Profile({
   };
 
   const isDoctor = currentRole === 'doctor';
+  const isSupervisor = currentRole === 'supervisor';
   const pageTitle = isHindi ? 'प्रोफ़ाइल' : 'Profile';
   const allSyncedText = isHindi ? 'सब सिंक है (सिम्युलेटेड)' : 'All synced (Simulated)';
   const pendingText = isHindi ? `${waitingSyncCount || 4} लंबित (सिम्युलेटेड)` : `${waitingSyncCount || 4} pending (Simulated)`;
   const activeText = isHindi ? 'सक्रिय' : 'Active';
-  const personInitial = isDoctor ? (isHindi ? 'डॉ' : 'R') : (isHindi ? 'सु' : 'S');
-  const personName = isDoctor ? 'Dr. Rao' : t.name;
-  const personRole = isDoctor ? (isHindi ? 'चिकित्सक' : 'Doctor') : t.role;
+  const personInitial = isDoctor
+    ? (isHindi ? 'डॉ' : 'R')
+    : isSupervisor
+    ? (isHindi ? 'व' : 'V')
+    : (isHindi ? 'सु' : 'S');
+  const personName = isDoctor
+    ? 'Dr. Rao'
+    : isSupervisor
+    ? (isHindi ? 'श्री वर्मा' : 'Mr. Verma')
+    : t.name;
+  const personRole = isDoctor
+    ? (isHindi ? 'चिकित्सक' : 'Doctor')
+    : isSupervisor
+    ? (isHindi ? 'पर्यवेक्षक' : 'Supervisor')
+    : t.role;
   const subCenterText = isDoctor
     ? (isHindi ? 'ज़िला अस्पताल डेस्क' : 'District Hospital Desk')
+    : isSupervisor
+    ? (isHindi ? 'ज़िला स्वास्थ्य कार्यालय • सेक्टर 04' : 'District Health Office • Sector 04')
     : (isHindi ? 'कोटरा उप-केंद्र' : 'Kotra Sub-Center');
   const connectedText = isHindi ? 'सर्वर से जुड़ा है' : 'Connected to server';
   const offlineStorageText = isHindi ? 'स्थानीय संग्रहण सक्रिय' : 'Local storage active';

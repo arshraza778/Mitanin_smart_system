@@ -96,7 +96,7 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
     selectScreeningPatient,
     createReferral,
   } = useCaseStore();
-  const { selectedAlertId: draftAlertId, setSelectedAlertId: setDraftAlertId, currentRole, setSelectedDoctorCaseId } = useScreenDraft();
+  const { selectedAlertId: draftAlertId, setSelectedAlertId: setDraftAlertId, currentRole, setSelectedDoctorCaseId, setSelectedSupervisorCaseId } = useScreenDraft();
   const patientId = currentScreening?.patientId || 'p1';
   const alertsList = state.alerts;
   const isDev = typeof window !== 'undefined' && window.location.search.includes('dev=1');
@@ -184,6 +184,11 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
     if (currentRole === 'doctor') {
       if (a.caseId) setSelectedDoctorCaseId(a.caseId);
       onNavigate('/doctor/review');
+      return;
+    }
+    if (currentRole === 'supervisor') {
+      if (a.caseId) setSelectedSupervisorCaseId(a.caseId);
+      onNavigate('/case');
       return;
     }
     if (a.caseId) setCurrentCaseId(a.caseId);

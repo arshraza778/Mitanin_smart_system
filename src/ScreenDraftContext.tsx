@@ -33,6 +33,8 @@ export interface ScreenDraftContextValue {
   setAdviceDraft: (caseId: string, draft: AdviceDraft) => void;
   selectedDoctorCaseId: string | null;
   setSelectedDoctorCaseId: (id: string | null) => void;
+  selectedSupervisorCaseId: string | null;
+  setSelectedSupervisorCaseId: (id: string | null) => void;
   noPhotoReplyingCases: Record<string, boolean>;
   setNoPhotoReplying: (caseId: string, replying: boolean) => void;
   photoRequestedCases: Record<string, boolean>;
@@ -68,6 +70,13 @@ export function ScreenDraftProvider({ children }: { children: ReactNode }) {
     return null;
   });
 
+  const [selectedSupervisorCaseId, setSelectedSupervisorCaseIdState] = useState<string | null>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('ms_selected_supervisor_case') || null;
+    }
+    return null;
+  });
+
   const [currentRole, setCurrentRoleState] = useState<Role | null>(() => {
     if (typeof window !== 'undefined') {
       return (localStorage.getItem('ms_current_role') as Role | null) || null;
@@ -85,6 +94,17 @@ export function ScreenDraftProvider({ children }: { children: ReactNode }) {
         localStorage.setItem('ms_selected_doctor_case', id);
       } else {
         localStorage.removeItem('ms_selected_doctor_case');
+      }
+    }
+  }, []);
+
+  const setSelectedSupervisorCaseId = useCallback((id: string | null) => {
+    setSelectedSupervisorCaseIdState(id);
+    if (typeof window !== 'undefined') {
+      if (id) {
+        localStorage.setItem('ms_selected_supervisor_case', id);
+      } else {
+        localStorage.removeItem('ms_selected_supervisor_case');
       }
     }
   }, []);
@@ -159,6 +179,8 @@ export function ScreenDraftProvider({ children }: { children: ReactNode }) {
         setAdviceDraft,
         selectedDoctorCaseId,
         setSelectedDoctorCaseId,
+        selectedSupervisorCaseId,
+        setSelectedSupervisorCaseId,
         noPhotoReplyingCases,
         setNoPhotoReplying,
         photoRequestedCases,
