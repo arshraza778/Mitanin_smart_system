@@ -67,7 +67,7 @@ export default function RoleSelect({ lang, onNavigate, onSetLang }: ScreenProps)
           <Hero />
           <div
             role="group"
-            aria-label={lang === 'hi' ? 'भाषा' : 'Language'}
+            aria-label={t.language}
             style={{
               position: 'absolute',
               top: 'calc(16px + env(safe-area-inset-top, 0px))',
@@ -234,15 +234,13 @@ export default function RoleSelect({ lang, onNavigate, onSetLang }: ScreenProps)
                 {t.brandLine1} <span className="text-[#C0EACC]">{t.brandLine2}</span>
               </h1>
               <p className="text-[#DAF1DE] font-medium text-sm mt-2 m-0 max-w-md">
-                {lang === 'hi'
-                  ? 'सामुदायिक स्वास्थ्य कार्यकर्ताओं और डॉक्टरों के लिए ग्रामीण परीक्षण प्रणाली'
-                  : 'Point-of-care rapid visual diagnostic and closed-loop clinical referral system'}
+                {t.heroSubtitle}
               </p>
             </div>
 
             <div
               role="group"
-              aria-label={lang === 'hi' ? 'भाषा' : 'Language'}
+              aria-label={t.language}
               className="flex p-1 rounded-full bg-[#051F20]/70 backdrop-blur-md border border-white/20"
             >
               {(['en', 'hi'] as const).map((code) => {
@@ -276,9 +274,7 @@ export default function RoleSelect({ lang, onNavigate, onSetLang }: ScreenProps)
                 {t.title}
               </h2>
               <p className="text-sm text-[#404945] mt-1.5 m-0 font-medium">
-                {lang === 'hi'
-                  ? 'आरंभ करने के लिए अपने कार्यक्षेत्र के अनुसार भूमिका चुनें'
-                  : 'Select your workspace role to begin screening, reviewing, or supervising'}
+                {t.heroDesc}
               </p>
             </div>
 
@@ -310,7 +306,7 @@ export default function RoleSelect({ lang, onNavigate, onSetLang }: ScreenProps)
                     </p>
 
                     <span className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold border transition-colors flex items-center justify-center gap-1.5 ${isSelected ? 'bg-[#235347] text-white border-[#235347]' : 'bg-[#DAF1DE] border-[#C0EACC] text-[#0B2B26] group-hover:bg-[#235347] group-hover:text-white'}`}>
-                      <span>{isSelected ? (lang === 'hi' ? 'चयनित' : 'Selected') : (lang === 'hi' ? 'चुनें' : 'Select')}</span>
+                      <span>{isSelected ? t.selected : t.select}</span>
                       <ArrowRight size={14} />
                     </span>
                   </button>

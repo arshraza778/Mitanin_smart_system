@@ -259,7 +259,34 @@
       "sync": "Connection status",
       "online": "Online",
       "offline": "Offline",
-      "changeRole": "Change role"
+      "changeRole": "Change role",
+      "dash": "--",
+      "allSyncedSimulated": "All synced (Simulated)",
+      "pendingSimulated": "{count} pending (Simulated)",
+      "active": "Active",
+      "roles": {
+        "mitanin": "Mitanin",
+        "doctor": "Doctor",
+        "supervisor": "Supervisor"
+      },
+      "connectedSimulated": "Connected to server (Simulated)",
+      "offlineStorageSimulated": "Local storage active (Simulated)",
+      "syncQueueTitle": "Sync Queue (Simulated sync)",
+      "localStorageLabel": "Local storage:",
+      "autoSyncLabel": "Auto-sync:",
+      "syncedBadge": "Synced",
+      "queuedBadge": "Queued",
+      "savedAndSentSimulated": "Saved and sent (Simulated)",
+      "noSignalSavedSimulated": "No signal. Saved on phone (Simulated)",
+      "viewPhoneWeb": "View: Phone | Web",
+      "phone": "Phone",
+      "web": "Web",
+      "sentJustNow": "Sent just now",
+      "waitingToSend": "Waiting to send",
+      "nothingWaiting": "Nothing waiting to send",
+      "syncing": "Syncing...",
+      "syncNow": "Sync now",
+      "communityHealthcare": "Community healthcare, closer to you."
     },
     "ReferralTracker": {
       "title": "Send to hospital",
@@ -325,7 +352,12 @@
         }
       },
       "brandLine1": "Mitanin",
-      "brandLine2": "Signal"
+      "brandLine2": "Signal",
+      "language": "Language",
+      "heroSubtitle": "Point-of-care rapid visual diagnostic and closed-loop clinical referral system",
+      "heroDesc": "Select your workspace role to begin screening, reviewing, or supervising",
+      "selected": "Selected",
+      "select": "Select"
     },
     "ScreeningPatient": {
       "steps": [

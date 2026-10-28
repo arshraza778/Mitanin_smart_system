@@ -378,6 +378,7 @@ function WebTopbar({
 }) {
   const { mode, setMode } = useViewMode();
   const { syncNow, waitingSyncCount } = useCaseStore();
+  const common = (lang === 'hi' ? hiLocale : enLocale).common;
 
   return (
     <header className="ms-web-topbar">
@@ -449,7 +450,7 @@ function WebTopbar({
       {/* Right Controls: Offline/Synced Chip, EN/HI Toggle, View Switch Segmented Control */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
         {/* Demo data tag */}
-        <span className="ms-demo-tag">{lang === 'hi' ? 'डेमो डेटा' : 'Demo data'}</span>
+        <span className="ms-demo-tag">{common.demoData}</span>
 
         {/* Offline / Synced Chip */}
         <button
@@ -656,6 +657,7 @@ function AppContent({ initialPath, initialLang, initialMode }: { initialPath?: s
   const { isWeb, isDrawerRange } = useViewMode();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { syncNow, demoDataResetNotice, dismissResetNotice } = useCaseStore();
+  const common = (lang === 'hi' ? hiLocale : enLocale).common;
   const prevOnline = useRef(online);
 
   useEffect(() => {
@@ -798,7 +800,7 @@ function AppContent({ initialPath, initialLang, initialMode }: { initialPath?: s
                 justifyContent: 'space-between',
               }}
             >
-              <span>{lang === 'hi' ? 'डेमो डेटा रीसेट किया गया था' : 'Demo data was reset'}</span>
+              <span>{common.demoDataReset}</span>
               <button
                 type="button"
                 onClick={dismissResetNotice}
@@ -888,7 +890,7 @@ function AppContent({ initialPath, initialLang, initialMode }: { initialPath?: s
                 borderColor: 'rgba(218, 241, 222, 0.25)',
               }}
             >
-              {lang === 'hi' ? 'डेमो डेटा' : 'Demo data'}
+              {common.demoData}
             </span>
             <button
               type="button"
@@ -918,7 +920,7 @@ function AppContent({ initialPath, initialLang, initialMode }: { initialPath?: s
                 justifyContent: 'space-between',
               }}
             >
-              <span>{lang === 'hi' ? 'डेमो डेटा रीसेट किया गया था' : 'Demo data was reset'}</span>
+              <span>{common.demoDataReset}</span>
               <button
                 type="button"
                 onClick={dismissResetNotice}

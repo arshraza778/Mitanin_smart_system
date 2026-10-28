@@ -259,7 +259,34 @@
       "sync": "कनेक्शन स्थिति",
       "online": "ऑनलाइन",
       "offline": "ऑफ़लाइन",
-      "changeRole": "भूमिका बदलें"
+      "changeRole": "भूमिका बदलें",
+      "dash": "--",
+      "allSyncedSimulated": "सब सिंक है (सिम्युलेटेड)",
+      "pendingSimulated": "{count} लंबित (सिम्युलेटेड)",
+      "active": "सक्रिय",
+      "roles": {
+        "mitanin": "मितानिन",
+        "doctor": "चिकित्सक",
+        "supervisor": "पर्यवेक्षक"
+      },
+      "connectedSimulated": "सर्वर से जुड़ा है (सिम्युलेटेड)",
+      "offlineStorageSimulated": "स्थानीय संग्रहण सक्रिय (सिम्युलेटेड)",
+      "syncQueueTitle": "सिंक कतार (सिम्युलेटेड सिंक)",
+      "localStorageLabel": "स्थानीय संग्रहण:",
+      "autoSyncLabel": "ऑटो-सिंक:",
+      "syncedBadge": "सिंक हुआ",
+      "queuedBadge": "कतार में",
+      "savedAndSentSimulated": "सहेजा और भेजा गया (सिम्युलेटेड)",
+      "noSignalSavedSimulated": "सिग्नल नहीं। फ़ोन पर सहेजा गया (सिम्युलेटेड)",
+      "viewPhoneWeb": "दृश्य: फ़ोन | वेब",
+      "phone": "फ़ोन",
+      "web": "वेब",
+      "sentJustNow": "अभी भेजा गया",
+      "waitingToSend": "भेजने की प्रतीक्षा में",
+      "nothingWaiting": "भेजने के लिए कुछ नहीं",
+      "syncing": "सिंक हो रहा है...",
+      "syncNow": "अभी सिंक करें",
+      "communityHealthcare": "आपकी स्वास्थ्य सेवा, आपकी भाषा में।"
     },
     "ReferralTracker": {
       "title": "अस्पताल भेजें",
@@ -325,7 +352,12 @@
         }
       },
       "brandLine1": "Mitanin",
-      "brandLine2": "Signal"
+      "brandLine2": "Signal",
+      "language": "भाषा",
+      "heroSubtitle": "सामुदायिक स्वास्थ्य कार्यकर्ताओं और डॉक्टरों के लिए ग्रामीण परीक्षण प्रणाली",
+      "heroDesc": "आरंभ करने के लिए अपने कार्यक्षेत्र के अनुसार भूमिका चुनें",
+      "selected": "चयनित",
+      "select": "चुनें"
     },
     "ScreeningPatient": {
       "steps": [

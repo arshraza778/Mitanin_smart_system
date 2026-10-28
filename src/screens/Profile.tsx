@@ -41,32 +41,31 @@ export default function Profile({
 
   const isDoctor = currentRole === 'doctor';
   const isSupervisor = currentRole === 'supervisor';
-  const pageTitle = isHindi ? 'प्रोफ़ाइल' : 'Profile';
-  const allSyncedText = isHindi ? 'सब सिंक है (सिम्युलेटेड)' : 'All synced (Simulated)';
-  const pendingText = isHindi ? `${waitingSyncCount || 4} लंबित (सिम्युलेटेड)` : `${waitingSyncCount || 4} pending (Simulated)`;
-  const activeText = isHindi ? 'सक्रिय' : 'Active';
+  const pageTitle = t.title;
+  const allSyncedText = t.allSyncedSimulated;
+  const pendingText = t.pendingSimulated.replace('{count}', String(waitingSyncCount || 4));
+  const activeText = t.active;
 
-  // Read role profile from store if available, otherwise fallback to '--' (never invent data)
-  const storeProfile = (state as any)?.userProfile || (state as any)?.profile;
-  const personName = storeProfile?.name?.[lang] || storeProfile?.name || '--';
+  // Use only fields that exist in CaseStoreState type; since none exist for user profile, show t.dash ("--") without any cast
+  const personName = t.dash;
   const personRole = currentRole
     ? (isDoctor
-        ? (isHindi ? 'चिकित्सक' : 'Doctor')
+        ? t.roles.doctor
         : isSupervisor
-        ? (isHindi ? 'पर्यवेक्षक' : 'Supervisor')
-        : (isHindi ? 'मितानिन' : 'Mitanin'))
-    : '--';
-  const personInitial = personName !== '--' ? personName.charAt(0) : (isHindi ? 'प्रो' : 'P');
-  const assignedAreaText = storeProfile?.assignedArea?.[lang] || storeProfile?.assignedArea || '--';
-  const lastSentText = t.never || (isHindi ? 'कभी नहीं' : 'Never');
+        ? t.roles.supervisor
+        : t.roles.mitanin)
+    : t.dash;
+  const personInitial = t.dash;
+  const assignedAreaText = t.dash;
+  const lastSentText = t.never;
 
-  const connectedText = isHindi ? 'सर्वर से जुड़ा है (सिम्युलेटेड)' : 'Connected to server (Simulated)';
-  const offlineStorageText = isHindi ? 'स्थानीय संग्रहण सक्रिय (सिम्युलेटेड)' : 'Local storage active (Simulated)';
-  const syncQueueTitle = isHindi ? 'सिंक कतार (सिम्युलेटेड सिंक)' : 'Sync Queue (Simulated sync)';
-  const localStorageLabel = isHindi ? 'स्थानीय संग्रहण:' : 'Local storage:';
-  const autoSyncLabel = isHindi ? 'ऑटो-सिंक:' : 'Auto-sync:';
-  const syncedBadgeText = isHindi ? 'सिंक हुआ' : 'Synced';
-  const queuedBadgeText = isHindi ? 'कतार में' : 'Queued';
+  const connectedText = t.connectedSimulated;
+  const offlineStorageText = t.offlineStorageSimulated;
+  const syncQueueTitle = t.syncQueueTitle;
+  const localStorageLabel = t.localStorageLabel;
+  const autoSyncLabel = t.autoSyncLabel;
+  const syncedBadgeText = t.syncedBadge;
+  const queuedBadgeText = t.queuedBadge;
 
   // Shared Profile Card Component
   const renderProfileCard = () => (
@@ -164,9 +163,7 @@ export default function Profile({
           }}
         />
         <span>
-          {online
-            ? (isHindi ? 'सहेजा और भेजा गया (सिम्युलेटेड)' : 'Saved and sent (Simulated)')
-            : (isHindi ? 'सिग्नल नहीं। फ़ोन पर सहेजा गया (सिम्युलेटेड)' : 'No signal. Saved on phone (Simulated)')}
+          {online ? t.savedAndSentSimulated : t.noSignalSavedSimulated}
         </span>
       </div>
 
@@ -252,7 +249,7 @@ export default function Profile({
             marginBottom: 10,
           }}
         >
-          {isHindi ? 'दृश्य: फ़ोन | वेब' : 'View: Phone | Web'}
+          {t.viewPhoneWeb}
         </label>
         <div
           role="radiogroup"
@@ -277,7 +274,7 @@ export default function Profile({
             }}
           >
             <Smartphone size={16} aria-hidden="true" />
-            <span>{isHindi ? 'फ़ोन' : 'Phone'}</span>
+            <span>{t.phone}</span>
             {mode === 'phone' && <Check size={15} aria-hidden="true" />}
           </button>
           <button
@@ -298,7 +295,7 @@ export default function Profile({
             }}
           >
             <Monitor size={16} aria-hidden="true" />
-            <span>{isHindi ? 'वेब' : 'Web'}</span>
+            <span>{t.web}</span>
             {mode !== 'phone' && <Check size={15} aria-hidden="true" />}
           </button>
         </div>
@@ -372,8 +369,7 @@ export default function Profile({
     nameEn: sq.description.en,
     nameHi: sq.description.hi,
     recordId: sq.id.slice(0, 8),
-    timeEn: sq.status === 'sent' ? 'Sent just now' : 'Waiting to send',
-    timeHi: sq.status === 'sent' ? 'अभी भेजा गया' : 'भेजने की प्रतीक्षा में',
+    timeText: sq.status === 'sent' ? t.sentJustNow : t.waitingToSend,
     isQueued: sq.status === 'waiting_to_send',
   }));
 
@@ -431,7 +427,7 @@ export default function Profile({
       <div style={{ display: 'flex', flexDirection: 'column' }}>
         {queueItems.length === 0 ? (
           <div style={{ padding: '20px 0', textAlign: 'center', color: '#404945', fontSize: 13, fontWeight: 600 }}>
-            {isHindi ? 'भेजने के लिए कुछ नहीं' : 'Nothing waiting to send'}
+            {t.nothingWaiting}
           </div>
         ) : queueItems.map((item: any, idx: number) => (
           <div
@@ -466,7 +462,7 @@ export default function Profile({
                 </span>
               </div>
               <div style={{ fontSize: 12, color: '#404945', marginTop: 3, fontWeight: 500 }}>
-                {isHindi ? item.timeHi : item.timeEn}
+                {item.timeText}
               </div>
             </div>
             <span
@@ -511,9 +507,7 @@ export default function Profile({
           aria-hidden="true"
         />
         <span>
-          {syncingState
-            ? (isHindi ? 'सिंक हो रहा है...' : 'Syncing...')
-            : (isHindi ? 'अभी सिंक करें' : 'Sync now')}
+          {syncingState ? t.syncing : t.syncNow}
         </span>
       </button>
 
@@ -616,7 +610,7 @@ export default function Profile({
           {renderProfileCard()}
           {renderSyncCard()}
           <p style={{ margin: '8px 0 0', textAlign: 'center', color: '#404945', fontSize: 12, lineHeight: 1.5 }}>
-            {isHindi ? 'आपकी स्वास्थ्य सेवा, आपकी भाषा में।' : 'Community healthcare, closer to you.'}
+            {t.communityHealthcare}
           </p>
         </main>
       </div>

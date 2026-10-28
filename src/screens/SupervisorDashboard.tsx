@@ -280,7 +280,7 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
   return (
     <div>
       {/* ===================== NARROW PHONE LAYOUT (@md and below) ===================== */}
-      <div className="block @2xl:hidden">
+      <div className="block @2xl:hidden" style={{ paddingBottom: 'var(--ms-screen-padding-bottom)' }}>
         <header style={{ position: 'relative', background: '#051F20', color: '#FFFFFF', padding: 'calc(24px + env(safe-area-inset-top, 0px)) 20px 66px', overflow: 'hidden' }}>
           <div style={{ position: 'relative', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
             <h1 style={{ margin: 0, maxWidth: 220, fontSize: 24, fontWeight: 800, lineHeight: 1.2, color: '#FFFFFF' }}>{t.title}</h1>

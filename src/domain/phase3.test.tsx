@@ -207,5 +207,31 @@ describe('Phase 3 vitest tests: Honest demo, role and profile', () => {
       />
     );
     expect(superHtml).toMatch(/Demo data, as of \d{1,2}:\d{2}\s*(?:AM|PM)?/i);
+
+    // In Hindi, Mitanin Home renders demoDataAsOf with real time and no literal {time}
+    const homeHtmlHi = renderWithProviders(
+      <MitaninHome
+        lang="hi"
+        online={true}
+        onNavigate={() => {}}
+        onSetLang={() => {}}
+        onToggleOnline={() => {}}
+      />
+    );
+    expect(homeHtmlHi).toMatch(/डेमो डेटा, \d{1,2}:\d{2}\s*(?:AM|PM)? के अनुसार/);
+    expect(homeHtmlHi.includes('{time}')).toBe(false);
+
+    // In Hindi, Supervisor Dashboard renders demoDataAsOf with real time and no literal {time}
+    const superHtmlHi = renderWithProviders(
+      <SupervisorDashboard
+        lang="hi"
+        online={true}
+        onNavigate={() => {}}
+        onSetLang={() => {}}
+        onToggleOnline={() => {}}
+      />
+    );
+    expect(superHtmlHi).toMatch(/डेमो डेटा, \d{1,2}:\d{2}\s*(?:AM|PM)? के अनुसार/);
+    expect(superHtmlHi.includes('{time}')).toBe(false);
   });
 });
