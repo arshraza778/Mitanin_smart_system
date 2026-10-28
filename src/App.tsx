@@ -238,6 +238,7 @@ function WebSidebar({
                     key={tab.id}
                     type="button"
                     onClick={() => handleNav(tab.route)}
+                    aria-current={active ? 'page' : undefined}
                     className={active ? 'on-primary' : ''}
                     style={{
                       display: 'flex',
@@ -679,12 +680,19 @@ function AppContent() {
     return null;
   });
 
+  const [lang, setLang] = useState<Lang>('en');
+  const [online, setOnline] = useState<boolean>(true);
+
   useEffect(() => {
     setCurrentRole(role);
   }, [role, setCurrentRole]);
 
-  const [lang, setLang] = useState<Lang>('en');
-  const [online, setOnline] = useState<boolean>(true);
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    const titleKey = screenTitles[route]?.[lang] || 'Mitanin Signal';
+    document.title = `${titleKey} - Mitanin Signal`;
+    document.documentElement.lang = lang;
+  }, [route, lang]);
 
   const { isWeb, isDrawerRange } = useViewMode();
   const [drawerOpen, setDrawerOpen] = useState(false);

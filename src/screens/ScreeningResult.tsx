@@ -681,7 +681,7 @@ export default function ScreeningResult({ lang, online = true, onNavigate }: Scr
             lineHeight: 1.35,
             background: '#002111',
             color: '#FFFFFF',
-            boxShadow: '0 12px 28px rgba(0, 0, 0, 0.25)',
+            boxShadow: 'var(--ms-shadow-overlay)',
           }}
         >
           <span

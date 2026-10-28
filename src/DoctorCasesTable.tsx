@@ -401,7 +401,7 @@ export function DoctorCasesTable({
               maxHeight: '90vh',
               objectFit: 'contain',
               borderRadius: 12,
-              boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
+              boxShadow: 'var(--ms-shadow-overlay)',
             }}
           />
         </div>

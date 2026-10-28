@@ -885,7 +885,7 @@ export function SupervisorCasesTable({
             color: '#FFFFFF',
             fontSize: 14,
             fontWeight: 700,
-            boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+            boxShadow: 'var(--ms-shadow-overlay)',
           }}
         >
           {toast}

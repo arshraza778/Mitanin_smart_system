@@ -29,16 +29,6 @@ function Hero() {
       <circle cx="96" cy="96" r="44" fill="#C0EACC" opacity="0.35" />
       <circle cx="96" cy="96" r="26" fill="#DAF1DE" opacity="0.7" />
 
-      {/* big leaf */}
-      <g transform="translate(350 132) rotate(24) scale(1.55)">
-        <path d="M0 84C-42 44-34-22 0-66C34-22 42 44 0 84Z" fill="#235347" />
-        <path d="M0 84L0-52M0 40L-16 18M0 16L16-6M0-8L-12-26" stroke="#DAF1DE" strokeWidth="2" strokeLinecap="round" fill="none" />
-      </g>
-      <g transform="translate(290 96) rotate(-32) scale(0.8)">
-        <path d="M0 84C-42 44-34-22 0-66C34-22 42 44 0 84Z" fill="#8EB69B" />
-        <path d="M0 84L0-52" stroke="#DAF1DE" strokeWidth="2.4" strokeLinecap="round" />
-      </g>
-
       {/* hills */}
       <ellipse cx="110" cy="318" rx="250" ry="92" fill="#235347" />
       <ellipse cx="360" cy="326" rx="240" ry="80" fill="#051F20" />

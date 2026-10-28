@@ -44,9 +44,22 @@
   --ms-radius-lg: 16px;
   --ms-radius-pill: 9999px;
 
+  /* Spacing Scale (Stage P1) */
+  --ms-space-1: 4px;
+  --ms-space-2: 8px;
+  --ms-space-3: 12px;
+  --ms-space-4: 16px;
+  --ms-space-5: 24px;
+  --ms-space-6: 32px;
+  --ms-space-7: 48px;
+
+  /* Elevation (Stage P1: card and overlay only) */
   --ms-shadow: 0 1px 3px rgba(5, 31, 32, 0.05);
   --ms-shadow-card: 0 1px 3px rgba(5, 31, 32, 0.05);
+  --ms-shadow-overlay: 0 8px 24px rgba(5, 31, 32, 0.12);
+
   --ms-button-height: 56px;
+  --ms-button-height-web: 44px;
   --ms-tap-target: 48px;
   --ms-sidebar-width: 260px;
   --ms-content-max: 1200px;
@@ -166,6 +179,46 @@
   color: var(--ms-text-white);
 }
 
+/* Stage P1: Tabular Numbers on all numerical elements */
+.tabular-nums,
+.ms-tabular,
+[data-numeric] {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* Stage P1: Subtle Web Scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #CCD9D2 transparent;
+}
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: #CCD9D2;
+  border-radius: 9999px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background-color: #8EB69B;
+}
+
+/* Stage P1: Quiet Demo Tag */
+.ms-demo-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--ms-radius-pill);
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--ms-container);
+  color: var(--ms-primary);
+  border: 1px solid var(--ms-border);
+}
+
 *, *::before, *::after { box-sizing: border-box; }
 html { min-width: 320px; background: var(--ms-bg); }
 body { margin: 0; background: var(--ms-bg); font-family: var(--ms-font); color: var(--ms-text); -webkit-font-smoothing: antialiased; }
@@ -180,6 +233,29 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .on-primary button:focus-visible, .on-primary a:focus-visible, .on-primary input:focus-visible {
   outline: 3px solid var(--ms-sage);
   outline-offset: 2px;
+}
+
+/* Stage P1: Interactive States (Hover, Active pressed, Disabled) */
+@media (hover: hover) {
+  button:hover:not(:disabled),
+  [role="button"]:hover:not([aria-disabled="true"]),
+  a:hover {
+    filter: brightness(0.97);
+  }
+}
+button:active:not(:disabled),
+[role="button"]:active:not([aria-disabled="true"]) {
+  transform: scale(0.98);
+  transition: transform 80ms ease-out;
+}
+button:disabled,
+[aria-disabled="true"] {
+  opacity: 0.65;
+  cursor: not-allowed !important;
+}
+
+img {
+  object-fit: cover;
 }
 img, svg { max-width: 100%; }
 #root { width: 100%; min-height: 100dvh; }

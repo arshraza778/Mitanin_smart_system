@@ -439,7 +439,7 @@ export function DoctorSplitLayout({
               maxHeight: '90vh',
               objectFit: 'contain',
               borderRadius: 12,
-              boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
+              boxShadow: 'var(--ms-shadow-overlay)',
             }}
           />
         </div>
@@ -1538,7 +1538,7 @@ export function DoctorSplitLayout({
                         fontWeight: 800,
                         background: justSent ? '#2E7D4F' : readyToSend ? '#235347' : '#CCD9D2',
                         color: justSent || readyToSend ? '#FFFFFF' : '#404945',
-                        boxShadow: readyToSend ? '0 3px 12px rgba(35, 83, 71, 0.25)' : 'none',
+                        boxShadow: 'none',
                         transition: 'all 0.15s ease',
                       }}
                     >

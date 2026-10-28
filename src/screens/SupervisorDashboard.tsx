@@ -275,11 +275,6 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
       {/* ===================== NARROW PHONE LAYOUT (@md and below) ===================== */}
       <div className="block @2xl:hidden">
         <header style={{ position: 'relative', background: '#051F20', color: '#FFFFFF', padding: 'calc(24px + env(safe-area-inset-top, 0px)) 20px 66px', overflow: 'hidden' }}>
-          <svg viewBox="0 0 120 160" width="120" height="160" aria-hidden style={{ position: 'absolute', right: -14, top: 8, opacity: 0.9 }}>
-            <g transform="translate(70 90) rotate(18) scale(0.95)">
-              <path d="M0 84C-42 44-34-22 0-66C34-22 42 44 0 84Z" fill="#235347" opacity="0.55" />
-            </g>
-          </svg>
           <div style={{ position: 'relative', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
             <h1 style={{ margin: 0, maxWidth: 220, fontSize: 24, fontWeight: 800, lineHeight: 1.2, color: '#FFFFFF' }}>{t.title}</h1>
             <button
@@ -344,12 +339,13 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
                 style={{
                   display: 'inline-block',
                   marginTop: 10,
-                  padding: '4px 12px',
+                  padding: '3px 10px',
                   borderRadius: 999,
-                  fontSize: 12.5,
-                  fontWeight: 800,
-                  background: '#FFF1CC',
-                  color: '#8A5A00',
+                  fontSize: 11,
+                  fontWeight: 700,
+                  background: 'var(--ms-container)',
+                  color: 'var(--ms-primary)',
+                  border: '1px solid var(--ms-border)',
                 }}
               >
                 {t.demo}
@@ -376,17 +372,16 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
                   overflow: 'hidden',
                   minHeight: 92,
                   padding: 12,
-                  borderRadius: 20,
+                  borderRadius: 16,
                   background: s.bg,
                   color: '#FFFFFF',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'flex-end',
-                  boxShadow: '0 2px 6px rgba(0, 32, 28, 0.08)',
+                  boxShadow: 'var(--ms-shadow-card)',
                 }}
               >
-                <span aria-hidden style={{ position: 'absolute', top: -22, right: -18, width: 64, height: 64, borderRadius: '50%', background: s.blob, opacity: 0.55 }} />
-                <span style={{ fontSize: 30, fontWeight: 800, lineHeight: 1 }}>{dynamicStats[i]}</span>
+                <span className="tabular-nums" style={{ fontSize: 30, fontWeight: 800, lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>{dynamicStats[i]}</span>
                 <span style={{ marginTop: 3, fontSize: 12.5, fontWeight: 700, lineHeight: 1.2 }}>{t.stats[i]}</span>
               </li>
             ))}
@@ -523,27 +518,16 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
             style={{
               background: '#051F20',
               color: '#FFFFFF',
-              borderRadius: 20,
+              borderRadius: 16,
               padding: '16px 18px',
               display: 'flex',
               alignItems: 'center',
               gap: 16,
-              boxShadow: '0 2px 10px rgba(0, 32, 28, 0.06)',
+              boxShadow: 'var(--ms-shadow-card)',
               position: 'relative',
               overflow: 'hidden',
             }}
           >
-            <svg
-              viewBox="0 0 120 160"
-              width="100"
-              height="140"
-              aria-hidden
-              style={{ position: 'absolute', right: -20, top: -20, opacity: 0.35, pointerEvents: 'none' }}
-            >
-              <g transform="translate(50 70) rotate(18) scale(0.8)">
-                <path d="M0 84C-42 44-34-22 0-66C34-22 42 44 0 84Z" fill="#235347" />
-              </g>
-            </svg>
             <svg width="80" height="80" viewBox="0 0 144 144" role="img" aria-label={`${t.ringTitle}: ${loopRate != null ? Math.round(loopRate * 100) + '%' : '--'}`}>
               <circle cx="72" cy="72" r={R} fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="15" />
               <circle
@@ -558,7 +542,7 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
                 strokeDashoffset={loopRate != null ? C * (1 - loopRate) : C}
                 transform="rotate(-90 72 72)"
               />
-              <text x="72" y="81" textAnchor="middle" fontSize="30" fontWeight="800" fill="#FFFFFF">
+              <text x="72" y="81" textAnchor="middle" fontSize="30" fontWeight="800" fill="#FFFFFF" className="tabular-nums" style={{ fontVariantNumeric: 'tabular-nums' }}>
                 {loopRate != null ? `${Math.round(loopRate * 100)}%` : '--'}
               </text>
             </svg>
@@ -576,9 +560,10 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
                   padding: '3px 10px',
                   borderRadius: 999,
                   fontSize: 11,
-                  fontWeight: 800,
-                  background: '#FFF1CC',
-                  color: '#8A5A00',
+                  fontWeight: 700,
+                  background: 'var(--ms-container)',
+                  color: 'var(--ms-primary)',
+                  border: '1px solid var(--ms-border)',
                 }}
               >
                 {t.demo}
@@ -593,7 +578,7 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
               style={{
                 position: 'relative',
                 overflow: 'hidden',
-                borderRadius: 20,
+                borderRadius: 16,
                 background: s.bg,
                 color: '#FFFFFF',
                 padding: '16px 18px',
@@ -601,11 +586,10 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
                 flexDirection: 'column',
                 justifyContent: 'flex-end',
                 minHeight: 104,
-                boxShadow: '0 2px 10px rgba(0, 32, 28, 0.06)',
+                boxShadow: 'var(--ms-shadow-card)',
               }}
             >
-              <span aria-hidden style={{ position: 'absolute', top: -20, right: -16, width: 70, height: 70, borderRadius: '50%', background: s.blob, opacity: 0.55 }} />
-              <span style={{ fontSize: 36, fontWeight: 800, lineHeight: 1 }}>{dynamicStats[i]}</span>
+              <span className="tabular-nums" style={{ fontSize: 36, fontWeight: 800, lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>{dynamicStats[i]}</span>
               <span style={{ marginTop: 6, fontSize: 13.5, fontWeight: 700, lineHeight: 1.2 }}>{t.stats[i]}</span>
             </div>
           ))}
@@ -905,7 +889,7 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
           fontWeight: 700,
           background: '#051F20',
           color: '#FFFFFF',
-          boxShadow: '0 12px 28px rgba(0, 0, 0, 0.25)',
+          boxShadow: 'var(--ms-shadow-overlay)',
           textAlign: 'center',
         }}
       >

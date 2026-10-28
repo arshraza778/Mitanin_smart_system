@@ -324,14 +324,6 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
         <header style={{ position: 'relative', height: 210, color: '#FFFFFF' }}>
           <svg viewBox="0 0 430 210" preserveAspectRatio="xMaxYMid slice" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} aria-hidden>
             <rect width="430" height="210" fill="#002111" />
-            <circle cx="335" cy="90" r="70" fill="#051F20" opacity="0.7" />
-            <g transform="translate(335 100) rotate(14) scale(1.3)">
-              <path d="M0 84C-42 44-34-22 0-66C34-22 42 44 0 84Z" fill="#235347" />
-              <path d="M0 84L0-52M0 40L-16 18M0 16L16-6M0-8L-12-26" stroke="#DAF1DE" strokeWidth="2" strokeLinecap="round" fill="none" />
-            </g>
-            <g transform="translate(275 128) rotate(-38) scale(0.75)">
-              <path d="M0 84C-42 44-34-22 0-66C34-22 42 44 0 84Z" fill="#8EB69B" />
-            </g>
           </svg>
           <div style={{ position: 'absolute', left: 20, bottom: 56 }}>
             <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800, lineHeight: 1.15, color: '#FFFFFF' }}>{t.greeting}</h1>

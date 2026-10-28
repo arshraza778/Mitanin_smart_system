@@ -182,7 +182,7 @@ export default function ScreeningSymptoms({ lang, online = true, onNavigate }: S
   );
 
   const renderVerticalStepper = () => (
-    <nav aria-label="Screening steps" style={{ padding: '8px 0' }}>
+    <div role="group" aria-label="Screening steps" style={{ padding: '8px 0' }}>
       <ol style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column' }}>
         {t.steps.map((label, i) => {
           const stepNum = i + 1;
@@ -252,7 +252,7 @@ export default function ScreeningSymptoms({ lang, online = true, onNavigate }: S
           );
         })}
       </ol>
-    </nav>
+    </div>
   );
 
   const renderPatientSummaryBar = () => (
