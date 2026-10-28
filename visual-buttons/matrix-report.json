@@ -1,0 +1,768 @@
+{
+  "auditLog": [
+    {
+      "role": "mitanin",
+      "screen": "role",
+      "route": "/role",
+      "width": 390,
+      "lang": "en",
+      "buttonCount": 11,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "role",
+      "route": "/role",
+      "width": 390,
+      "lang": "hi",
+      "buttonCount": 11,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "role",
+      "route": "/role",
+      "width": 1280,
+      "lang": "en",
+      "buttonCount": 15,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "role",
+      "route": "/role",
+      "width": 1280,
+      "lang": "hi",
+      "buttonCount": 15,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "home",
+      "route": "/mitanin/home",
+      "width": 390,
+      "lang": "en",
+      "buttonCount": 21,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "home",
+      "route": "/mitanin/home",
+      "width": 390,
+      "lang": "hi",
+      "buttonCount": 21,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "home",
+      "route": "/mitanin/home",
+      "width": 1280,
+      "lang": "en",
+      "buttonCount": 26,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "home",
+      "route": "/mitanin/home",
+      "width": 1280,
+      "lang": "hi",
+      "buttonCount": 26,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "visits",
+      "route": "/mitanin/visits",
+      "width": 390,
+      "lang": "en",
+      "buttonCount": 32,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "visits",
+      "route": "/mitanin/visits",
+      "width": 390,
+      "lang": "hi",
+      "buttonCount": 32,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "visits",
+      "route": "/mitanin/visits",
+      "width": 1280,
+      "lang": "en",
+      "buttonCount": 37,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "visits",
+      "route": "/mitanin/visits",
+      "width": 1280,
+      "lang": "hi",
+      "buttonCount": 37,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "screening_patient",
+      "route": "/mitanin/screening/patient",
+      "width": 390,
+      "lang": "en",
+      "buttonCount": 41,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "screening_patient",
+      "route": "/mitanin/screening/patient",
+      "width": 390,
+      "lang": "hi",
+      "buttonCount": 41,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "screening_patient",
+      "route": "/mitanin/screening/patient",
+      "width": 1280,
+      "lang": "en",
+      "buttonCount": 46,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "screening_patient",
+      "route": "/mitanin/screening/patient",
+      "width": 1280,
+      "lang": "hi",
+      "buttonCount": 46,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "screening_symptoms",
+      "route": "/mitanin/screening/symptoms",
+      "width": 390,
+      "lang": "en",
+      "buttonCount": 32,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "screening_symptoms",
+      "route": "/mitanin/screening/symptoms",
+      "width": 390,
+      "lang": "hi",
+      "buttonCount": 32,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "screening_symptoms",
+      "route": "/mitanin/screening/symptoms",
+      "width": 1280,
+      "lang": "en",
+      "buttonCount": 37,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "screening_symptoms",
+      "route": "/mitanin/screening/symptoms",
+      "width": 1280,
+      "lang": "hi",
+      "buttonCount": 37,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "screening_test",
+      "route": "/mitanin/screening/test",
+      "width": 390,
+      "lang": "en",
+      "buttonCount": 20,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "screening_test",
+      "route": "/mitanin/screening/test",
+      "width": 390,
+      "lang": "hi",
+      "buttonCount": 20,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "screening_test",
+      "route": "/mitanin/screening/test",
+      "width": 1280,
+      "lang": "en",
+      "buttonCount": 25,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "screening_test",
+      "route": "/mitanin/screening/test",
+      "width": 1280,
+      "lang": "hi",
+      "buttonCount": 25,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "screening_result",
+      "route": "/mitanin/screening/result",
+      "width": 390,
+      "lang": "en",
+      "buttonCount": 11,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "screening_result",
+      "route": "/mitanin/screening/result",
+      "width": 390,
+      "lang": "hi",
+      "buttonCount": 11,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "screening_result",
+      "route": "/mitanin/screening/result",
+      "width": 1280,
+      "lang": "en",
+      "buttonCount": 16,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "screening_result",
+      "route": "/mitanin/screening/result",
+      "width": 1280,
+      "lang": "hi",
+      "buttonCount": 16,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "consult",
+      "route": "/mitanin/consult",
+      "width": 390,
+      "lang": "en",
+      "buttonCount": 6,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "consult",
+      "route": "/mitanin/consult",
+      "width": 390,
+      "lang": "hi",
+      "buttonCount": 6,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "consult",
+      "route": "/mitanin/consult",
+      "width": 1280,
+      "lang": "en",
+      "buttonCount": 11,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "consult",
+      "route": "/mitanin/consult",
+      "width": 1280,
+      "lang": "hi",
+      "buttonCount": 11,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "referral",
+      "route": "/mitanin/referral",
+      "width": 390,
+      "lang": "en",
+      "buttonCount": 11,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "referral",
+      "route": "/mitanin/referral",
+      "width": 390,
+      "lang": "hi",
+      "buttonCount": 11,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "referral",
+      "route": "/mitanin/referral",
+      "width": 1280,
+      "lang": "en",
+      "buttonCount": 16,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "referral",
+      "route": "/mitanin/referral",
+      "width": 1280,
+      "lang": "hi",
+      "buttonCount": 16,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "case",
+      "route": "/case",
+      "width": 390,
+      "lang": "en",
+      "buttonCount": 2,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "case",
+      "route": "/case",
+      "width": 390,
+      "lang": "hi",
+      "buttonCount": 2,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "case",
+      "route": "/case",
+      "width": 1280,
+      "lang": "en",
+      "buttonCount": 10,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "case",
+      "route": "/case",
+      "width": 1280,
+      "lang": "hi",
+      "buttonCount": 10,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "alerts",
+      "route": "/alerts",
+      "width": 390,
+      "lang": "en",
+      "buttonCount": 8,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "alerts",
+      "route": "/alerts",
+      "width": 390,
+      "lang": "hi",
+      "buttonCount": 8,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "alerts",
+      "route": "/alerts",
+      "width": 1280,
+      "lang": "en",
+      "buttonCount": 16,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "alerts",
+      "route": "/alerts",
+      "width": 1280,
+      "lang": "hi",
+      "buttonCount": 16,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "profile",
+      "route": "/profile",
+      "width": 390,
+      "lang": "en",
+      "buttonCount": 17,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "profile",
+      "route": "/profile",
+      "width": 390,
+      "lang": "hi",
+      "buttonCount": 17,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "profile",
+      "route": "/profile",
+      "width": 1280,
+      "lang": "en",
+      "buttonCount": 25,
+      "status": "OK"
+    },
+    {
+      "role": "mitanin",
+      "screen": "profile",
+      "route": "/profile",
+      "width": 1280,
+      "lang": "hi",
+      "buttonCount": 25,
+      "status": "OK"
+    },
+    {
+      "role": "doctor",
+      "screen": "inbox",
+      "route": "/doctor/inbox",
+      "width": 390,
+      "lang": "en",
+      "buttonCount": 38,
+      "status": "OK"
+    },
+    {
+      "role": "doctor",
+      "screen": "inbox",
+      "route": "/doctor/inbox",
+      "width": 390,
+      "lang": "hi",
+      "buttonCount": 38,
+      "status": "OK"
+    },
+    {
+      "role": "doctor",
+      "screen": "inbox",
+      "route": "/doctor/inbox",
+      "width": 1280,
+      "lang": "en",
+      "buttonCount": 30,
+      "status": "OK"
+    },
+    {
+      "role": "doctor",
+      "screen": "inbox",
+      "route": "/doctor/inbox",
+      "width": 1280,
+      "lang": "hi",
+      "buttonCount": 30,
+      "status": "OK"
+    },
+    {
+      "role": "doctor",
+      "screen": "review",
+      "route": "/doctor/review",
+      "width": 390,
+      "lang": "en",
+      "buttonCount": 34,
+      "status": "OK"
+    },
+    {
+      "role": "doctor",
+      "screen": "review",
+      "route": "/doctor/review",
+      "width": 390,
+      "lang": "hi",
+      "buttonCount": 34,
+      "status": "OK"
+    },
+    {
+      "role": "doctor",
+      "screen": "review",
+      "route": "/doctor/review",
+      "width": 1280,
+      "lang": "en",
+      "buttonCount": 30,
+      "status": "OK"
+    },
+    {
+      "role": "doctor",
+      "screen": "review",
+      "route": "/doctor/review",
+      "width": 1280,
+      "lang": "hi",
+      "buttonCount": 30,
+      "status": "OK"
+    },
+    {
+      "role": "doctor",
+      "screen": "cases",
+      "route": "/case",
+      "width": 390,
+      "lang": "en",
+      "buttonCount": 2,
+      "status": "OK"
+    },
+    {
+      "role": "doctor",
+      "screen": "cases",
+      "route": "/case",
+      "width": 390,
+      "lang": "hi",
+      "buttonCount": 2,
+      "status": "OK"
+    },
+    {
+      "role": "doctor",
+      "screen": "cases",
+      "route": "/case",
+      "width": 1280,
+      "lang": "en",
+      "buttonCount": 10,
+      "status": "OK"
+    },
+    {
+      "role": "doctor",
+      "screen": "cases",
+      "route": "/case",
+      "width": 1280,
+      "lang": "hi",
+      "buttonCount": 10,
+      "status": "OK"
+    },
+    {
+      "role": "doctor",
+      "screen": "alerts",
+      "route": "/alerts",
+      "width": 390,
+      "lang": "en",
+      "buttonCount": 8,
+      "status": "OK"
+    },
+    {
+      "role": "doctor",
+      "screen": "alerts",
+      "route": "/alerts",
+      "width": 390,
+      "lang": "hi",
+      "buttonCount": 8,
+      "status": "OK"
+    },
+    {
+      "role": "doctor",
+      "screen": "alerts",
+      "route": "/alerts",
+      "width": 1280,
+      "lang": "en",
+      "buttonCount": 16,
+      "status": "OK"
+    },
+    {
+      "role": "doctor",
+      "screen": "alerts",
+      "route": "/alerts",
+      "width": 1280,
+      "lang": "hi",
+      "buttonCount": 16,
+      "status": "OK"
+    },
+    {
+      "role": "doctor",
+      "screen": "profile",
+      "route": "/profile",
+      "width": 390,
+      "lang": "en",
+      "buttonCount": 17,
+      "status": "OK"
+    },
+    {
+      "role": "doctor",
+      "screen": "profile",
+      "route": "/profile",
+      "width": 390,
+      "lang": "hi",
+      "buttonCount": 17,
+      "status": "OK"
+    },
+    {
+      "role": "doctor",
+      "screen": "profile",
+      "route": "/profile",
+      "width": 1280,
+      "lang": "en",
+      "buttonCount": 25,
+      "status": "OK"
+    },
+    {
+      "role": "doctor",
+      "screen": "profile",
+      "route": "/profile",
+      "width": 1280,
+      "lang": "hi",
+      "buttonCount": 25,
+      "status": "OK"
+    },
+    {
+      "role": "supervisor",
+      "screen": "overview",
+      "route": "/supervisor/overview",
+      "width": 390,
+      "lang": "en",
+      "buttonCount": 67,
+      "status": "OK"
+    },
+    {
+      "role": "supervisor",
+      "screen": "overview",
+      "route": "/supervisor/overview",
+      "width": 390,
+      "lang": "hi",
+      "buttonCount": 67,
+      "status": "OK"
+    },
+    {
+      "role": "supervisor",
+      "screen": "overview",
+      "route": "/supervisor/overview",
+      "width": 1280,
+      "lang": "en",
+      "buttonCount": 72,
+      "status": "OK"
+    },
+    {
+      "role": "supervisor",
+      "screen": "overview",
+      "route": "/supervisor/overview",
+      "width": 1280,
+      "lang": "hi",
+      "buttonCount": 72,
+      "status": "OK"
+    },
+    {
+      "role": "supervisor",
+      "screen": "cases",
+      "route": "/case",
+      "width": 390,
+      "lang": "en",
+      "buttonCount": 2,
+      "status": "OK"
+    },
+    {
+      "role": "supervisor",
+      "screen": "cases",
+      "route": "/case",
+      "width": 390,
+      "lang": "hi",
+      "buttonCount": 2,
+      "status": "OK"
+    },
+    {
+      "role": "supervisor",
+      "screen": "cases",
+      "route": "/case",
+      "width": 1280,
+      "lang": "en",
+      "buttonCount": 10,
+      "status": "OK"
+    },
+    {
+      "role": "supervisor",
+      "screen": "cases",
+      "route": "/case",
+      "width": 1280,
+      "lang": "hi",
+      "buttonCount": 10,
+      "status": "OK"
+    },
+    {
+      "role": "supervisor",
+      "screen": "alerts",
+      "route": "/alerts",
+      "width": 390,
+      "lang": "en",
+      "buttonCount": 8,
+      "status": "OK"
+    },
+    {
+      "role": "supervisor",
+      "screen": "alerts",
+      "route": "/alerts",
+      "width": 390,
+      "lang": "hi",
+      "buttonCount": 8,
+      "status": "OK"
+    },
+    {
+      "role": "supervisor",
+      "screen": "alerts",
+      "route": "/alerts",
+      "width": 1280,
+      "lang": "en",
+      "buttonCount": 16,
+      "status": "OK"
+    },
+    {
+      "role": "supervisor",
+      "screen": "alerts",
+      "route": "/alerts",
+      "width": 1280,
+      "lang": "hi",
+      "buttonCount": 16,
+      "status": "OK"
+    },
+    {
+      "role": "supervisor",
+      "screen": "profile",
+      "route": "/profile",
+      "width": 390,
+      "lang": "en",
+      "buttonCount": 17,
+      "status": "OK"
+    },
+    {
+      "role": "supervisor",
+      "screen": "profile",
+      "route": "/profile",
+      "width": 390,
+      "lang": "hi",
+      "buttonCount": 17,
+      "status": "OK"
+    },
+    {
+      "role": "supervisor",
+      "screen": "profile",
+      "route": "/profile",
+      "width": 1280,
+      "lang": "en",
+      "buttonCount": 25,
+      "status": "OK"
+    },
+    {
+      "role": "supervisor",
+      "screen": "profile",
+      "route": "/profile",
+      "width": 1280,
+      "lang": "hi",
+      "buttonCount": 25,
+      "status": "OK"
+    }
+  ],
+  "stats": {
+    "totalButtonsChecked": 1838,
+    "groupWidthFailures": 0,
+    "heightFailures": 0,
+    "greyBorderFailures": 0,
+    "orangeFailures": 0,
+    "focusRingFailures": 0
+  }
+}

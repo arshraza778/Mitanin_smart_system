@@ -294,16 +294,12 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
                       type="button"
                       aria-pressed={on}
                       onClick={() => setView(key)}
+                      className={`ms-btn ms-btn--chip ${on ? 'ms-btn--primary' : 'ms-btn--ghost'}`}
                       style={{
-                        border: on ? `1px solid ${COLORS.border}` : '1px solid transparent',
-                        cursor: 'pointer',
                         padding: '7px 13px',
                         borderRadius: 999,
                         fontSize: 12,
                         fontWeight: 750,
-                        background: on ? COLORS.card : 'transparent',
-                        color: on ? COLORS.green : COLORS.muted,
-                        boxShadow: on ? '0 2px 5px rgba(38, 50, 56, 0.06)' : 'none',
                         minHeight: 36,
                         whiteSpace: 'nowrap',
                       }}
@@ -466,17 +462,13 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
                                 <button
                                   type="button"
                                   onClick={() => handleViewReply(a)}
+                                  className="ms-btn ms-btn--primary ms-btn--md"
                                   style={{
                                     minHeight: 48,
                                     padding: '0 18px',
                                     borderRadius: 14,
-                                    border: 0,
-                                    background: COLORS.green,
-                                    color: '#FFFFFF',
                                     fontSize: 14,
                                     fontWeight: 800,
-                                    cursor: 'pointer',
-                                    boxShadow: '0 2px 8px rgba(40, 103, 73, 0.2)',
                                   }}
                                 >
                                   {lang === 'hi' ? 'जवाब देखें' : 'View reply'}
@@ -486,16 +478,13 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
                                   <button
                                     type="button"
                                     onClick={() => handleSendToHospital(a)}
+                                    className="ms-btn ms-btn--danger ms-btn--md"
                                     style={{
                                       minHeight: 48,
                                       padding: '0 16px',
                                       borderRadius: 14,
-                                      border: '1.5px solid #BA1A1A',
-                                      background: '#BA1A1A',
-                                      color: '#FFFFFF',
                                       fontSize: 13.5,
                                       fontWeight: 800,
-                                      cursor: 'pointer',
                                     }}
                                   >
                                     {lang === 'hi' ? 'अस्पताल भेजें' : 'Send to hospital'}
@@ -508,16 +497,12 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
                                     markAlertRead(a.id);
                                     onNavigate('/case');
                                   }}
+                                  className="ms-btn ms-btn--ghost ms-btn--md"
                                   style={{
                                     minHeight: 48,
-                                    background: 'none',
-                                    border: 0,
                                     padding: '0 8px',
                                     fontSize: 13,
                                     fontWeight: 700,
-                                    color: COLORS.muted,
-                                    cursor: 'pointer',
-                                    textDecoration: 'underline',
                                   }}
                                 >
                                   {lang === 'hi' ? 'समयरेखा' : 'Timeline'}
@@ -536,6 +521,7 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
                               markAlertRead(a.id);
                               onNavigate('/case');
                             }}
+                            className="ms-btn ms-btn--card"
                             style={{
                               position: 'relative',
                               overflow: 'hidden',
@@ -545,12 +531,7 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
                               gap: 12,
                               padding: '15px 13px 15px 17px',
                               textAlign: 'left',
-                              border: `1px solid ${COLORS.border}`,
                               borderRadius: 18,
-                              cursor: 'pointer',
-                              background: COLORS.card,
-                              color: COLORS.ink,
-                              boxShadow: '0 4px 14px rgba(38, 50, 56, 0.045)',
                               minHeight: 78,
                             }}
                           >
@@ -668,16 +649,12 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
                     type="button"
                     aria-pressed={on}
                     onClick={() => setView(key)}
+                    className={`ms-btn ms-btn--chip ${on ? 'ms-btn--primary' : 'ms-btn--ghost'}`}
                     style={{
-                      border: on ? `1px solid ${COLORS.border}` : '1px solid transparent',
-                      cursor: 'pointer',
                       padding: '8px 16px',
                       borderRadius: 999,
                       fontSize: 13,
                       fontWeight: 750,
-                      background: on ? COLORS.card : 'transparent',
-                      color: on ? COLORS.green : COLORS.muted,
-                      boxShadow: on ? '0 2px 5px rgba(38, 50, 56, 0.06)' : 'none',
                     }}
                   >
                     {t.views[key]}
@@ -732,6 +709,7 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
                                 markAlertRead(a.id);
                                 setSelectedAlertId(a.id);
                               }}
+                              className={`ms-btn ms-btn--card ${isSelected ? 'ms-btn--card-primary' : ''}`}
                               style={{
                                 position: 'relative',
                                 overflow: 'hidden',
@@ -741,13 +719,7 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
                                 gap: 12,
                                 padding: '14px 16px',
                                 textAlign: 'left',
-                                border: isSelected ? `2px solid ${COLORS.green}` : `1px solid ${COLORS.border}`,
                                 borderRadius: 18,
-                                cursor: 'pointer',
-                                background: isSelected ? COLORS.greenTint : COLORS.card,
-                                color: COLORS.ink,
-                                boxShadow: isSelected ? '0 4px 14px rgba(40, 103, 73, 0.12)' : '0 2px 8px rgba(0,0,0,0.03)',
-                                transition: 'all 0.15s ease',
                               }}
                             >
                               <span
@@ -887,21 +859,12 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
                         <button
                           type="button"
                           onClick={() => handleViewReply(selectedAlert)}
+                          className="ms-btn ms-btn--primary ms-btn--md ms-btn--block"
                           style={{
-                            width: '100%',
                             minHeight: 48,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: 8,
                             borderRadius: 16,
-                            border: 0,
-                            background: COLORS.green,
-                            color: '#FFFFFF',
                             fontSize: 15,
                             fontWeight: 800,
-                            cursor: 'pointer',
-                            boxShadow: '0 4px 14px rgba(40, 103, 73, 0.2)',
                           }}
                         >
                           <span>
@@ -916,20 +879,12 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
                           <button
                             type="button"
                             onClick={() => handleSendToHospital(selectedAlert)}
+                            className="ms-btn ms-btn--danger ms-btn--md ms-btn--block"
                             style={{
-                              width: '100%',
                               minHeight: 48,
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              gap: 8,
                               borderRadius: 16,
-                              border: '1.5px solid #BA1A1A',
-                              background: '#BA1A1A',
-                              color: '#FFFFFF',
                               fontSize: 15,
                               fontWeight: 800,
-                              cursor: 'pointer',
                             }}
                           >
                             <span>{lang === 'hi' ? 'अस्पताल भेजें' : 'Send to hospital'}</span>
@@ -943,16 +898,11 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
                             markAlertRead(selectedAlert.id);
                             onNavigate('/case');
                           }}
+                          className="ms-btn ms-btn--ghost ms-btn--md ms-btn--block"
                           style={{
-                            background: 'none',
-                            border: 0,
                             padding: 8,
                             fontSize: 13.5,
                             fontWeight: 700,
-                            color: COLORS.muted,
-                            cursor: 'pointer',
-                            textDecoration: 'underline',
-                            textAlign: 'center',
                           }}
                         >
                           {lang === 'hi' ? 'समयरेखा' : 'Timeline'}
@@ -981,21 +931,12 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
                             onNavigate('/case');
                           }
                         }}
+                        className="ms-btn ms-btn--primary ms-btn--md ms-btn--block"
                         style={{
-                          width: '100%',
                           minHeight: 48,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: 8,
                           borderRadius: 16,
-                          border: 0,
-                          background: COLORS.green,
-                          color: '#FFFFFF',
                           fontSize: 15,
                           fontWeight: 800,
-                          cursor: 'pointer',
-                          boxShadow: '0 4px 14px rgba(40, 103, 73, 0.2)',
                         }}
                       >
                         <span>

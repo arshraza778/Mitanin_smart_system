@@ -198,21 +198,16 @@ export default function Profile({
             lang="en"
             aria-checked={lang === 'en'}
             onClick={() => onSetLang('en')}
+            className={`ms-btn ${lang === 'en' ? 'ms-btn--primary' : 'ms-btn--secondary'} ms-btn--md`}
             style={{
-              minHeight: 48,
               padding: '10px 16px',
               borderRadius: 14,
-              border: `2px solid ${lang === 'en' ? '#235347' : '#CCD9D2'}`,
-              background: lang === 'en' ? '#235347' : '#FFFFFF',
-              color: lang === 'en' ? '#FFFFFF' : '#00201C',
               fontSize: 14,
               fontWeight: 700,
-              cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               gap: 6,
-              transition: 'all 0.15s ease',
             }}
           >
             <span>{t.english}</span>
@@ -224,21 +219,16 @@ export default function Profile({
             lang="hi"
             aria-checked={lang === 'hi'}
             onClick={() => onSetLang('hi')}
+            className={`ms-btn ${lang === 'hi' ? 'ms-btn--primary' : 'ms-btn--secondary'} ms-btn--md`}
             style={{
-              minHeight: 48,
               padding: '10px 16px',
               borderRadius: 14,
-              border: `2px solid ${lang === 'hi' ? '#235347' : '#CCD9D2'}`,
-              background: lang === 'hi' ? '#235347' : '#FFFFFF',
-              color: lang === 'hi' ? '#FFFFFF' : '#00201C',
               fontSize: 14,
               fontWeight: 700,
-              cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               gap: 6,
-              transition: 'all 0.15s ease',
             }}
           >
             <span>{t.hindi}</span>
@@ -273,21 +263,16 @@ export default function Profile({
             role="radio"
             aria-checked={mode === 'phone'}
             onClick={() => setMode('phone')}
+            className={`ms-btn ${mode === 'phone' ? 'ms-btn--primary' : 'ms-btn--secondary'} ms-btn--md`}
             style={{
-              minHeight: 48,
               padding: '10px 16px',
               borderRadius: 14,
-              border: `2px solid ${mode === 'phone' ? '#235347' : '#CCD9D2'}`,
-              background: mode === 'phone' ? '#235347' : '#FFFFFF',
-              color: mode === 'phone' ? '#FFFFFF' : '#00201C',
               fontSize: 14,
               fontWeight: 700,
-              cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               gap: 8,
-              transition: 'all 0.15s ease',
             }}
           >
             <Smartphone size={16} aria-hidden="true" />
@@ -299,21 +284,16 @@ export default function Profile({
             role="radio"
             aria-checked={mode === 'web' || mode === 'auto'}
             onClick={() => setMode('web')}
+            className={`ms-btn ${mode !== 'phone' ? 'ms-btn--primary' : 'ms-btn--secondary'} ms-btn--md`}
             style={{
-              minHeight: 48,
               padding: '10px 16px',
               borderRadius: 14,
-              border: `2px solid ${mode !== 'phone' ? '#235347' : '#CCD9D2'}`,
-              background: mode !== 'phone' ? '#235347' : '#FFFFFF',
-              color: mode !== 'phone' ? '#FFFFFF' : '#00201C',
               fontSize: 14,
               fontWeight: 700,
-              cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               gap: 8,
-              transition: 'all 0.15s ease',
             }}
           >
             <Monitor size={16} aria-hidden="true" />
@@ -327,21 +307,15 @@ export default function Profile({
       <button
         type="button"
         onClick={() => onNavigate('/role')}
+        className="ms-btn ms-btn--secondary ms-btn--md ms-btn--block"
         style={{
-          width: '100%',
-          minHeight: 48,
           padding: '12px 18px',
           borderRadius: 14,
-          border: '1px solid #CCD9D2',
-          background: '#F8FAF9',
-          color: '#00201C',
           fontSize: 14,
           fontWeight: 700,
-          cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          transition: 'all 0.15s ease',
         }}
       >
         <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -355,22 +329,16 @@ export default function Profile({
       <button
         type="button"
         onClick={handleResetDemo}
+        className="ms-btn ms-btn--ghost ms-btn--md ms-btn--block"
         style={{
-          width: '100%',
-          minHeight: 46,
           padding: '10px 16px',
-          borderRadius: 14,
-          border: '1.5px solid #FFDAD6',
-          background: '#FFDAD6',
-          color: '#BA1A1A',
-          fontSize: 13.5,
+          borderRadius: 12,
+          fontSize: 13,
           fontWeight: 700,
-          cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: 8,
-          transition: 'all 0.15s ease',
+          gap: 6,
         }}
       >
         <RotateCcw size={15} aria-hidden="true" />
@@ -522,23 +490,16 @@ export default function Profile({
         type="button"
         onClick={handleSyncNow}
         disabled={syncingState}
+        className="ms-btn ms-btn--primary ms-btn--md ms-btn--block"
         style={{
-          width: '100%',
-          minHeight: 48,
           padding: '12px 18px',
           borderRadius: 14,
-          border: 0,
-          background: '#235347',
-          color: '#FFFFFF',
           fontSize: 15,
           fontWeight: 700,
-          cursor: syncingState ? 'default' : 'pointer',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           gap: 8,
-          boxShadow: '0 4px 14px rgba(35, 83, 71, 0.25)',
-          transition: 'all 0.15s ease',
         }}
       >
         <RefreshCw
@@ -623,19 +584,15 @@ export default function Profile({
               type="button"
               onClick={onToggleOnline}
               aria-pressed={online}
+              className={`ms-btn ms-btn--sm ${online ? 'ms-btn--secondary-on-dark' : 'ms-btn--on-dark'}`}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 6,
                 padding: '6px 12px',
-                minHeight: 40,
                 borderRadius: 999,
-                border: 0,
-                cursor: 'pointer',
                 fontSize: 12,
                 fontWeight: 700,
-                background: online ? '#DAF1DE' : '#FFF1CC',
-                color: online ? '#235347' : '#8A5A00',
                 flexShrink: 0,
               }}
             >
@@ -686,19 +643,15 @@ export default function Profile({
             type="button"
             onClick={onToggleOnline}
             aria-pressed={online}
+            className={`ms-btn ms-btn--sm ${online ? 'ms-btn--secondary' : 'ms-btn--ghost'}`}
             style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: 8,
               padding: '8px 16px',
               borderRadius: 999,
-              border: '1px solid #E3ECE7',
-              cursor: 'pointer',
               fontSize: 13,
               fontWeight: 700,
-              background: online ? '#DAF1DE' : '#FFF1CC',
-              color: online ? '#235347' : '#8A5A00',
-              boxShadow: '0 2px 8px rgba(0, 33, 17, 0.04)',
             }}
           >
             <span

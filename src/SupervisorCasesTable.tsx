@@ -336,15 +336,13 @@ export function SupervisorCasesTable({
                   type="button"
                   onClick={() => setSearchQuery('')}
                   aria-label={lang === 'hi' ? 'खोज साफ़ करें' : 'Clear search'}
+                  className="ms-btn ms-btn--ghost ms-btn--close"
                   style={{
                     position: 'absolute',
                     right: 8,
                     top: '50%',
                     transform: 'translateY(-50%)',
-                    background: 'none',
-                    border: 0,
                     cursor: 'pointer',
-                    color: '#404945',
                     fontSize: 14,
                     fontWeight: 800,
                     padding: 4,
@@ -420,16 +418,10 @@ export function SupervisorCasesTable({
                     type="button"
                     aria-pressed={on}
                     onClick={() => setStateFilter(f.id)}
+                    className={`ms-btn ms-btn--chip ${on ? 'ms-btn--primary' : 'ms-btn--secondary'}`}
                     style={{
-                      padding: '4px 10px',
-                      borderRadius: 999,
-                      cursor: 'pointer',
                       fontSize: 11.5,
                       fontWeight: 800,
-                      border: `1.5px solid ${on ? '#235347' : '#CCD9D2'}`,
-                      background: on ? '#235347' : '#FFFFFF',
-                      color: on ? '#FFFFFF' : '#235347',
-                      minHeight: 28,
                     }}
                   >
                     {f.label}
@@ -671,52 +663,19 @@ export function SupervisorCasesTable({
                   type="button"
                   onClick={() =>
                     showToast(
-                      t.toasts[0]
-                        .replace('{who}', lang === 'hi' ? MITANIN_HI[selectedCase.mitanin] : selectedCase.mitanin)
-                        .replace('{name}', selectedCase.name[lang])
-                    )
-                  }
-                  style={{
-                    flex: 1,
-                    minHeight: 40,
-                    padding: '6px 12px',
-                    borderRadius: 10,
-                    border: '1.5px solid #235347',
-                    background: '#FFFFFF',
-                    color: '#235347',
-                    fontSize: 13,
-                    fontWeight: 800,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 6,
-                  }}
-                >
-                  <PhoneCall size={14} />
-                  <span>{t.actions[0]}</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    showToast(
                       t.toasts[1]
                         .replace('{who}', lang === 'hi' ? MITANIN_HI[selectedCase.mitanin] : selectedCase.mitanin)
                         .replace('{name}', selectedCase.name[lang])
                     )
                   }
+                  className="ms-btn ms-btn--secondary ms-btn--sm"
                   style={{
                     flex: 1,
                     minHeight: 40,
                     padding: '6px 12px',
                     borderRadius: 10,
-                    border: '1.5px solid #235347',
-                    background: '#FFFFFF',
-                    color: '#235347',
                     fontSize: 13,
                     fontWeight: 800,
-                    cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',

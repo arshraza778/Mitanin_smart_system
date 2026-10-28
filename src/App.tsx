@@ -198,9 +198,8 @@ function WebSidebar({
             type="button"
             onClick={onClose}
             aria-label="Close drawer"
+            className="ms-btn ms-btn--ghost ms-btn--icon"
             style={{
-              background: 'transparent',
-              border: 0,
               color: 'var(--ms-text-light)',
               cursor: 'pointer',
               display: 'flex',
@@ -239,23 +238,11 @@ function WebSidebar({
                     type="button"
                     onClick={() => handleNav(tab.route)}
                     aria-current={active ? 'page' : undefined}
-                    className={active ? 'on-primary' : ''}
+                    className={`ms-btn ms-btn--sidebar ${active ? 'is-active' : ''}`}
                     style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 12,
                       width: '100%',
                       padding: '12px 14px',
                       borderRadius: 'var(--ms-radius-sm)',
-                      border: 0,
-                      background: active ? 'var(--ms-primary)' : 'transparent',
-                      color: active ? 'var(--ms-text-white)' : 'var(--ms-text-light)',
-                      fontWeight: active ? 700 : 500,
-                      fontSize: 14,
-                      textAlign: 'left',
-                      cursor: 'pointer',
-                      transition: 'background 0.15s ease, color 0.15s ease',
-                      minHeight: 48,
                     }}
                   >
                     <span
@@ -317,20 +304,15 @@ function WebSidebar({
                   onSwitchRole(r);
                   onClose?.();
                 }}
+                className="ms-btn ms-btn--secondary-on-dark ms-btn--md ms-btn--block"
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  width: '100%',
                   padding: '12px 14px',
                   marginBottom: 8,
                   borderRadius: 'var(--ms-radius-sm)',
-                  border: '1px solid var(--ms-dark-800)',
-                  background: 'var(--ms-dark-800)',
-                  color: 'var(--ms-text-white)',
                   fontWeight: 700,
                   fontSize: 13,
-                  cursor: 'pointer',
-                  minHeight: 48,
                 }}
               >
                 {roleLabels[r][lang]} →
@@ -358,14 +340,12 @@ function WebSidebar({
               onNavigate('/role');
               onClose?.();
             }}
+            className="ms-btn ms-btn--ghost ms-btn--sm"
             style={{
-              background: 'none',
-              border: 0,
               padding: 0,
               fontSize: 12,
               fontWeight: 700,
               color: 'var(--ms-text-light)',
-              cursor: 'pointer',
               textDecoration: 'underline',
             }}
           >
@@ -415,17 +395,11 @@ function WebTopbar({
             type="button"
             onClick={onToggleDrawer}
             aria-label={lang === 'hi' ? 'नेविगेशन खोलें' : 'Toggle navigation'}
+            className="ms-btn ms-btn--secondary ms-btn--icon"
             style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
               width: 40,
               height: 40,
               borderRadius: 'var(--ms-radius-sm)',
-              border: '1px solid var(--ms-border)',
-              background: 'var(--ms-surface)',
-              color: 'var(--ms-text)',
-              cursor: 'pointer',
             }}
           >
             <Menu size={20} />
@@ -486,18 +460,15 @@ function WebTopbar({
           type="button"
           onClick={onToggleOnline}
           title={online ? (lang === 'hi' ? 'सुरक्षित और भेजा गया' : 'Saved and sent') : (lang === 'hi' ? 'सिग्नल नहीं। फ़ोन पर सहेजा गया' : 'No signal. Saved on phone')}
+          className={`ms-btn ms-btn--chip ${online ? 'ms-btn--secondary' : 'ms-btn--ghost'}`}
           style={{
             display: 'inline-flex',
             alignItems: 'center',
             gap: 6,
             padding: '6px 14px',
             borderRadius: 'var(--ms-radius-pill)',
-            border: `1px solid ${online ? 'var(--ms-sage)' : 'var(--ms-warn)'}`,
-            background: online ? 'var(--ms-mint)' : 'var(--ms-warn-bg)',
-            color: online ? 'var(--ms-primary)' : 'var(--ms-warn)',
             fontSize: 12,
             fontWeight: 700,
-            cursor: 'pointer',
           }}
         >
           <span
@@ -520,18 +491,15 @@ function WebTopbar({
             type="button"
             onClick={syncNow}
             title={lang === 'hi' ? 'सिम्युलेटेड सिंक' : 'Simulated sync'}
+            className="ms-btn ms-btn--primary ms-btn--sm"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: 4,
               padding: '6px 12px',
               borderRadius: 'var(--ms-radius-pill)',
-              border: '1px solid var(--ms-primary)',
-              background: 'var(--ms-primary)',
-              color: 'var(--ms-text-white)',
               fontSize: 12,
               fontWeight: 800,
-              cursor: 'pointer',
             }}
           >
             {lang === 'hi' ? 'अभी सिंक करें (सिम्युलेटेड)' : 'Sync now (Simulated)'}
@@ -554,16 +522,12 @@ function WebTopbar({
             type="button"
             aria-pressed={lang === 'en'}
             onClick={() => onSetLang('en')}
+            className={`ms-btn ms-btn--chip ${lang === 'en' ? 'ms-btn--primary' : 'ms-btn--ghost'}`}
             style={{
               padding: '5px 12px',
               borderRadius: 'var(--ms-radius-pill)',
-              border: 0,
-              background: lang === 'en' ? 'var(--ms-primary)' : 'transparent',
-              color: lang === 'en' ? 'var(--ms-text-white)' : 'var(--ms-muted)',
               fontSize: 12,
               fontWeight: 700,
-              cursor: 'pointer',
-              transition: 'background 0.15s ease',
             }}
           >
             EN
@@ -572,16 +536,12 @@ function WebTopbar({
             type="button"
             aria-pressed={lang === 'hi'}
             onClick={() => onSetLang('hi')}
+            className={`ms-btn ms-btn--chip ${lang === 'hi' ? 'ms-btn--primary' : 'ms-btn--ghost'}`}
             style={{
               padding: '5px 12px',
               borderRadius: 'var(--ms-radius-pill)',
-              border: 0,
-              background: lang === 'hi' ? 'var(--ms-primary)' : 'transparent',
-              color: lang === 'hi' ? 'var(--ms-text-white)' : 'var(--ms-muted)',
               fontSize: 12,
               fontWeight: 700,
-              cursor: 'pointer',
-              transition: 'background 0.15s ease',
             }}
           >
             HI
@@ -606,19 +566,15 @@ function WebTopbar({
             role="radio"
             aria-checked={mode === 'phone'}
             onClick={() => setMode('phone')}
+            className={`ms-btn ms-btn--chip ${mode === 'phone' ? 'ms-btn--primary' : 'ms-btn--ghost'}`}
             style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: 5,
               padding: '5px 12px',
               borderRadius: 'var(--ms-radius-pill)',
-              border: 0,
-              background: mode === 'phone' ? 'var(--ms-primary)' : 'transparent',
-              color: mode === 'phone' ? 'var(--ms-text-white)' : 'var(--ms-muted)',
               fontSize: 12,
               fontWeight: 700,
-              cursor: 'pointer',
-              transition: 'all 0.15s ease',
             }}
           >
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -632,19 +588,15 @@ function WebTopbar({
             role="radio"
             aria-checked={mode === 'web' || mode === 'auto'}
             onClick={() => setMode('web')}
+            className={`ms-btn ms-btn--chip ${mode !== 'phone' ? 'ms-btn--primary' : 'ms-btn--ghost'}`}
             style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: 5,
               padding: '5px 12px',
               borderRadius: 'var(--ms-radius-pill)',
-              border: 0,
-              background: mode !== 'phone' ? 'var(--ms-primary)' : 'transparent',
-              color: mode !== 'phone' ? 'var(--ms-text-white)' : 'var(--ms-muted)',
               fontSize: 12,
               fontWeight: 700,
-              cursor: 'pointer',
-              transition: 'all 0.15s ease',
             }}
           >
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -843,12 +795,9 @@ function AppContent() {
               <button
                 type="button"
                 onClick={dismissResetNotice}
+                className="ms-btn ms-btn--ghost ms-btn--close"
                 style={{
-                  background: 'none',
-                  border: 0,
                   fontSize: 16,
-                  cursor: 'pointer',
-                  color: 'inherit',
                   fontWeight: 800,
                 }}
               >
@@ -927,8 +876,8 @@ function AppContent() {
             <button
               type="button"
               onClick={onToggleOnline}
-              className={online ? 'ms-pill-ok' : 'ms-pill-due'}
-              style={{ padding: '2px 8px', fontSize: 11, cursor: 'pointer', border: 0 }}
+              className={`ms-btn ms-btn--sm ${online ? 'ms-pill-ok' : 'ms-pill-due'}`}
+              style={{ padding: '2px 8px', fontSize: 11 }}
             >
               <span style={{ width: 6, height: 6, borderRadius: '50%', background: online ? 'var(--ms-primary)' : 'var(--ms-warn)' }} />
               <span>{online ? (lang === 'hi' ? 'सिंक' : 'Synced') : (lang === 'hi' ? 'ऑफ़लाइन' : 'Offline')}</span>
@@ -956,12 +905,9 @@ function AppContent() {
               <button
                 type="button"
                 onClick={dismissResetNotice}
+                className="ms-btn ms-btn--ghost ms-btn--close"
                 style={{
-                  background: 'none',
-                  border: 0,
                   fontSize: 15,
-                  cursor: 'pointer',
-                  color: 'inherit',
                   fontWeight: 800,
                 }}
               >

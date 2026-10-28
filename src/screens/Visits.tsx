@@ -123,8 +123,6 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
     lang === 'hi' ? `${n} ${t.visitPlural}` : `${n} ${n === 1 ? t.visitSingular : t.visitPlural}`;
 
   const buttonBase: React.CSSProperties = {
-    border: 0,
-    cursor: 'pointer',
     fontFamily: 'inherit',
     WebkitTapHighlightColor: 'transparent',
   };
@@ -177,16 +175,13 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
               type="button"
               aria-label={t.today}
               onClick={() => setSelectedOffset(0)}
+              className="ms-btn ms-btn--secondary ms-btn--sm"
               style={{
                 ...buttonBase,
                 marginLeft: 'auto',
-                minHeight: 40,
-                padding: '8px 16px',
                 borderRadius: 999,
                 fontSize: 14,
                 fontWeight: 700,
-                background: '#DAF1DE',
-                color: '#235347',
               }}
             >
               {t.today}
@@ -213,21 +208,9 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
                     aria-label={`${item.dayNumber} ${item.weekdayLong}`}
                     aria-pressed={selected}
                     onClick={() => setSelectedOffset(item.offset)}
+                    className={`ms-btn ms-btn--day ${selected ? 'is-selected' : ''}`}
                     style={{
                       ...buttonBase,
-                      width: '100%',
-                      minHeight: 60,
-                      padding: '8px 0',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: 4,
-                      borderRadius: 14,
-                      background: selected ? '#235347' : '#F8FAF9',
-                      color: selected ? '#FFFFFF' : '#00201C',
-                      border: selected ? '0' : '1px solid #E3ECE7',
-                      transition: 'all 0.15s ease',
                     }}
                   >
                     <span
@@ -289,18 +272,11 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
                     type="button"
                     aria-pressed={selected}
                     onClick={() => setSort(key)}
+                    className={`ms-btn ms-btn--chip ${selected ? 'ms-btn--primary' : 'ms-btn--ghost'}`}
                     style={{
                       ...buttonBase,
-                      minHeight: 36,
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      padding: '6px 14px',
-                      borderRadius: 999,
                       fontSize: 12,
                       fontWeight: 700,
-                      background: selected ? '#235347' : 'transparent',
-                      color: selected ? '#FFFFFF' : '#404945',
-                      transition: 'all 0.15s ease',
                     }}
                   >
                     {key === 'time' ? t.byTime : t.byPriority}
@@ -359,19 +335,15 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
                     type="button"
                     aria-label={`${visit.name[lang]}, ${t.types[visit.type]}, ${t.status[visit.status]}`}
                     onClick={() => handleVisitClick(visit)}
+                    className="ms-btn ms-btn--card"
                     style={{
                       ...buttonBase,
                       width: '100%',
                       minWidth: 0,
                       minHeight: 140,
                       padding: '16px',
-                      textAlign: 'left',
                       borderRadius: 16,
-                      background: '#FFFFFF',
-                      color: '#00201C',
-                      border: '1px solid #E3ECE7',
                       boxShadow: '0 2px 8px rgba(0, 33, 17, 0.04)',
-                      transition: 'box-shadow 150ms ease',
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
@@ -473,15 +445,12 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
                 type="button"
                 aria-label={t.today}
                 onClick={() => setSelectedOffset(0)}
+                className="ms-btn ms-btn--secondary ms-btn--sm"
                 style={{
                   ...buttonBase,
-                  minHeight: 38,
-                  padding: '6px 16px',
                   borderRadius: 999,
                   fontSize: 13.5,
                   fontWeight: 700,
-                  background: '#DAF1DE',
-                  color: '#235347',
                 }}
               >
                 {t.today}
@@ -514,16 +483,11 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
                       type="button"
                       aria-pressed={selected}
                       onClick={() => setSort(key)}
+                      className={`ms-btn ms-btn--chip ${selected ? 'ms-btn--primary' : 'ms-btn--ghost'}`}
                       style={{
                         ...buttonBase,
-                        minHeight: 34,
-                        padding: '6px 14px',
-                        borderRadius: 999,
                         fontSize: 12.5,
                         fontWeight: 700,
-                        background: selected ? '#235347' : 'transparent',
-                        color: selected ? '#FFFFFF' : '#404945',
-                        transition: 'all 0.15s ease',
                       }}
                     >
                       {key === 'time' ? t.byTime : t.byPriority}
@@ -555,21 +519,11 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
                     aria-label={`${item.dayNumber} ${item.weekdayLong}`}
                     aria-pressed={selected}
                     onClick={() => setSelectedOffset(item.offset)}
+                    className={`ms-btn ms-btn--day ${selected ? 'is-selected' : ''}`}
                     style={{
                       ...buttonBase,
-                      width: '100%',
                       minHeight: 62,
                       padding: '10px 0',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: 4,
-                      borderRadius: 14,
-                      background: selected ? '#235347' : '#F8FAF9',
-                      color: selected ? '#FFFFFF' : '#00201C',
-                      border: selected ? 0 : '1px solid #E3ECE7',
-                      transition: 'all 0.15s ease',
                     }}
                   >
                     <span
@@ -630,17 +584,14 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
                         type="button"
                         aria-label={`${visit.name[lang]}, ${t.types[visit.type]}, ${t.status[visit.status]}`}
                         onClick={() => setSelectedVisitId(visit.id)}
+                        className={`ms-btn ms-btn--card ${isSelected ? 'ms-btn--card-primary' : ''}`}
                         style={{
                           ...buttonBase,
                           width: '100%',
                           minWidth: 0,
                           padding: '16px 18px',
-                          textAlign: 'left',
                           borderRadius: 16,
-                          background: '#FFFFFF',
-                          border: isSelected ? '2px solid #235347' : '1px solid #E3ECE7',
                           boxShadow: isSelected ? '0 4px 14px rgba(35, 83, 71, 0.12)' : '0 2px 8px rgba(0, 33, 17, 0.04)',
-                          transition: 'all 0.15s ease',
                         }}
                       >
                         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 }}>
@@ -747,21 +698,10 @@ export default function Visits({ lang, onNavigate }: ScreenProps) {
                   <button
                     type="button"
                     onClick={() => handleVisitClick(selectedVisit)}
+                    className="ms-btn ms-btn--primary ms-btn--lg ms-btn--block"
                     style={{
                       marginTop: 8,
-                      width: '100%',
-                      minHeight: 52,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: 8,
                       borderRadius: 14,
-                      border: 0,
-                      background: '#235347',
-                      color: '#FFFFFF',
-                      fontSize: 15,
-                      fontWeight: 700,
-                      cursor: 'pointer',
                       boxShadow: '0 4px 14px rgba(35, 83, 71, 0.25)',
                     }}
                   >

@@ -83,9 +83,7 @@ const base: Record<string, CSSProperties> = {
     minWidth: 0,
     minHeight: 44,
     padding: '8px 4px',
-    border: 0,
     borderRadius: 10,
-    background: 'transparent',
     color: '#404945',
     fontSize: 13.5,
     fontWeight: 700,
@@ -183,14 +181,12 @@ export default function CaseTimeline({ lang, online, onNavigate, onToggleOnline 
             </p>
             <button
               type="button"
+              className="ms-btn ms-btn--primary ms-btn--lg"
               onClick={() => onNavigate('/mitanin/screening/patient')}
               style={{
                 height: 52,
                 padding: '0 24px',
-                border: 0,
                 borderRadius: 16,
-                background: '#235347',
-                color: '#FFFFFF',
                 fontSize: 16,
                 fontWeight: 800,
                 cursor: 'pointer',
@@ -565,10 +561,9 @@ export default function CaseTimeline({ lang, online, onNavigate, onToggleOnline 
                   tabIndex={selected ? 0 : -1}
                   onClick={() => setTab(key)}
                   onKeyDown={(e) => onKey(e, i)}
+                  className={`ms-btn ms-btn--tab ${selected ? 'is-active' : ''}`}
                   style={{
                     ...base.tab,
-                    background: selected ? '#235347' : 'transparent',
-                    color: selected ? '#FFFFFF' : '#404945',
                     boxShadow: selected
                       ? '0 2px 6px rgba(35, 83, 71, 0.2)'
                       : 'none',

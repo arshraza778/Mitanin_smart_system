@@ -263,23 +263,13 @@ export default function ReferralTracker({ lang, online = true }: ScreenProps) {
             key={label}
             type="button"
             disabled={done}
+            aria-disabled={done}
             onClick={handlers[i]}
+            className={`ms-btn ${primary ? 'ms-btn--primary' : 'ms-btn--secondary'} ms-btn--lg ms-btn--block`}
             style={{
-              minHeight: 56,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 12,
+              justifyContent: 'flex-start',
               padding: '0 18px',
               textAlign: 'left',
-              borderRadius: 16,
-              cursor: done ? 'default' : 'pointer',
-              fontSize: 15,
-              fontWeight: 700,
-              border: primary ? 0 : `1.5px solid ${done ? '#E3ECE7' : '#CCD9D2'}`,
-              background: primary ? '#235347' : done ? '#F8FAF9' : '#FFFFFF',
-              color: primary ? '#FFFFFF' : done ? '#707975' : '#235347',
-              boxShadow: primary ? '0 4px 14px rgba(35, 83, 71, 0.25)' : 'none',
-              transition: 'all 0.15s ease',
             }}
           >
             {ACTION_ICONS[i]}
@@ -411,6 +401,7 @@ export default function ReferralTracker({ lang, online = true }: ScreenProps) {
                     role="radio"
                     aria-checked={on}
                     onClick={() => setPick(key)}
+                    className={`ms-btn ${on ? 'ms-btn--primary' : 'ms-btn--secondary'} ms-btn--md`}
                     style={{
                       minHeight: 80,
                       display: 'flex',
@@ -420,13 +411,8 @@ export default function ReferralTracker({ lang, online = true }: ScreenProps) {
                       gap: 6,
                       padding: '10px 6px',
                       borderRadius: 16,
-                      cursor: 'pointer',
                       fontSize: 15,
                       fontWeight: 700,
-                      border: `2px solid ${on ? st.bg : '#E3ECE7'}`,
-                      background: on ? st.bg : '#F8FAF9',
-                      color: on ? '#FFFFFF' : '#00201C',
-                      transition: 'all 0.15s ease',
                     }}
                   >
                     <span
@@ -476,35 +462,19 @@ export default function ReferralTracker({ lang, online = true }: ScreenProps) {
             <button
               type="button"
               disabled={!pick}
+              aria-disabled={!pick}
               onClick={saveOutcome}
-              style={{
-                marginTop: 16,
-                width: '100%',
-                height: 56,
-                border: 0,
-                borderRadius: 16,
-                cursor: pick ? 'pointer' : 'default',
-                fontSize: 16,
-                fontWeight: 800,
-                background: pick ? '#235347' : '#E3ECE7',
-                color: pick ? '#FFFFFF' : '#707975',
-              }}
+              className="ms-btn ms-btn--primary ms-btn--lg ms-btn--block"
+              style={{ marginTop: 16 }}
             >
               {t.save}
             </button>
             <button
               type="button"
               onClick={() => setSheet(false)}
+              className="ms-btn ms-btn--ghost ms-btn--md ms-btn--block"
               style={{
-                display: 'block',
-                margin: '8px auto 0',
-                padding: '10px 16px',
-                border: 0,
-                background: 'none',
-                cursor: 'pointer',
-                fontSize: 14,
-                fontWeight: 700,
-                color: '#404945',
+                marginTop: 8,
               }}
             >
               {t.cancel}

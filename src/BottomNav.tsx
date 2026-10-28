@@ -145,7 +145,7 @@ export default function BottomNav({ role, route, lang, onNavigate }: BottomNavPr
                 type="button"
                 onClick={() => onNavigate(tab.route)}
                 aria-current={active ? 'page' : undefined}
-                className="ms-navbtn"
+                className={`ms-btn ms-navbtn ${active ? 'is-active' : ''}`}
                 style={{
                   display: 'flex',
                   flexDirection: 'column',
@@ -156,15 +156,12 @@ export default function BottomNav({ role, route, lang, onNavigate }: BottomNavPr
                   minHeight: 'var(--ms-tap-target)',
                   minWidth: 'var(--ms-tap-target)',
                   width: '100%',
-                  background: active ? 'var(--ms-mint)' : 'transparent',
-                  border: 0,
-                  borderRadius: 'var(--ms-radius-sm)',
+                                                      borderRadius: 'var(--ms-radius-sm)',
                   cursor: 'pointer',
                   font: 'inherit',
                   fontSize: lang === 'hi' ? 12 : 12,
                   fontWeight: active ? 700 : 500,
-                  color: active ? 'var(--ms-primary)' : 'var(--ms-muted)',
-                  transition: 'background-color 0.15s ease, color 0.15s ease',
+                                    transition: 'background-color 0.15s ease, color 0.15s ease',
                 }}
               >
                 <span style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -198,8 +195,7 @@ export default function BottomNav({ role, route, lang, onNavigate }: BottomNavPr
                     overflowWrap: 'break-word',
                     textAlign: 'center',
                     lineHeight: 1.15,
-                    color: active ? 'var(--ms-primary)' : 'var(--ms-muted)',
-                  }}
+                                      }}
                 >
                   {(lang === 'hi' ? hiLocale : enLocale).navigation[tab.labelKey]}
                 </span>

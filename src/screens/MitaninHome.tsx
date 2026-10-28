@@ -55,7 +55,7 @@ export default function MitaninHome({ lang, online, onNavigate, onToggleOnline }
         reason: lang === 'hi' ? 'डॉक्टर का परामर्श प्राप्त हुआ' : 'Doctor advice received',
         statusPill: {
           label: lang === 'hi' ? 'जवाब' : 'Replied',
-          className: 'ms-pill-due',
+          className: 'ms-pill-ok',
         },
         actionLabel: lang === 'hi' ? 'जवाब देखें' : 'View reply',
         onClick: () => handleViewReply(c),
@@ -192,8 +192,8 @@ export default function MitaninHome({ lang, online, onNavigate, onToggleOnline }
       <button
         type="button"
         onClick={onToggleOnline}
-        className={online ? 'ms-pill-ok' : 'ms-pill-due'}
-        style={{ cursor: 'pointer', border: 0, padding: '6px 12px', fontSize: 12 }}
+        className={`${online ? 'ms-pill-ok' : 'ms-pill-due'} ms-btn ms-btn--ghost ms-btn--sm @2xl:hidden`}
+        style={{ cursor: 'pointer', padding: '6px 12px', fontSize: 12 }}
       >
         <span style={{ width: 7, height: 7, borderRadius: '50%', background: online ? 'var(--ms-primary)' : 'var(--ms-warn)' }} />
         <span>{online ? t.synced : t.offline}</span>
@@ -206,11 +206,8 @@ export default function MitaninHome({ lang, online, onNavigate, onToggleOnline }
     <button
       type="button"
       onClick={() => onNavigate('/mitanin/screening/patient')}
-      className="ms-btn-primary"
+      className="ms-btn ms-btn--primary ms-btn--lg ms-btn--block"
       style={{
-        width: '100%',
-        minHeight: 56,
-        borderRadius: 'var(--ms-radius-md)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -309,17 +306,7 @@ export default function MitaninHome({ lang, online, onNavigate, onToggleOnline }
               <button
                 type="button"
                 onClick={item.onClick}
-                className="ms-btn-primary"
-                style={{
-                  minHeight: 40,
-                  height: 40,
-                  padding: '6px 14px',
-                  borderRadius: 'var(--ms-radius-sm)',
-                  fontSize: 13,
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  flexShrink: 0,
-                }}
+                className="ms-btn ms-btn--secondary ms-btn--row"
               >
                 {item.actionLabel}
               </button>
@@ -335,13 +322,9 @@ export default function MitaninHome({ lang, online, onNavigate, onToggleOnline }
     <button
       type="button"
       onClick={() => onNavigate('/mitanin/consult')}
+      className="ms-btn ms-btn--card"
       style={{
-        width: '100%',
-        background: 'var(--ms-card)',
-        borderRadius: 'var(--ms-radius-md)',
         padding: '20px',
-        border: '1.5px solid var(--ms-primary)',
-        boxShadow: 'var(--ms-shadow)',
         textAlign: 'left',
         cursor: 'pointer',
         display: 'flex',
@@ -379,13 +362,13 @@ export default function MitaninHome({ lang, online, onNavigate, onToggleOnline }
           {priorityCounts[2] ?? 0}
         </span>
         <span style={{ fontSize: 13, color: 'var(--ms-muted)', fontWeight: 600 }}>
-          {lang === 'hi' ? 'परामर्श प्रतीक्षारत' : 'consultations awaiting reply'}
+          {lang === 'hi' ? 'डॉक्टर के जवाब की प्रतीक्षा' : 'cases awaiting doctor reply'}
         </span>
       </div>
       <p style={{ margin: 0, fontSize: 12, color: 'var(--ms-muted)', lineHeight: 1.4 }}>
         {lang === 'hi'
-          ? 'मामले जिन पर डॉक्टर की प्रतिक्रिया की आवश्यकता है'
-          : 'Screened cases submitted for tele-consultation reply'}
+          ? 'मामले जिन पर डॉक्टर के जवाब की आवश्यकता है'
+          : 'Screened cases submitted for doctor reply'}
       </p>
     </button>
   );
@@ -417,9 +400,8 @@ export default function MitaninHome({ lang, online, onNavigate, onToggleOnline }
         <button
           type="button"
           onClick={() => onNavigate('/mitanin/visits')}
+          className="ms-btn ms-btn--ghost ms-btn--sm"
           style={{
-            background: 'none',
-            border: 0,
             fontSize: 13,
             fontWeight: 700,
             color: 'var(--ms-primary)',
@@ -437,18 +419,13 @@ export default function MitaninHome({ lang, online, onNavigate, onToggleOnline }
             <button
               type="button"
               onClick={() => onNavigate('/mitanin/visits')}
+              className="ms-btn ms-btn--card"
               style={{
-                width: '100%',
-                background: 'var(--ms-surface-alt)',
-                border: '1px solid var(--ms-border)',
-                borderRadius: 'var(--ms-radius-sm)',
                 padding: '12px 14px',
                 textAlign: 'left',
-                cursor: 'pointer',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 6,
-                transition: 'border-color 0.15s ease',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -485,7 +462,7 @@ export default function MitaninHome({ lang, online, onNavigate, onToggleOnline }
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-              <span className="ms-pill-due" style={{ fontSize: 11 }}>
+              <span className="ms-pill-ok" style={{ fontSize: 11 }}>
                 {lang === 'hi' ? 'डॉक्टर का जवाब' : 'Doctor replied'}
               </span>
               <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--ms-primary)' }}>
@@ -519,14 +496,7 @@ export default function MitaninHome({ lang, online, onNavigate, onToggleOnline }
                   <button
                     type="button"
                     onClick={() => handleViewReply(c)}
-                    className="ms-btn-primary"
-                    style={{
-                      width: 'auto',
-                      minHeight: 40,
-                      padding: '8px 14px',
-                      fontSize: 13,
-                      borderRadius: 'var(--ms-radius-sm)',
-                    }}
+                    className="ms-btn ms-btn--secondary ms-btn--row"
                   >
                     {lang === 'hi' ? 'जवाब देखें' : 'View reply'}
                   </button>
@@ -552,17 +522,14 @@ export default function MitaninHome({ lang, online, onNavigate, onToggleOnline }
             <button
               type="button"
               onClick={() => onNavigate('/mitanin/referral')}
+              className="ms-btn ms-btn--card ms-btn--card-danger"
               style={{
-                background: 'var(--ms-card)',
-                border: '1.5px solid var(--ms-danger)',
-                borderRadius: 'var(--ms-radius-md)',
                 padding: '12px 8px',
                 textAlign: 'left',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
                 minHeight: 96,
-                boxShadow: 'var(--ms-shadow)',
                 cursor: 'pointer',
               }}
             >
@@ -586,17 +553,14 @@ export default function MitaninHome({ lang, online, onNavigate, onToggleOnline }
             <button
               type="button"
               onClick={() => onNavigate('/mitanin/visits')}
+              className="ms-btn ms-btn--card ms-btn--card-warn"
               style={{
-                background: 'var(--ms-card)',
-                border: '1.5px solid var(--ms-warn)',
-                borderRadius: 'var(--ms-radius-md)',
                 padding: '12px 8px',
                 textAlign: 'left',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
                 minHeight: 96,
-                boxShadow: 'var(--ms-shadow)',
                 cursor: 'pointer',
               }}
             >
@@ -620,17 +584,14 @@ export default function MitaninHome({ lang, online, onNavigate, onToggleOnline }
             <button
               type="button"
               onClick={() => onNavigate('/mitanin/consult')}
+              className="ms-btn ms-btn--card ms-btn--card-primary"
               style={{
-                background: 'var(--ms-card)',
-                border: '1.5px solid var(--ms-primary)',
-                borderRadius: 'var(--ms-radius-md)',
                 padding: '12px 8px',
                 textAlign: 'left',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
                 minHeight: 96,
-                boxShadow: 'var(--ms-shadow)',
                 cursor: 'pointer',
               }}
             >

@@ -254,6 +254,447 @@ button:disabled,
   cursor: not-allowed !important;
 }
 
+/* ==========================================================================
+   UNIFIED BUTTON SYSTEM (.ms-btn)
+   ========================================================================== */
+
+.ms-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: inherit;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 0;
+  box-shadow: none;
+  outline: none;
+  transition: background-color 120ms ease, color 120ms ease, transform 120ms ease;
+  user-select: none;
+  cursor: pointer;
+  white-space: normal;
+  text-align: center;
+  word-break: break-word;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+/* Sizes */
+/* --lg (56 px high, padding 0 20px) for phone and for every main action on Mitanin screens */
+.ms-btn--lg {
+  min-height: 56px;
+  height: auto;
+  padding: 10px 20px;
+  font-size: 16px;
+  line-height: 1.25;
+}
+
+/* --md (44 px high, padding 0 16px) for web */
+.ms-btn--md {
+  min-height: 44px;
+  height: auto;
+  padding: 8px 16px;
+  font-size: 14px;
+  line-height: 1.25;
+}
+
+/* --sm (36 px, web tables and chips only) */
+.ms-btn--sm {
+  min-height: 36px;
+  height: 36px;
+  padding: 0 12px;
+  font-size: 13px;
+  line-height: 1.2;
+}
+
+/* Icon in button: 20px */
+.ms-btn svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* --- Variants --- */
+/* Primary: background #235347, text #FFFFFF; hover #163832; pressed #053C31 */
+.ms-btn--primary,
+.ms-btn-primary {
+  background-color: #235347;
+  color: #FFFFFF;
+  border: 0;
+}
+@media (hover: hover) {
+  .ms-btn--primary:hover:not(:disabled):not([aria-disabled="true"]),
+  .ms-btn-primary:hover:not(:disabled):not([aria-disabled="true"]) {
+    background-color: #163832;
+    color: #FFFFFF;
+  }
+}
+.ms-btn--primary:active:not(:disabled):not([aria-disabled="true"]),
+.ms-btn-primary:active:not(:disabled):not([aria-disabled="true"]) {
+  background-color: #053C31;
+  color: #FFFFFF;
+}
+
+/* Secondary: background #FFFFFF, 1.5px solid #235347, text #235347; hover #E7F0EA; pressed #DAF1DE */
+.ms-btn--secondary,
+.ms-btn-secondary {
+  background-color: #FFFFFF;
+  color: #235347;
+  border: 1.5px solid #235347;
+}
+@media (hover: hover) {
+  .ms-btn--secondary:hover:not(:disabled):not([aria-disabled="true"]),
+  .ms-btn-secondary:hover:not(:disabled):not([aria-disabled="true"]) {
+    background-color: #E7F0EA;
+    color: #235347;
+  }
+}
+.ms-btn--secondary:active:not(:disabled):not([aria-disabled="true"]),
+.ms-btn-secondary:active:not(:disabled):not([aria-disabled="true"]) {
+  background-color: #DAF1DE;
+  color: #235347;
+}
+
+/* Ghost (text link style): transparent, text #235347, hover background #E7F0EA, underline on focus */
+.ms-btn--ghost,
+.ms-btn-ghost {
+  background-color: transparent;
+  color: #235347;
+  border: 0;
+}
+@media (hover: hover) {
+  .ms-btn--ghost:hover:not(:disabled):not([aria-disabled="true"]),
+  .ms-btn-ghost:hover:not(:disabled):not([aria-disabled="true"]) {
+    background-color: #E7F0EA;
+    color: #235347;
+  }
+}
+.ms-btn--ghost:focus-visible,
+.ms-btn-ghost:focus-visible {
+  text-decoration: underline;
+}
+
+/* Danger (Escalate and destructive actions): background #BA1A1A, text #FFFFFF; hover and pressed use overlay */
+.ms-btn--danger {
+  background-color: #BA1A1A;
+  color: #FFFFFF;
+  border: 0;
+}
+@media (hover: hover) {
+  .ms-btn--danger:hover:not(:disabled):not([aria-disabled="true"]) {
+    background-color: #930006;
+    color: #FFFFFF;
+  }
+}
+.ms-btn--danger:active:not(:disabled):not([aria-disabled="true"]) {
+  background-color: #680003;
+  color: #FFFFFF;
+}
+
+/* On dark surfaces: .ms-btn--on-dark: background #DAF1DE, text #0B2B26; secondary on dark: 1.5px solid #C0EACC, text #FFFFFF, transparent */
+.ms-btn--on-dark {
+  background-color: #DAF1DE;
+  color: #0B2B26;
+  border: 0;
+}
+@media (hover: hover) {
+  .ms-btn--on-dark:hover:not(:disabled):not([aria-disabled="true"]) {
+    background-color: #C0EACC;
+    color: #0B2B26;
+  }
+}
+.ms-btn--on-dark:active:not(:disabled):not([aria-disabled="true"]) {
+  background-color: #A3D8B2;
+  color: #0B2B26;
+}
+
+.ms-btn--secondary-on-dark {
+  background-color: transparent;
+  color: #FFFFFF;
+  border: 1.5px solid #C0EACC;
+}
+@media (hover: hover) {
+  .ms-btn--secondary-on-dark:hover:not(:disabled):not([aria-disabled="true"]) {
+    background-color: rgba(218, 241, 222, 0.15);
+    color: #FFFFFF;
+  }
+}
+.ms-btn--secondary-on-dark:active:not(:disabled):not([aria-disabled="true"]) {
+  background-color: rgba(218, 241, 222, 0.25);
+  color: #FFFFFF;
+}
+
+/* --- Modifiers --- */
+/* Block: full width */
+.ms-btn--block {
+  width: 100%;
+}
+
+/* Card button: clickable card styled as button */
+.ms-btn--card {
+  background-color: var(--ms-card);
+  color: var(--ms-text);
+  border: 1px solid var(--ms-border);
+  border-radius: var(--ms-radius-md);
+  box-shadow: var(--ms-shadow-card);
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  padding: 16px;
+  width: 100%;
+}
+@media (hover: hover) {
+  .ms-btn--card:hover:not(:disabled):not([aria-disabled="true"]) {
+    background-color: var(--ms-surface-alt);
+  }
+}
+.ms-btn--card-danger {
+  border: 1.5px solid var(--ms-danger);
+}
+.ms-btn--card-warn {
+  border: 1.5px solid var(--ms-warn);
+}
+.ms-btn--card-primary {
+  border: 1.5px solid var(--ms-primary);
+}
+
+/* Chip filter button */
+.ms-btn--chip {
+  min-height: 36px;
+  height: 36px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: var(--ms-radius-pill);
+}
+
+/* Icon button: 44px square */
+.ms-btn--icon {
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Camera shutter button */
+.ms-btn--shutter {
+  width: 64px;
+  min-width: 64px;
+  height: 64px;
+  min-height: 64px;
+  border-radius: 50%;
+  border: 3px solid #235347;
+  background-color: #FFFFFF;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Row action slot: in Web mode width 152px, aligned to right edge. Below 480px, becomes block */
+.ms-btn--row {
+  width: 152px;
+  min-width: 152px;
+  max-width: 152px;
+  flex-shrink: 0;
+}
+
+@container (max-width: 480px) {
+  .ms-btn--row {
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+  }
+}
+@media (max-width: 480px) {
+  .ms-btn--row {
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+  }
+}
+
+/* Equal width button groups (e.g. Call, Remind, Escalate) */
+.ms-btn-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+.ms-btn-group > .ms-btn {
+  flex: 1 1 0;
+  min-width: 96px;
+}
+
+/* Disabled: background #E3ECE7, text #404945, no border, cursor not-allowed, no hover change */
+.ms-btn:disabled,
+.ms-btn[aria-disabled="true"],
+.ms-btn-primary:disabled,
+.ms-btn-primary[aria-disabled="true"] {
+  background-color: #E3ECE7 !important;
+  color: #404945 !important;
+  border: 0 !important;
+  cursor: not-allowed !important;
+  opacity: 1 !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Focus ring on every button: 3 px solid #8EB69B with 2 px offset on dark, 3 px solid #235347 on light */
+.ms-btn:focus-visible,
+.ms-btn-primary:focus-visible {
+  outline: 3px solid #235347;
+  outline-offset: 2px;
+}
+.on-dark-900 .ms-btn:focus-visible,
+.on-dark-800 .ms-btn:focus-visible,
+.ms-btn--on-dark:focus-visible,
+.ms-btn--secondary-on-dark:focus-visible,
+.on-dark-900 .ms-btn-primary:focus-visible {
+  outline: 3px solid #8EB69B;
+  outline-offset: 2px;
+}
+
+/* Loading state */
+.ms-btn--loading {
+  position: relative;
+  pointer-events: none;
+}
+.ms-btn--loading::after {
+  content: '';
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: ms-spin 0.75s linear infinite;
+  margin-left: 6px;
+}
+
+/* Tab buttons */
+.ms-btn--tab {
+  min-width: 0;
+  min-height: 40px;
+  padding: 6px 14px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 700;
+  background-color: transparent;
+  color: #404945;
+  border: 0;
+}
+.ms-btn--tab[aria-selected="true"],
+.ms-btn--tab[aria-pressed="true"],
+.ms-btn--tab.is-active {
+  background-color: #235347;
+  color: #FFFFFF;
+}
+
+/* Day strip button in visits */
+.ms-btn--day {
+  width: 100%;
+  min-height: 60px;
+  padding: 8px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border-radius: 14px;
+  background-color: #F8FAF9;
+  color: #00201C;
+  border: 1px solid #E3ECE7;
+}
+.ms-btn--day[aria-pressed="true"],
+.ms-btn--day.is-selected {
+  background-color: #235347;
+  color: #FFFFFF;
+  border: 0;
+}
+
+/* Nav button for BottomNav */
+.ms-btn.ms-navbtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 6px 4px;
+  min-height: var(--ms-tap-target);
+  min-width: var(--ms-tap-target);
+  width: 100%;
+  background-color: transparent;
+  color: var(--ms-muted);
+  border: 0;
+  border-radius: var(--ms-radius-sm);
+}
+.ms-btn.ms-navbtn[aria-current="page"],
+.ms-btn.ms-navbtn.is-active {
+  background-color: var(--ms-mint);
+  color: var(--ms-primary);
+}
+
+/* Close & clear buttons */
+.ms-btn--close {
+  background-color: transparent;
+  color: inherit;
+  border: 0;
+  padding: 4px;
+  font-size: 16px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.ms-btn--close-round {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 50%;
+  background-color: rgba(5, 31, 32, 0.75);
+  color: #FFFFFF;
+  border: 0;
+  font-size: 22px;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+}
+
+/* Sidebar navigation link buttons */
+.ms-btn--sidebar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: var(--ms-radius-sm);
+  border: 0;
+  background-color: transparent;
+  color: var(--ms-text-light);
+  font-size: 13.5px;
+  font-weight: 600;
+  text-align: left;
+  justify-content: flex-start;
+}
+.ms-btn--sidebar.is-active,
+.ms-btn--sidebar[aria-current="page"] {
+  background-color: var(--ms-primary);
+  color: var(--ms-text-white);
+  font-weight: 700;
+}
+@keyframes ms-spin {
+  to { transform: rotate(360deg); }
+}
+
 img {
   object-fit: cover;
 }
@@ -279,13 +720,13 @@ img, svg { max-width: 100%; }
 /* Shared safe-area, tap target and mobile overflow safeguards. */
 .ms-screen-content { padding-bottom: var(--ms-screen-padding-bottom); }
 .ms-screen-content button, .ms-screen-content a, .ms-screen-content input, .ms-screen-content select, .ms-screen-content textarea { max-width: 100%; }
-.ms-screen-content button,
-.ms-app-shell button,
+.ms-screen-content button:not(.ms-btn--sm),
+.ms-app-shell button:not(.ms-btn--sm),
 .ms-app-shell a,
 .ms-app-shell select,
 .ms-app-shell input[type="button"],
 .ms-app-shell input[type="submit"],
-.ms-app-shell [role="button"],
+.ms-app-shell [role="button"]:not(.ms-btn--sm),
 .ms-app-shell [role="tab"] {
   min-height: 48px;
 }

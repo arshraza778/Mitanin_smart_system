@@ -87,16 +87,12 @@ export default function RoleSelect({ lang, onNavigate, onSetLang }: ScreenProps)
                   type="button"
                   aria-pressed={on}
                   onClick={() => onSetLang(code)}
+                  className={`ms-btn ms-btn--chip ${on ? 'ms-btn--on-dark' : 'ms-btn--secondary-on-dark'}`}
                   style={{
-                    border: 0,
-                    cursor: 'pointer',
                     padding: '6px 14px',
                     borderRadius: 999,
                     fontSize: 13,
                     fontWeight: 700,
-                    background: on ? '#FFFFFF' : 'transparent',
-                    color: on ? '#00201C' : '#DAF1DE',
-                    transition: 'all 0.15s ease',
                   }}
                 >
                   {code === 'en' ? 'English' : 'हिन्दी'}
@@ -143,6 +139,7 @@ export default function RoleSelect({ lang, onNavigate, onSetLang }: ScreenProps)
                 key={card.key}
                 type="button"
                 onClick={() => onNavigate(card.route)}
+                className="ms-btn ms-btn--card"
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -150,13 +147,8 @@ export default function RoleSelect({ lang, onNavigate, onSetLang }: ScreenProps)
                   width: '100%',
                   padding: 16,
                   textAlign: 'left',
-                  cursor: 'pointer',
-                  border: '1px solid #E3ECE7',
                   borderRadius: 20,
-                  background: '#FFFFFF',
-                  color: '#00201C',
                   boxShadow: '0 2px 6px rgba(0, 32, 28, 0.04)',
-                  transition: 'transform 0.15s ease, border-color 0.15s ease',
                 }}
               >
                 <span
@@ -221,10 +213,11 @@ export default function RoleSelect({ lang, onNavigate, onSetLang }: ScreenProps)
                     type="button"
                     aria-pressed={on}
                     onClick={() => onSetLang(code)}
-                    className="border-0 cursor-pointer px-4 py-1.5 rounded-full text-xs font-bold transition-all"
+                    className={`ms-btn ms-btn--chip ${on ? 'ms-btn--on-dark' : 'ms-btn--secondary-on-dark'}`}
                     style={{
-                      background: on ? '#FFFFFF' : 'transparent',
-                      color: on ? '#00201C' : '#DAF1DE',
+                      borderRadius: 999,
+                      fontSize: 12,
+                      fontWeight: 700,
                     }}
                   >
                     {code === 'en' ? 'English' : 'हिन्दी'}
@@ -256,7 +249,7 @@ export default function RoleSelect({ lang, onNavigate, onSetLang }: ScreenProps)
                   key={card.key}
                   type="button"
                   onClick={() => onNavigate(card.route)}
-                  className="flex flex-col items-center text-center p-7 rounded-3xl bg-white border border-[#E3ECE7] hover:border-[#235347] transition-all hover:-translate-y-1 hover:shadow-lg cursor-pointer group"
+                  className="ms-btn ms-btn--card flex flex-col items-center text-center p-7 rounded-3xl transition-all hover:-translate-y-1 hover:shadow-lg cursor-pointer group"
                 >
                   <span
                     className="rounded-2xl flex items-center justify-center text-white mb-5 transition-transform group-hover:scale-105"

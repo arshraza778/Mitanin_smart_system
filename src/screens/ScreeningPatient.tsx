@@ -248,14 +248,12 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
           type="button"
           onClick={() => setQuery('')}
           aria-label="Clear search"
+          className="ms-btn ms-btn--ghost ms-btn--sm"
           style={{
             position: 'absolute',
             right: 12,
             top: 14,
-            border: 0,
-            background: 'none',
             cursor: 'pointer',
-            color: '#707975',
             padding: 4,
           }}
         >
@@ -289,13 +287,8 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
               setShowAddForm(false);
               setFormErrors({});
             }}
+            className="ms-btn ms-btn--ghost ms-btn--sm"
             style={{
-              border: 0,
-              background: 'none',
-              color: '#707975',
-              fontSize: 13,
-              fontWeight: 600,
-              cursor: 'pointer',
               padding: '4px 8px',
             }}
           >
@@ -393,16 +386,7 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
               key={s}
               type="button"
               onClick={() => setFormSex(formSex === s ? '' : s)}
-              style={{
-                height: 44,
-                borderRadius: 12,
-                border: `2px solid ${formSex === s ? '#235347' : '#E3ECE7'}`,
-                background: formSex === s ? '#DAF1DE' : '#F8FAF9',
-                color: formSex === s ? '#0B2B26' : '#00201C',
-                fontSize: 13.5,
-                fontWeight: 700,
-                cursor: 'pointer',
-              }}
+              className={`ms-btn ${formSex === s ? 'ms-btn--primary' : 'ms-btn--secondary'} ms-btn--md`}
             >
               {t[s]}
             </button>
@@ -488,32 +472,14 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
             <button
               type="button"
               onClick={() => setFormPregnant(false)}
-              style={{
-                padding: '6px 14px',
-                borderRadius: 8,
-                border: 0,
-                cursor: 'pointer',
-                fontSize: 12.5,
-                fontWeight: 700,
-                background: !formPregnant ? '#235347' : '#E3ECE7',
-                color: !formPregnant ? '#FFFFFF' : '#404945',
-              }}
+              className={`ms-btn ${!formPregnant ? 'ms-btn--primary' : 'ms-btn--secondary'} ms-btn--sm`}
             >
               {t.no}
             </button>
             <button
               type="button"
               onClick={() => setFormPregnant(true)}
-              style={{
-                padding: '6px 14px',
-                borderRadius: 8,
-                border: 0,
-                cursor: 'pointer',
-                fontSize: 12.5,
-                fontWeight: 700,
-                background: formPregnant ? '#235347' : '#E3ECE7',
-                color: formPregnant ? '#FFFFFF' : '#404945',
-              }}
+              className={`ms-btn ${formPregnant ? 'ms-btn--primary' : 'ms-btn--secondary'} ms-btn--sm`}
             >
               {t.yes}
             </button>
@@ -524,19 +490,7 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
       {/* Submit form button */}
       <button
         type="submit"
-        className="ms-btn-primary"
-        style={{
-          width: '100%',
-          height: 52,
-          minHeight: 52,
-          borderRadius: 14,
-          border: 0,
-          background: '#235347',
-          color: '#FFFFFF',
-          fontSize: 15,
-          fontWeight: 700,
-          cursor: 'pointer',
-        }}
+        className="ms-btn ms-btn--primary ms-btn--lg ms-btn--block"
       >
         {t.savePatient}
       </button>
@@ -571,21 +525,16 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
                   type="button"
                   onClick={() => handleSelect(p.id)}
                   aria-pressed={isSelected}
+                  className={`ms-btn ms-btn--card ${isSelected ? 'ms-btn--card-primary' : ''}`}
                   style={{
-                    width: '100%',
-                    minHeight: 64,
                     padding: '14px 16px',
-                    borderRadius: 16,
-                    border: `2px solid ${isSelected ? '#235347' : '#E3ECE7'}`,
-                    background: isSelected ? 'linear-gradient(to right, #FFFFFF, rgba(218, 241, 222, 0.25))' : '#FFFFFF',
-                    boxShadow: isSelected ? '0 2px 10px rgba(35, 83, 71, 0.1)' : '0 1px 3px rgba(0,0,0,0.03)',
                     cursor: 'pointer',
                     display: 'flex',
+                    flexDirection: 'row',
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     gap: 12,
                     textAlign: 'left',
-                    transition: 'all 0.15s ease',
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0, flex: 1 }}>
@@ -659,24 +608,7 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
         <button
           type="button"
           onClick={() => setShowAddForm(true)}
-          style={{
-            width: '100%',
-            height: 52,
-            minHeight: 52,
-            padding: '0 16px',
-            borderRadius: 14,
-            border: '2px dashed #8EB69B',
-            background: 'rgba(218, 241, 222, 0.4)',
-            color: '#163832',
-            fontSize: 14,
-            fontWeight: 700,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 8,
-            transition: 'background 0.15s ease',
-          }}
+          className="ms-btn ms-btn--secondary ms-btn--lg ms-btn--block"
         >
           <UserPlus size={18} color="#235347" />
           <span>{t.addNewPatient}</span>
@@ -712,18 +644,7 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
               type="button"
               onClick={() => onNavigate('/mitanin/home')}
               aria-label={t.back}
-              style={{
-                width: 38,
-                height: 38,
-                borderRadius: 10,
-                background: '#F8FAF9',
-                border: '1px solid #E3ECE7',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#051F20',
-                cursor: 'pointer',
-              }}
+              className="ms-btn ms-btn--ghost ms-btn--icon"
             >
               <ArrowLeft size={18} />
             </button>
@@ -776,20 +697,7 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
           <button
             type="button"
             onClick={() => onNavigate('/mitanin/home')}
-            style={{
-              padding: '0 16px',
-              height: 56,
-              borderRadius: 14,
-              border: '1px solid #CCD9D2',
-              background: '#F8FAF9',
-              cursor: 'pointer',
-              fontSize: 15,
-              fontWeight: 700,
-              color: '#235347',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-            }}
+            className="ms-btn ms-btn--secondary ms-btn--lg"
           >
             <ArrowLeft size={18} />
             <span>{t.back}</span>
@@ -797,25 +705,10 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
           <button
             type="button"
             disabled={!selectedPatientId}
+            aria-disabled={!selectedPatientId}
             onClick={handleNext}
-            className="ms-btn-primary"
-            style={{
-              flex: 1,
-              height: 56,
-              border: 0,
-              borderRadius: 14,
-              cursor: selectedPatientId ? 'pointer' : 'default',
-              fontSize: 16,
-              fontWeight: 700,
-              background: selectedPatientId ? '#235347' : '#CCD9D2',
-              color: selectedPatientId ? '#FFFFFF' : '#707975',
-              boxShadow: selectedPatientId ? '0 4px 14px rgba(35, 83, 71, 0.25)' : 'none',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 8,
-              transition: 'all 0.15s ease',
-            }}
+            className="ms-btn ms-btn--primary ms-btn--lg ms-btn--block"
+            style={{ flex: 1 }}
           >
             <span>{t.next}</span>
             <ArrowRight size={18} />
@@ -918,19 +811,7 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
             <button
               type="button"
               onClick={() => onNavigate('/mitanin/home')}
-              style={{
-                padding: '12px 20px',
-                borderRadius: 12,
-                border: '1px solid #CCD9D2',
-                background: '#F8FAF9',
-                cursor: 'pointer',
-                fontSize: 15,
-                fontWeight: 700,
-                color: '#235347',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-              }}
+              className="ms-btn ms-btn--secondary ms-btn--md"
             >
               <ArrowLeft size={18} />
               <span>{t.back}</span>
@@ -938,23 +819,9 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
             <button
               type="button"
               disabled={!selectedPatientId}
+              aria-disabled={!selectedPatientId}
               onClick={handleNext}
-              className="ms-btn-primary"
-              style={{
-                padding: '0 32px',
-                height: 52,
-                border: 0,
-                borderRadius: 14,
-                cursor: selectedPatientId ? 'pointer' : 'default',
-                fontSize: 16,
-                fontWeight: 700,
-                background: selectedPatientId ? '#235347' : '#CCD9D2',
-                color: selectedPatientId ? '#FFFFFF' : '#707975',
-                boxShadow: selectedPatientId ? '0 4px 14px rgba(35, 83, 71, 0.25)' : 'none',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-              }}
+              className="ms-btn ms-btn--primary ms-btn--md"
             >
               <span>{t.next}</span>
               <ArrowRight size={18} />

@@ -455,14 +455,9 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
       <button
         type="button"
         onClick={() => onNavigate('/mitanin/screening/patient')}
+        className="ms-btn ms-btn--ghost ms-btn--sm"
         style={{
-          border: 0,
-          background: 'none',
-          color: '#235347',
-          fontSize: 12.5,
-          fontWeight: 700,
           textDecoration: 'underline',
-          cursor: 'pointer',
           padding: '4px 6px',
           flexShrink: 0,
         }}
@@ -561,17 +556,10 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
           <button
             type="button"
             onClick={handleOpenCamera}
+            className="ms-btn ms-btn--on-dark ms-btn--sm"
             style={{
               marginTop: 6,
-              padding: '8px 20px',
               borderRadius: 999,
-              border: 0,
-              background: '#FFFFFF',
-              color: '#00201C',
-              fontSize: 13.5,
-              fontWeight: 700,
-              cursor: 'pointer',
-              minHeight: 38,
             }}
           >
             {t.tryAgain}
@@ -720,18 +708,7 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
           onClick={captureLive}
           aria-label={t.capture}
           data-testid="capture-button"
-          style={{
-            width: 64,
-            height: 64,
-            borderRadius: '50%',
-            padding: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            border: '3px solid #235347',
-            background: '#FFFFFF',
-          }}
+          className="ms-btn ms-btn--shutter"
         >
           <span
             aria-hidden
@@ -756,22 +733,14 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
           type="button"
           onClick={handleOpenCamera}
           data-testid="option-open-camera"
+          className={`ms-btn ms-btn--card ${cameraActive ? 'ms-btn--card-primary' : ''}`}
           style={{
-            display: 'flex',
+            flexDirection: 'row',
             alignItems: 'center',
             gap: 12,
-            width: '100%',
-            minHeight: 52,
-            padding: '0 16px',
-            borderRadius: 14,
-            border: `2px solid ${cameraActive ? '#235347' : '#E3ECE7'}`,
-            background: '#FFFFFF',
-            color: '#00201C',
+            padding: '12px 16px',
             fontSize: 14.5,
             fontWeight: 700,
-            cursor: 'pointer',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
-            textAlign: 'left',
           }}
         >
           <div
@@ -798,22 +767,14 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
           type="button"
           onClick={() => galleryInputRef.current?.click()}
           data-testid="option-choose-gallery"
+          className="ms-btn ms-btn--card"
           style={{
-            display: 'flex',
+            flexDirection: 'row',
             alignItems: 'center',
             gap: 12,
-            width: '100%',
-            minHeight: 52,
-            padding: '0 16px',
-            borderRadius: 14,
-            border: '1px solid #E3ECE7',
-            background: '#FFFFFF',
-            color: '#00201C',
+            padding: '12px 16px',
             fontSize: 14.5,
             fontWeight: 700,
-            cursor: 'pointer',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
-            textAlign: 'left',
           }}
         >
           <div
@@ -842,38 +803,36 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
             onClick={() => setShowDemoMenu((v) => !v)}
             aria-expanded={showDemoMenu}
             data-testid="option-use-demo"
+            className="ms-btn ms-btn--ghost ms-btn--block"
             style={{
-              width: '100%',
-              minHeight: 52,
               display: 'flex',
               alignItems: 'center',
+              justifyContent: 'space-between',
               gap: 12,
-              padding: '0 16px',
-              border: 0,
-              background: 'none',
-              cursor: 'pointer',
-              color: '#00201C',
+              padding: '12px 16px',
               fontSize: 14.5,
               fontWeight: 700,
               textAlign: 'left',
             }}
           >
-            <div
-              style={{
-                width: 34,
-                height: 34,
-                borderRadius: 8,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: '#DAF1DE',
-                color: '#2E7D4F',
-                flexShrink: 0,
-              }}
-            >
-              <FileCheck size={18} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1 }}>
+              <div
+                style={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 8,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: '#DAF1DE',
+                  color: '#2E7D4F',
+                  flexShrink: 0,
+                }}
+              >
+                <FileCheck size={18} />
+              </div>
+              <span>{t.useDemoPhoto}</span>
             </div>
-            <span style={{ flex: 1 }}>{t.useDemoPhoto}</span>
             <ChevronDown
               size={18}
               color="#707975"
@@ -892,6 +851,7 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
                   type="button"
                   onClick={() => handleSelectDemo(key)}
                   data-testid={`demo-cassette-${key}`}
+                  className="ms-btn ms-btn--secondary ms-btn--card"
                   style={{
                     display: 'flex',
                     flexDirection: 'column',
@@ -899,10 +859,6 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
                     gap: 6,
                     padding: '8px 4px',
                     borderRadius: 12,
-                    border: '1px solid #E3ECE7',
-                    background: '#F8FAF9',
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease',
                   }}
                 >
                   <div style={{ position: 'relative', width: '100%', height: 38, borderRadius: 6, overflow: 'hidden' }}>
@@ -928,16 +884,7 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
           type="button"
           onClick={retake}
           data-testid="retake-button"
-          style={{
-            padding: '10px 18px',
-            border: '1px solid #CCD9D2',
-            borderRadius: 12,
-            background: '#F8FAF9',
-            cursor: 'pointer',
-            fontSize: 14,
-            fontWeight: 700,
-            color: '#235347',
-          }}
+          className="ms-btn ms-btn--secondary ms-btn--md"
         >
           {t.retake}
         </button>
@@ -961,6 +908,7 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
                 role="radio"
                 aria-checked={on}
                 onClick={() => setResult(key)}
+                className={`ms-btn ${on ? (key === 'positive' || key === 'invalid' ? 'ms-btn--danger' : 'ms-btn--primary') : 'ms-btn--secondary'} ms-btn--md`}
                 style={{
                   minHeight: 82,
                   display: 'flex',
@@ -973,11 +921,6 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
                   cursor: 'pointer',
                   fontSize: 13.5,
                   fontWeight: 700,
-                  border: `2px solid ${on ? st.activeBg : '#E3ECE7'}`,
-                  background: on ? st.activeBg : '#FFFFFF',
-                  color: on ? '#FFFFFF' : '#00201C',
-                  boxShadow: on ? '0 2px 10px rgba(0,0,0,0.1)' : '0 1px 3px rgba(0,0,0,0.03)',
-                  transition: 'all 0.15s ease',
                 }}
               >
                 <span
@@ -1087,7 +1030,8 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
           <button
             type="button"
             onClick={() => setStorageError(null)}
-            style={{ border: 0, background: 'none', cursor: 'pointer', fontSize: 16, fontWeight: 700, color: '#BA1A1A' }}
+            className="ms-btn ms-btn--ghost ms-btn--sm"
+            style={{ fontSize: 16, fontWeight: 700, color: '#BA1A1A' }}
           >
             ✕
           </button>
@@ -1102,22 +1046,14 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
             type="button"
             onClick={handleOpenCamera}
             data-testid="option-open-camera"
+            className={`ms-btn ms-btn--card ${cameraActive ? 'ms-btn--card-primary' : ''}`}
             style={{
-              display: 'flex',
+              flexDirection: 'row',
               alignItems: 'center',
               gap: 12,
-              width: '100%',
-              minHeight: 52,
-              padding: '0 16px',
-              borderRadius: 14,
-              border: `2px solid ${cameraActive ? '#235347' : '#E3ECE7'}`,
-              background: '#FFFFFF',
-              color: '#00201C',
+              padding: '12px 16px',
               fontSize: 14.5,
               fontWeight: 700,
-              cursor: 'pointer',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
-              textAlign: 'left',
             }}
           >
             <div
@@ -1144,22 +1080,14 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
             type="button"
             onClick={() => galleryInputRef.current?.click()}
             data-testid="option-choose-gallery"
+            className="ms-btn ms-btn--card"
             style={{
-              display: 'flex',
+              flexDirection: 'row',
               alignItems: 'center',
               gap: 12,
-              width: '100%',
-              minHeight: 52,
-              padding: '0 16px',
-              borderRadius: 14,
-              border: '1px solid #E3ECE7',
-              background: '#FFFFFF',
-              color: '#00201C',
+              padding: '12px 16px',
               fontSize: 14.5,
               fontWeight: 700,
-              cursor: 'pointer',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
-              textAlign: 'left',
             }}
           >
             <div
@@ -1188,38 +1116,36 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
               onClick={() => setShowDemoMenu((v) => !v)}
               aria-expanded={showDemoMenu}
               data-testid="option-use-demo"
+              className="ms-btn ms-btn--ghost ms-btn--block"
               style={{
-                width: '100%',
-                minHeight: 52,
                 display: 'flex',
                 alignItems: 'center',
+                justifyContent: 'space-between',
                 gap: 12,
-                padding: '0 16px',
-                border: 0,
-                background: 'none',
-                cursor: 'pointer',
-                color: '#00201C',
+                padding: '12px 16px',
                 fontSize: 14.5,
                 fontWeight: 700,
                 textAlign: 'left',
               }}
             >
-              <div
-                style={{
-                  width: 34,
-                  height: 34,
-                  borderRadius: 8,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  background: '#DAF1DE',
-                  color: '#2E7D4F',
-                  flexShrink: 0,
-                }}
-              >
-                <FileCheck size={18} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1 }}>
+                <div
+                  style={{
+                    width: 34,
+                    height: 34,
+                    borderRadius: 8,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: '#DAF1DE',
+                    color: '#2E7D4F',
+                    flexShrink: 0,
+                  }}
+                >
+                  <FileCheck size={18} />
+                </div>
+                <span>{t.useDemoPhoto}</span>
               </div>
-              <span style={{ flex: 1 }}>{t.useDemoPhoto}</span>
               <ChevronDown
                 size={18}
                 color="#707975"
@@ -1238,6 +1164,7 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
                     type="button"
                     onClick={() => handleSelectDemo(key)}
                     data-testid={`demo-cassette-${key}`}
+                    className="ms-btn ms-btn--secondary ms-btn--card"
                     style={{
                       display: 'flex',
                       flexDirection: 'column',
@@ -1245,10 +1172,6 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
                       gap: 6,
                       padding: '8px 4px',
                       borderRadius: 12,
-                      border: '1px solid #E3ECE7',
-                      background: '#F8FAF9',
-                      cursor: 'pointer',
-                      transition: 'all 0.15s ease',
                     }}
                   >
                     <div style={{ position: 'relative', width: '100%', height: 38, borderRadius: 6, overflow: 'hidden' }}>
@@ -1318,15 +1241,12 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
           onClick={retake}
           disabled={!photo}
           data-testid="retake-button"
+          className="ms-btn ms-btn--ghost ms-btn--md"
           style={{
             justifySelf: 'start',
             padding: '10px 4px',
-            border: 0,
-            background: 'none',
-            cursor: photo ? 'pointer' : 'default',
             fontSize: 15,
             fontWeight: 700,
-            color: photo ? '#235347' : '#CCD9D2',
           }}
         >
           {t.retake}
@@ -1339,18 +1259,7 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
           disabled={!cameraActive || !!photo}
           aria-label={t.capture}
           data-testid="capture-button"
-          style={{
-            width: 64,
-            height: 64,
-            borderRadius: '50%',
-            padding: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: cameraActive && !photo ? 'pointer' : 'default',
-            border: `3px solid ${cameraActive && !photo ? '#235347' : '#CCD9D2'}`,
-            background: '#FFFFFF',
-          }}
+          className="ms-btn ms-btn--shutter"
         >
           <span
             aria-hidden
@@ -1379,6 +1288,7 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
                   role="radio"
                   aria-checked={on}
                   onClick={() => setResult(key)}
+                  className={`ms-btn ${on ? (key === 'positive' || key === 'invalid' ? 'ms-btn--danger' : 'ms-btn--primary') : 'ms-btn--secondary'} ms-btn--md`}
                   style={{
                     minHeight: 82,
                     display: 'flex',
@@ -1391,11 +1301,6 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
                     cursor: 'pointer',
                     fontSize: 13.5,
                     fontWeight: 700,
-                    border: `2px solid ${on ? st.activeBg : '#E3ECE7'}`,
-                    background: on ? st.activeBg : '#FFFFFF',
-                    color: on ? '#FFFFFF' : '#00201C',
-                    boxShadow: on ? '0 2px 10px rgba(0,0,0,0.1)' : '0 1px 3px rgba(0,0,0,0.03)',
-                    transition: 'all 0.15s ease',
                   }}
                 >
                   <span
@@ -1482,18 +1387,7 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
               type="button"
               onClick={() => onNavigate('/mitanin/screening/symptoms')}
               aria-label={lang === 'hi' ? 'पीछे' : 'Back'}
-              style={{
-                width: 38,
-                height: 38,
-                borderRadius: 10,
-                background: '#F8FAF9',
-                border: '1px solid #E3ECE7',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#051F20',
-                cursor: 'pointer',
-              }}
+              className="ms-btn ms-btn--ghost ms-btn--icon"
             >
               <ArrowLeft size={18} />
             </button>
@@ -1534,20 +1428,7 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
           <button
             type="button"
             onClick={() => onNavigate('/mitanin/screening/symptoms')}
-            style={{
-              padding: '0 16px',
-              height: 56,
-              borderRadius: 14,
-              border: '1px solid #CCD9D2',
-              background: '#F8FAF9',
-              cursor: 'pointer',
-              fontSize: 15,
-              fontWeight: 700,
-              color: '#235347',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-            }}
+            className="ms-btn ms-btn--secondary ms-btn--lg"
           >
             <ArrowLeft size={18} />
             <span>{lang === 'hi' ? 'पीछे' : 'Back'}</span>
@@ -1555,25 +1436,10 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
           <button
             type="button"
             disabled={!canNext}
+            aria-disabled={!canNext}
             onClick={handleNext}
-            className="ms-btn-primary"
-            style={{
-              flex: 1,
-              height: 56,
-              border: 0,
-              borderRadius: 14,
-              cursor: canNext ? 'pointer' : 'default',
-              fontSize: 16,
-              fontWeight: 700,
-              background: canNext ? '#235347' : '#CCD9D2',
-              color: canNext ? '#FFFFFF' : '#707975',
-              boxShadow: canNext ? '0 4px 14px rgba(35, 83, 71, 0.25)' : 'none',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 8,
-              transition: 'all 0.15s ease',
-            }}
+            className="ms-btn ms-btn--primary ms-btn--lg ms-btn--block"
+            style={{ flex: 1 }}
           >
             <span>{t.next}</span>
             <ArrowRight size={18} />
@@ -1661,19 +1527,7 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
             <button
               type="button"
               onClick={() => onNavigate('/mitanin/screening/symptoms')}
-              style={{
-                padding: '12px 20px',
-                borderRadius: 12,
-                border: '1px solid #CCD9D2',
-                background: '#F8FAF9',
-                cursor: 'pointer',
-                fontSize: 15,
-                fontWeight: 700,
-                color: '#235347',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-              }}
+              className="ms-btn ms-btn--secondary ms-btn--md"
             >
               <ArrowLeft size={18} />
               <span>{lang === 'hi' ? 'पीछे' : 'Back'}</span>
@@ -1681,23 +1535,9 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
             <button
               type="button"
               disabled={!canNext}
+              aria-disabled={!canNext}
               onClick={handleNext}
-              className="ms-btn-primary"
-              style={{
-                padding: '0 32px',
-                height: 52,
-                border: 0,
-                borderRadius: 14,
-                cursor: canNext ? 'pointer' : 'default',
-                fontSize: 16,
-                fontWeight: 700,
-                background: canNext ? '#235347' : '#CCD9D2',
-                color: canNext ? '#FFFFFF' : '#707975',
-                boxShadow: canNext ? '0 4px 14px rgba(35, 83, 71, 0.25)' : 'none',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-              }}
+              className="ms-btn ms-btn--primary ms-btn--md"
             >
               <span>{t.next}</span>
               <ArrowRight size={18} />

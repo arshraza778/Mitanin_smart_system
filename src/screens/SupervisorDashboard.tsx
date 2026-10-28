@@ -281,19 +281,12 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
               type="button"
               onClick={onToggleOnline}
               aria-pressed={online}
+              className={`ms-btn ms-btn--sm ${online ? 'ms-btn--secondary-on-dark' : 'ms-btn--on-dark'}`}
               style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 7,
                 padding: '6px 14px',
-                minHeight: 48,
-                border: 0,
                 borderRadius: 999,
-                cursor: 'pointer',
                 fontSize: 13,
                 fontWeight: 700,
-                background: online ? '#DAF1DE' : '#FFF1CC',
-                color: online ? '#235347' : '#8A5A00',
               }}
             >
               <span
@@ -416,7 +409,13 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
                   <button
                     type="button"
                     onClick={() => onNavigate('/case')}
-                    style={{ display: 'block', width: '100%', padding: 0, textAlign: 'left', border: 0, background: 'none', cursor: 'pointer', color: '#00201C' }}
+                    className="ms-btn ms-btn--card"
+                    style={{
+                      display: 'block',
+                      width: '100%',
+                      padding: 0,
+                      textAlign: 'left',
+                    }}
                   >
                     <span style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
                       <span style={{ fontSize: 17, fontWeight: 800, color: '#00201C' }}>{r.name[lang]}</span>
@@ -437,23 +436,15 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
                         key={label}
                         type="button"
                         onClick={() => act(r, i)}
+                        className={`ms-btn ${i === 2 ? 'ms-btn--danger' : 'ms-btn--secondary'} ms-btn--md`}
                         style={{
                           minHeight: 48,
                           height: 48,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: 6,
                           padding: '0 4px',
                           borderRadius: 14,
-                          cursor: 'pointer',
                           fontSize: lang === 'hi' ? 11.5 : 13,
                           fontWeight: 800,
                           whiteSpace: 'nowrap',
-                          border: i === 2 ? 0 : '1.5px solid #235347',
-                          background: i === 2 ? '#BA1A1A' : '#FFFFFF',
-                          color: i === 2 ? '#FFFFFF' : '#235347',
-                          transition: 'all 0.15s ease',
                         }}
                       >
                         {ACTION_ICONS[i]}
@@ -482,19 +473,12 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
             type="button"
             onClick={onToggleOnline}
             aria-pressed={online}
+            className={`ms-btn ms-btn--sm ${online ? 'ms-btn--secondary' : 'ms-btn--ghost'}`}
             style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 7,
               padding: '6px 14px',
-              minHeight: 40,
-              border: 0,
               borderRadius: 999,
-              cursor: 'pointer',
               fontSize: 13,
               fontWeight: 700,
-              background: online ? '#DAF1DE' : '#FFF1CC',
-              color: online ? '#235347' : '#8A5A00',
               boxShadow: '0 2px 8px rgba(0, 32, 28, 0.04)',
             }}
           >
@@ -718,22 +702,14 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
                                     e.stopPropagation();
                                     act(r, i);
                                   }}
+                                  className={`ms-btn ${i === 2 ? 'ms-btn--danger' : 'ms-btn--secondary'} ms-btn--sm`}
                                   style={{
                                     height: 36,
                                     minWidth: 36,
                                     padding: '0 8px',
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    gap: 4,
                                     borderRadius: 10,
-                                    cursor: 'pointer',
                                     fontSize: 12,
                                     fontWeight: 800,
-                                    border: i === 2 ? 0 : '1.5px solid #235347',
-                                    background: i === 2 ? '#BA1A1A' : '#FFFFFF',
-                                    color: i === 2 ? '#FFFFFF' : '#235347',
-                                    transition: 'opacity 0.15s ease',
                                   }}
                                 >
                                   {ACTION_ICONS[i]}
@@ -803,20 +779,12 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
                           key={label}
                           type="button"
                           onClick={() => act(selectedRow, i)}
+                          className={`ms-btn ${i === 2 ? 'ms-btn--danger' : 'ms-btn--secondary'} ms-btn--md`}
                           style={{
                             height: 44,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: 6,
                             borderRadius: 14,
-                            cursor: 'pointer',
                             fontSize: 13,
                             fontWeight: 800,
-                            border: i === 2 ? 0 : '1.5px solid #235347',
-                            background: i === 2 ? '#BA1A1A' : '#FFFFFF',
-                            color: i === 2 ? '#FFFFFF' : '#235347',
-                            transition: 'opacity 0.15s ease',
                           }}
                         >
                           {ACTION_ICONS[i]}
@@ -828,22 +796,11 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
                     <button
                       type="button"
                       onClick={() => onNavigate('/case')}
+                      className="ms-btn ms-btn--secondary ms-btn--md ms-btn--block"
                       style={{
                         marginTop: 14,
-                        width: '100%',
                         height: 44,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: 8,
                         borderRadius: 14,
-                        border: '1.5px solid #CCD9D2',
-                        background: '#F4F9F6',
-                        color: '#235347',
-                        fontSize: 13.5,
-                        fontWeight: 800,
-                        cursor: 'pointer',
-                        transition: 'background 0.15s ease',
                       }}
                     >
                       <span>{lang === 'hi' ? 'केस समयरेखा देखें' : 'View Full Case Timeline'}</span>

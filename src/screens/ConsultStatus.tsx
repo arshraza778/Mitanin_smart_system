@@ -292,18 +292,7 @@ export default function ConsultStatus({ lang, online = true, onNavigate }: Scree
               type="button"
               onClick={() => onNavigate('/mitanin/screening/result')}
               aria-label={lang === 'hi' ? 'पीछे' : 'Back'}
-              style={{
-                width: 38,
-                height: 38,
-                borderRadius: 10,
-                background: '#F8FAF9',
-                border: '1px solid #E3ECE7',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#051F20',
-                cursor: 'pointer',
-              }}
+              className="ms-btn ms-btn--ghost ms-btn--icon"
             >
               <ArrowLeft size={18} />
             </button>
@@ -386,15 +375,10 @@ export default function ConsultStatus({ lang, online = true, onNavigate }: Scree
                       type="button"
                       aria-pressed={on}
                       onClick={() => handleVariantChange(key)}
+                      className={`ms-btn ${on ? 'ms-btn--secondary' : 'ms-btn--ghost'} ms-btn--sm`}
                       style={{
-                        border: 0,
-                        cursor: 'pointer',
                         padding: '4px 12px',
                         borderRadius: 999,
-                        fontSize: 12,
-                        fontWeight: 700,
-                        background: on ? '#FFFFFF' : 'transparent',
-                        color: on ? '#053C31' : '#235347',
                       }}
                     >
                       {t.variants[key]}
@@ -565,24 +549,9 @@ export default function ConsultStatus({ lang, online = true, onNavigate }: Scree
               <button
                 type="button"
                 disabled={hasReferral || isSubmitting}
+                aria-disabled={hasReferral || isSubmitting}
                 onClick={handleCreateReferral}
-                className="ms-btn-primary"
-                style={{
-                  width: '100%',
-                  height: 56,
-                  border: 0,
-                  borderRadius: 14,
-                  cursor: hasReferral ? 'default' : 'pointer',
-                  fontSize: 16,
-                  fontWeight: 700,
-                  background: hasReferral ? '#CCD9D2' : '#235347',
-                  color: hasReferral ? '#707975' : '#FFFFFF',
-                  boxShadow: hasReferral ? 'none' : '0 4px 14px rgba(35, 83, 71, 0.25)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 8,
-                }}
+                className="ms-btn ms-btn--primary ms-btn--lg ms-btn--block"
               >
                 <span>
                   {hasReferral
@@ -595,24 +564,9 @@ export default function ConsultStatus({ lang, online = true, onNavigate }: Scree
               <button
                 type="button"
                 disabled={isOutcomeRecorded || isSubmitting}
+                aria-disabled={isOutcomeRecorded || isSubmitting}
                 onClick={handleMarkDone}
-                className="ms-btn-primary"
-                style={{
-                  width: '100%',
-                  height: 56,
-                  border: 0,
-                  borderRadius: 14,
-                  cursor: isOutcomeRecorded ? 'default' : 'pointer',
-                  fontSize: 16,
-                  fontWeight: 700,
-                  background: isOutcomeRecorded ? '#CCD9D2' : '#235347',
-                  color: isOutcomeRecorded ? '#707975' : '#FFFFFF',
-                  boxShadow: isOutcomeRecorded ? 'none' : '0 4px 14px rgba(35, 83, 71, 0.25)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 8,
-                }}
+                className="ms-btn ms-btn--primary ms-btn--lg ms-btn--block"
               >
                 <CheckCircle2 size={18} />
                 <span>
@@ -714,15 +668,10 @@ export default function ConsultStatus({ lang, online = true, onNavigate }: Scree
                             type="button"
                             aria-pressed={on}
                             onClick={() => handleVariantChange(key)}
+                            className={`ms-btn ${on ? 'ms-btn--secondary' : 'ms-btn--ghost'} ms-btn--sm`}
                             style={{
-                              border: 0,
-                              cursor: 'pointer',
                               padding: '2px 8px',
                               borderRadius: 999,
-                              fontSize: 11,
-                              fontWeight: 700,
-                              background: on ? '#FFFFFF' : 'transparent',
-                              color: on ? '#053C31' : '#235347',
                             }}
                           >
                             {t.variants[key]}
@@ -879,23 +828,9 @@ export default function ConsultStatus({ lang, online = true, onNavigate }: Scree
                     <button
                       type="button"
                       disabled={hasReferral || isSubmitting}
+                      aria-disabled={hasReferral || isSubmitting}
                       onClick={handleCreateReferral}
-                      className="ms-btn-primary"
-                      style={{
-                        padding: '0 28px',
-                        height: 52,
-                        border: 0,
-                        borderRadius: 14,
-                        cursor: hasReferral ? 'default' : 'pointer',
-                        fontSize: 15.5,
-                        fontWeight: 700,
-                        background: hasReferral ? '#CCD9D2' : '#235347',
-                        color: hasReferral ? '#707975' : '#FFFFFF',
-                        boxShadow: hasReferral ? 'none' : '0 4px 14px rgba(35, 83, 71, 0.25)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 8,
-                      }}
+                      className="ms-btn ms-btn--primary ms-btn--md"
                     >
                       <span>
                         {hasReferral
@@ -908,23 +843,9 @@ export default function ConsultStatus({ lang, online = true, onNavigate }: Scree
                     <button
                       type="button"
                       disabled={isOutcomeRecorded || isSubmitting}
+                      aria-disabled={isOutcomeRecorded || isSubmitting}
                       onClick={handleMarkDone}
-                      className="ms-btn-primary"
-                      style={{
-                        padding: '0 28px',
-                        height: 52,
-                        border: 0,
-                        borderRadius: 14,
-                        cursor: isOutcomeRecorded ? 'default' : 'pointer',
-                        fontSize: 15.5,
-                        fontWeight: 700,
-                        background: isOutcomeRecorded ? '#CCD9D2' : '#235347',
-                        color: isOutcomeRecorded ? '#707975' : '#FFFFFF',
-                        boxShadow: isOutcomeRecorded ? 'none' : '0 4px 14px rgba(35, 83, 71, 0.25)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 8,
-                      }}
+                      className="ms-btn ms-btn--primary ms-btn--md"
                     >
                       <CheckCircle2 size={18} />
                       <span>

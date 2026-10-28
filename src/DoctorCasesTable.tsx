@@ -372,21 +372,12 @@ export function DoctorCasesTable({
             type="button"
             onClick={() => setIsZoomed(false)}
             aria-label={tReview.close}
+            className="ms-btn ms-btn--close-round"
             style={{
               position: 'absolute',
               top: 24,
               right: 24,
-              width: 44,
-              height: 44,
-              borderRadius: '50%',
-              background: 'rgba(255, 255, 255, 0.25)',
-              color: '#FFFFFF',
-              border: 0,
-              fontSize: 22,
-              fontWeight: 800,
               cursor: 'pointer',
-              display: 'grid',
-              placeItems: 'center',
               zIndex: 100000,
             }}
           >
@@ -505,15 +496,13 @@ export function DoctorCasesTable({
                   type="button"
                   onClick={() => setSearchQuery('')}
                   aria-label={lang === 'hi' ? 'खोज साफ़ करें' : 'Clear search'}
+                  className="ms-btn ms-btn--ghost ms-btn--close"
                   style={{
                     position: 'absolute',
                     right: 8,
                     top: '50%',
                     transform: 'translateY(-50%)',
-                    background: 'none',
-                    border: 0,
                     cursor: 'pointer',
-                    color: '#404945',
                     fontSize: 14,
                     fontWeight: 800,
                     padding: 4,
@@ -544,17 +533,10 @@ export function DoctorCasesTable({
                     type="button"
                     aria-pressed={on}
                     onClick={() => setStateFilter(f.id as StateFilter)}
+                    className={`ms-btn ms-btn--chip ${on ? 'ms-btn--primary' : 'ms-btn--secondary'}`}
                     style={{
-                      padding: '5px 12px',
-                      borderRadius: 999,
-                      cursor: 'pointer',
                       fontSize: 12,
                       fontWeight: 800,
-                      border: `1.5px solid ${on ? '#235347' : '#CCD9D2'}`,
-                      background: on ? '#235347' : '#FFFFFF',
-                      color: on ? '#FFFFFF' : '#235347',
-                      transition: 'all 0.15s ease',
-                      minHeight: 32,
                     }}
                   >
                     {f.label}
@@ -863,17 +845,14 @@ export function DoctorCasesTable({
                       <button
                         type="button"
                         onClick={() => setPhotoRequested(selectedCase.id, true)}
+                        className="ms-btn ms-btn--primary ms-btn--sm"
                         style={{
                           flex: 1,
                           minHeight: 40,
                           padding: '6px 12px',
                           borderRadius: 10,
-                          border: 0,
-                          cursor: 'pointer',
                           fontSize: 12.5,
                           fontWeight: 800,
-                          background: isPhotoRequested ? '#2E7D4F' : '#235347',
-                          color: '#FFFFFF',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -885,17 +864,14 @@ export function DoctorCasesTable({
                       <button
                         type="button"
                         onClick={() => setNoPhotoReplying(selectedCase.id, true)}
+                        className="ms-btn ms-btn--secondary ms-btn--sm"
                         style={{
                           flex: 1,
                           minHeight: 40,
                           padding: '6px 12px',
                           borderRadius: 10,
-                          border: '1.5px solid #CCD9D2',
-                          cursor: 'pointer',
                           fontSize: 12.5,
                           fontWeight: 700,
-                          background: isNoPhotoReplying ? '#DAF1DE' : '#FFFFFF',
-                          color: '#235347',
                         }}
                       >
                         Reply without photo
@@ -917,16 +893,10 @@ export function DoctorCasesTable({
                     <button
                       type="button"
                       onClick={() => setImageError(false)}
+                      className="ms-btn ms-btn--secondary ms-btn--sm"
                       style={{
                         marginTop: 8,
-                        padding: '4px 14px',
                         borderRadius: 999,
-                        border: '1px solid #BA1A1A',
-                        background: '#FFFFFF',
-                        color: '#BA1A1A',
-                        fontSize: 12,
-                        fontWeight: 800,
-                        cursor: 'pointer',
                       }}
                     >
                       {tReview.retry}
@@ -957,18 +927,14 @@ export function DoctorCasesTable({
                     <button
                       type="button"
                       onClick={() => setIsZoomed(true)}
+                      className="ms-btn ms-btn--secondary ms-btn--sm"
                       style={{
                         position: 'absolute',
                         right: 8,
                         bottom: 8,
-                        padding: '4px 10px',
                         borderRadius: 999,
-                        border: 0,
-                        cursor: 'pointer',
                         fontSize: 11,
                         fontWeight: 700,
-                        background: 'rgba(5, 31, 32, 0.85)',
-                        color: '#FFFFFF',
                         display: 'flex',
                         alignItems: 'center',
                         gap: 4,
@@ -1040,16 +1006,12 @@ export function DoctorCasesTable({
                         onClick={() => {
                           if (!disabled) handleReadChange(key);
                         }}
+                        className={`ms-btn ms-btn--sm ${on ? (key === 'agree' ? 'ms-btn--primary' : 'ms-btn--danger') : 'ms-btn--ghost'}`}
                         style={{
-                          border: 0,
-                          cursor: disabled ? 'not-allowed' : 'pointer',
-                          opacity: disabled ? 0.45 : 1,
                           padding: '6px 12px',
                           borderRadius: 999,
                           fontSize: 12,
                           fontWeight: 800,
-                          background: on ? (key === 'agree' ? '#2E7D4F' : '#BA1A1A') : '#E7F0EA',
-                          color: on ? '#FFFFFF' : '#235347',
                           minHeight: 32,
                         }}
                       >
@@ -1115,15 +1077,10 @@ export function DoctorCasesTable({
                           key={chip}
                           type="button"
                           onClick={() => addChip(chip)}
+                          className="ms-btn ms-btn--chip ms-btn--secondary"
                           style={{
-                            padding: '4px 10px',
-                            borderRadius: 999,
-                            cursor: 'pointer',
                             fontSize: 11.5,
                             fontWeight: 700,
-                            border: '1.5px solid #CCD9D2',
-                            background: '#F8FAF9',
-                            color: '#235347',
                             minHeight: 28,
                           }}
                         >
@@ -1190,16 +1147,13 @@ export function DoctorCasesTable({
                             role="radio"
                             aria-checked={on}
                             onClick={() => handleDecisionChange(key)}
+                            className={`ms-btn ms-btn--md ${on ? (isRefer ? 'ms-btn--danger' : 'ms-btn--primary') : 'ms-btn--secondary'}`}
                             style={{
                               padding: '6px 12px',
                               borderRadius: 10,
-                              cursor: 'pointer',
                               fontSize: 13,
                               fontWeight: 800,
                               minHeight: 40,
-                              border: `2px solid ${on ? (isRefer ? '#BA1A1A' : '#235347') : '#CCD9D2'}`,
-                              background: on ? (isRefer ? '#BA1A1A' : '#235347') : '#FFFFFF',
-                              color: on ? '#FFFFFF' : '#00201C',
                             }}
                           >
                             {tReview.decisions[key]}
@@ -1212,17 +1166,14 @@ export function DoctorCasesTable({
                       type="button"
                       disabled={!readyToSend}
                       onClick={handleSend}
+                      className="ms-btn ms-btn--primary ms-btn--md"
                       style={{
                         height: 44,
                         minHeight: 44,
                         padding: '0 20px',
-                        border: 0,
                         borderRadius: 12,
-                        cursor: readyToSend ? 'pointer' : 'not-allowed',
                         fontSize: 14,
                         fontWeight: 800,
-                        background: justSent ? '#2E7D4F' : readyToSend ? '#235347' : '#CCD9D2',
-                        color: justSent || readyToSend ? '#FFFFFF' : '#404945',
                       }}
                     >
                       {justSent ? tReview.sent : tReview.send}

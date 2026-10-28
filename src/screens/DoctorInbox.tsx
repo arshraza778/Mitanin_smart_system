@@ -284,21 +284,12 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
             type="button"
             onClick={() => setIsZoomed(false)}
             aria-label={tReview.close}
+            className="ms-btn ms-btn--close-round"
             style={{
               position: 'absolute',
               top: 20,
               right: 20,
-              width: 44,
-              height: 44,
-              borderRadius: '50%',
-              background: 'rgba(255, 255, 255, 0.2)',
-              color: '#fff',
-              border: 0,
-              fontSize: 22,
-              fontWeight: 800,
               cursor: 'pointer',
-              display: 'grid',
-              placeItems: 'center',
               zIndex: 100000,
             }}
           >
@@ -331,20 +322,16 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
               type="button"
               onClick={onToggleOnline}
               aria-pressed={online}
+              className={`ms-btn ms-btn--sm ${online ? 'ms-btn--secondary-on-dark' : 'ms-btn--on-dark'}`}
               style={{
                 marginTop: 10,
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 7,
                 padding: '6px 14px',
-                minHeight: 48,
-                border: 0,
                 borderRadius: 999,
-                cursor: 'pointer',
                 fontSize: 13,
                 fontWeight: 700,
-                background: online ? '#DAF1DE' : '#FFF1CC',
-                color: online ? '#235347' : '#8A5A00',
               }}
             >
               <span aria-hidden style={{ width: 8, height: 8, borderRadius: '50%', background: online ? '#2E7D4F' : '#8A5A00' }} />
@@ -395,21 +382,13 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                   type="button"
                   aria-pressed={on}
                   onClick={() => setFilter(key)}
+                  className={`ms-btn ms-btn--chip ${on ? 'ms-btn--primary' : 'ms-btn--secondary'}`}
                   style={{
                     flex: '0 0 auto',
                     minHeight: 48,
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    padding: '8px 16px',
-                    borderRadius: 999,
-                    cursor: 'pointer',
                     fontSize: 14,
                     fontWeight: 800,
                     whiteSpace: 'nowrap',
-                    border: `2px solid ${on ? '#235347' : '#E3ECE7'}`,
-                    background: on ? '#235347' : '#FFFFFF',
-                    color: on ? '#FFFFFF' : '#235347',
-                    transition: 'all 0.15s ease',
                   }}
                 >
                   {t.filters[key]}
@@ -433,6 +412,7 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                       }
                       onNavigate('/doctor/review');
                     }}
+                    className="ms-btn ms-btn--card"
                     style={{
                       width: '100%',
                       display: 'flex',
@@ -441,11 +421,6 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                       padding: 14,
                       textAlign: 'left',
                       borderRadius: 20,
-                      cursor: 'pointer',
-                      border: '1px solid #E3ECE7',
-                      background: '#FFFFFF',
-                      color: '#00201C',
-                      boxShadow: '0 2px 6px rgba(0, 32, 28, 0.04)',
                     }}
                   >
                     <Thumb has={c.photo} src={c.photoData} alt={t.photoAlt} empty={t.noPhoto} />
@@ -490,6 +465,7 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                         }
                         onNavigate('/doctor/review');
                       }}
+                      className="ms-btn ms-btn--card"
                       style={{
                         width: '100%',
                         display: 'flex',
@@ -498,11 +474,6 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                         padding: 14,
                         textAlign: 'left',
                         borderRadius: 20,
-                        cursor: 'pointer',
-                        border: '1px solid #E3ECE7',
-                        background: '#FFFFFF',
-                        color: '#00201C',
-                        boxShadow: '0 2px 6px rgba(0, 32, 28, 0.04)',
                       }}
                     >
                       <Thumb has={c.photo} src={c.photoData} alt={t.photoAlt} empty={t.noPhoto} />
@@ -547,18 +518,15 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
             type="button"
             onClick={onToggleOnline}
             aria-pressed={online}
+            className={`ms-btn ms-btn--sm ${online ? 'ms-btn--secondary' : 'ms-btn--ghost'}`}
             style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: 8,
               padding: '8px 16px',
-              border: 0,
               borderRadius: 999,
-              cursor: 'pointer',
               fontSize: 13.5,
               fontWeight: 700,
-              background: online ? '#DAF1DE' : '#FFF1CC',
-              color: online ? '#235347' : '#8A5A00',
               boxShadow: '0 2px 8px rgba(0, 32, 28, 0.06)',
             }}
           >
@@ -600,16 +568,10 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                     type="button"
                     aria-pressed={on}
                     onClick={() => setFilter(key)}
+                    className={`ms-btn ms-btn--chip ${on ? 'ms-btn--primary' : 'ms-btn--secondary'}`}
                     style={{
-                      padding: '6px 14px',
-                      borderRadius: 999,
-                      cursor: 'pointer',
                       fontSize: 12.5,
                       fontWeight: 800,
-                      border: `1.5px solid ${on ? '#235347' : '#DAF1DE'}`,
-                      background: on ? '#235347' : '#FFFFFF',
-                      color: on ? '#FFFFFF' : '#235347',
-                      transition: 'all 0.15s ease',
                     }}
                   >
                     {t.filters[key]}
@@ -630,6 +592,7 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                       <button
                         type="button"
                         onClick={() => handleSelectCase(c.id)}
+                        className={`ms-btn ms-btn--card ${isSelected ? 'ms-btn--card-primary' : ''}`}
                         style={{
                           width: '100%',
                           display: 'flex',
@@ -638,11 +601,6 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                           padding: '12px 14px',
                           textAlign: 'left',
                           borderRadius: 18,
-                          cursor: 'pointer',
-                          border: isSelected ? '2px solid #235347' : '1px solid #E3ECE7',
-                          background: isSelected ? '#DAF1DE' : '#FFFFFF',
-                          color: '#00201C',
-                          transition: 'all 0.15s ease',
                         }}
                       >
                         <Thumb has={c.photo} src={c.photoData} alt={t.photoAlt} empty={t.noPhoto} />
@@ -687,6 +645,7 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                         <button
                           type="button"
                           onClick={() => handleSelectCase(c.id)}
+                          className={`ms-btn ms-btn--card ${isSelected ? 'ms-btn--card-primary' : ''}`}
                           style={{
                             width: '100%',
                             display: 'flex',
@@ -695,10 +654,6 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                             padding: '10px 14px',
                             textAlign: 'left',
                             borderRadius: 16,
-                            cursor: 'pointer',
-                            border: isSelected ? '2px solid #235347' : '1px solid #E3ECE7',
-                            background: isSelected ? '#DAF1DE' : '#FFFFFF',
-                            color: '#00201C',
                           }}
                         >
                           <Thumb has={c.photo} src={c.photoData} alt={t.photoAlt} empty={t.noPhoto} />
@@ -822,16 +777,11 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                       <button
                         type="button"
                         onClick={() => setImageError(false)}
+                        className="ms-btn ms-btn--secondary ms-btn--sm"
                         style={{
-                          padding: '8px 20px',
                           borderRadius: 999,
-                          border: '1px solid #E3ECE7',
-                          background: '#FFFFFF',
-                          color: '#00201C',
                           fontSize: 14,
                           fontWeight: 800,
-                          cursor: 'pointer',
-                          minHeight: 40,
                         }}
                       >
                         {tReview.retry}
@@ -884,15 +834,11 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                         <button
                           type="button"
                           onClick={() => setIsZoomed(true)}
+                          className="ms-btn ms-btn--secondary ms-btn--sm"
                           style={{
-                            padding: '6px 14px',
-                            border: 0,
                             borderRadius: 999,
-                            cursor: 'pointer',
                             fontSize: 12.5,
                             fontWeight: 700,
-                            background: 'rgba(5, 31, 32, 0.85)',
-                            color: '#FFFFFF',
                           }}
                         >
                           🔍 {tReview.zoomIn}
@@ -969,18 +915,13 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                                   if (validationError) setValidationError(null);
                                 }
                               }}
+                              className={`ms-btn ms-btn--sm ${on ? (key === 'agree' ? 'ms-btn--primary' : 'ms-btn--danger') : 'ms-btn--ghost'}`}
                               style={{
                                 flex: 1,
-                                border: 0,
-                                cursor: disabled ? 'not-allowed' : 'pointer',
-                                opacity: disabled ? 0.45 : 1,
                                 padding: '8px 14px',
                                 borderRadius: 999,
                                 fontSize: 14,
                                 fontWeight: 800,
-                                background: on ? (key === 'agree' ? '#2E7D4F' : '#BA1A1A') : 'transparent',
-                                color: on ? '#FFFFFF' : '#235347',
-                                transition: 'all 0.15s ease',
                               }}
                             >
                               {tReview.reads[key]}
@@ -1047,17 +988,11 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                         <button
                           type="button"
                           onClick={() => addChip(chip)}
+                          className="ms-btn ms-btn--chip ms-btn--secondary"
                           style={{
-                            padding: '6px 12px',
-                            borderRadius: 999,
-                            cursor: 'pointer',
                             fontSize: 12.5,
                             fontWeight: 700,
                             textAlign: 'left',
-                            border: '1.5px solid #CCD9D2',
-                            background: '#F4F9F6',
-                            color: '#235347',
-                            transition: 'all 0.15s ease',
                           }}
                         >
                           + {chip}
@@ -1105,16 +1040,12 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                               setDecision(key);
                               if (validationError) setValidationError(null);
                             }}
+                            className={`ms-btn ms-btn--md ${on ? (isRefer ? 'ms-btn--danger' : 'ms-btn--primary') : 'ms-btn--secondary'}`}
                             style={{
                               padding: '10px 20px',
                               borderRadius: 16,
-                              cursor: 'pointer',
                               fontSize: 15,
                               fontWeight: 800,
-                              border: `2px solid ${on ? (isRefer ? '#BA1A1A' : '#235347') : '#E3ECE7'}`,
-                              background: on ? (isRefer ? '#BA1A1A' : '#235347') : '#FFFFFF',
-                              color: on ? '#FFFFFF' : '#00201C',
-                              transition: 'all 0.15s ease',
                             }}
                           >
                             {tReview.decisions[key]}
@@ -1129,18 +1060,14 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                     type="button"
                     disabled={!ready}
                     onClick={send}
+                    className="ms-btn ms-btn--primary ms-btn--lg"
                     style={{
                       height: 52,
                       padding: '0 28px',
-                      border: 0,
                       borderRadius: 18,
-                      cursor: ready ? 'pointer' : 'default',
                       fontSize: 16,
                       fontWeight: 800,
-                      background: sent ? '#2E7D4F' : ready ? '#235347' : '#E3ECE7',
-                      color: sent || ready ? '#FFFFFF' : '#707975',
                       boxShadow: ready ? '0 4px 14px rgba(35, 83, 71, 0.3)' : 'none',
-                      transition: 'all 0.2s ease',
                     }}
                   >
                     {sent ? tReview.sent : tReview.send}

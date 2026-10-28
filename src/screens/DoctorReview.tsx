@@ -344,21 +344,12 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
             type="button"
             onClick={() => setIsZoomed(false)}
             aria-label={t.close}
+            className="ms-btn ms-btn--close-round"
             style={{
               position: 'absolute',
               top: 20,
               right: 20,
-              width: 44,
-              height: 44,
-              borderRadius: '50%',
-              background: 'rgba(255, 255, 255, 0.2)',
-              color: '#fff',
-              border: 0,
-              fontSize: 22,
-              fontWeight: 800,
               cursor: 'pointer',
-              display: 'grid',
-              placeItems: 'center',
               zIndex: 100000,
             }}
           >
@@ -480,17 +471,14 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                     onClick={() => {
                       if (selectedCase?.id) setPhotoRequested(selectedCase.id, true);
                     }}
+                    className="ms-btn ms-btn--primary ms-btn--sm"
                     style={{
                       flex: 1,
                       minHeight: 40,
                       padding: '6px 10px',
                       borderRadius: 10,
-                      border: 0,
-                      cursor: 'pointer',
                       fontSize: 12,
                       fontWeight: 800,
-                      background: selectedCase?.id && photoRequestedCases[selectedCase.id] ? '#2E7D4F' : '#235347',
-                      color: '#FFFFFF',
                     }}
                   >
                     {selectedCase?.id && photoRequestedCases[selectedCase.id]
@@ -502,17 +490,14 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                     onClick={() => {
                       if (selectedCase?.id) setNoPhotoReplying(selectedCase.id, true);
                     }}
+                    className="ms-btn ms-btn--secondary ms-btn--sm"
                     style={{
                       flex: 1,
                       minHeight: 40,
                       padding: '6px 10px',
                       borderRadius: 10,
-                      border: '1.5px solid #CCD9D2',
-                      cursor: 'pointer',
                       fontSize: 12,
                       fontWeight: 700,
-                      background: selectedCase?.id && noPhotoReplyingCases[selectedCase.id] ? '#DAF1DE' : '#FFFFFF',
-                      color: '#235347',
                     }}
                   >
                     {lang === 'hi' ? 'बिना फ़ोटो' : 'Reply w/o photo'}
@@ -543,16 +528,11 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                 <button
                   type="button"
                   onClick={() => setImageError(false)}
+                  className="ms-btn ms-btn--secondary ms-btn--sm"
                   style={{
-                    padding: '8px 20px',
                     borderRadius: 999,
-                    border: '1px solid #E3ECE7',
-                    background: '#FFFFFF',
-                    color: '#00201C',
                     fontSize: 14,
                     fontWeight: 800,
-                    cursor: 'pointer',
-                    minHeight: 40,
                   }}
                 >
                   {t.retry}
@@ -596,6 +576,7 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                 <button
                   type="button"
                   onClick={() => setIsZoomed(true)}
+                  className="ms-btn ms-btn--secondary ms-btn--sm"
                   style={{
                     position: 'absolute',
                     left: 12,
@@ -603,14 +584,9 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: 6,
-                    padding: '8px 14px',
                     borderRadius: 999,
-                    border: 0,
-                    cursor: 'pointer',
                     fontSize: 12.5,
                     fontWeight: 700,
-                    background: 'rgba(5, 31, 32, 0.85)',
-                    color: '#FFFFFF',
                     zIndex: 2,
                   }}
                 >
@@ -675,10 +651,8 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                           if (validationError) setValidationError(null);
                         }
                       }}
+                      className={`ms-btn ms-btn--sm ${on ? (key === 'agree' ? 'ms-btn--primary' : 'ms-btn--danger') : 'ms-btn--ghost'}`}
                       style={{
-                        border: 0,
-                        cursor: disabled ? 'not-allowed' : 'pointer',
-                        opacity: disabled ? 0.45 : 1,
                         padding: '10px 18px',
                         minHeight: 48,
                         display: 'inline-flex',
@@ -686,9 +660,6 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                         borderRadius: 999,
                         fontSize: 15,
                         fontWeight: 800,
-                        background: on ? (key === 'agree' ? '#2E7D4F' : '#BA1A1A') : 'transparent',
-                        color: on ? '#FFFFFF' : '#235347',
-                        transition: 'all 0.15s ease',
                       }}
                     >
                       {t.reads[key]}
@@ -811,20 +782,12 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                       <button
                         type="button"
                         onClick={() => addChip(chip)}
+                        className="ms-btn ms-btn--chip ms-btn--secondary"
                         style={{
-                          padding: '8px 14px',
                           minHeight: 48,
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          borderRadius: 999,
-                          cursor: 'pointer',
                           fontSize: 13.5,
                           fontWeight: 700,
                           textAlign: 'left',
-                          border: '1.5px solid #CCD9D2',
-                          background: '#FFFFFF',
-                          color: '#235347',
-                          transition: 'all 0.15s ease',
                         }}
                       >
                         {chip}
@@ -888,17 +851,12 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                           setDecision(key);
                           if (validationError) setValidationError(null);
                         }}
+                        className={`ms-btn ms-btn--lg ${on ? (isRefer ? 'ms-btn--danger' : 'ms-btn--primary') : 'ms-btn--secondary'}`}
                         style={{
                           padding: '14px 16px',
                           borderRadius: 20,
-                          cursor: 'pointer',
                           fontSize: 16,
                           fontWeight: 800,
-                          minHeight: 48,
-                          border: `2px solid ${on ? (isRefer ? '#BA1A1A' : '#235347') : '#E3ECE7'}`,
-                          background: on ? (isRefer ? '#BA1A1A' : '#235347') : '#FFFFFF',
-                          color: on ? '#FFFFFF' : '#00201C',
-                          transition: 'all 0.15s ease',
                         }}
                       >
                         {t.decisions[key]}
@@ -918,17 +876,13 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                 type="button"
                 disabled={!ready}
                 onClick={send}
+                className="ms-btn ms-btn--primary ms-btn--lg ms-btn--block"
                 style={{
                   height: 56,
-                  border: 0,
                   borderRadius: 20,
-                  cursor: ready ? 'pointer' : 'default',
                   fontSize: 17,
                   fontWeight: 800,
-                  background: sent ? '#2E7D4F' : ready ? '#235347' : '#E3ECE7',
-                  color: sent || ready ? '#FFFFFF' : '#707975',
                   boxShadow: ready ? '0 4px 14px rgba(35, 83, 71, 0.3)' : 'none',
-                  transition: 'all 0.2s ease',
                 }}
               >
                 {sent ? t.sent : t.send}
@@ -961,16 +915,10 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                     role="tab"
                     aria-selected={on}
                     onClick={() => setFilter(key)}
+                    className={`ms-btn ms-btn--chip ${on ? 'ms-btn--primary' : 'ms-btn--secondary'}`}
                     style={{
-                      border: on ? '2px solid #235347' : '1.5px solid #DAF1DE',
-                      cursor: 'pointer',
-                      padding: '8px 14px',
-                      borderRadius: 999,
                       fontSize: 13,
                       fontWeight: 800,
-                      background: on ? '#235347' : '#FFFFFF',
-                      color: on ? '#FFFFFF' : '#235347',
-                      transition: 'all 0.15s ease',
                     }}
                   >
                     {tInbox.filters[key]}
@@ -994,6 +942,7 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                         <button
                           type="button"
                           onClick={() => handleSelectCase(c.id)}
+                          className={`ms-btn ms-btn--card ${isSelected ? 'ms-btn--card-primary' : ''}`}
                           style={{
                             width: '100%',
                             display: 'flex',
@@ -1002,11 +951,6 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                             padding: '12px 14px',
                             borderRadius: 18,
                             textAlign: 'left',
-                            cursor: 'pointer',
-                            border: `2px solid ${isSelected ? '#235347' : 'transparent'}`,
-                            background: isSelected ? '#DAF1DE' : '#FFFFFF',
-                            boxShadow: isSelected ? 'none' : '0 1px 4px rgba(0, 32, 28, 0.04)',
-                            transition: 'all 0.15s ease',
                           }}
                         >
                           <Thumb
@@ -1142,16 +1086,11 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                       <button
                         type="button"
                         onClick={() => setImageError(false)}
+                        className="ms-btn ms-btn--secondary ms-btn--sm"
                         style={{
-                          padding: '8px 20px',
                           borderRadius: 999,
-                          border: '1px solid #E3ECE7',
-                          background: '#FFFFFF',
-                          color: '#00201C',
                           fontSize: 14,
                           fontWeight: 800,
-                          cursor: 'pointer',
-                          minHeight: 40,
                         }}
                       >
                         {t.retry}
@@ -1204,15 +1143,11 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                         <button
                           type="button"
                           onClick={() => setIsZoomed(true)}
+                          className="ms-btn ms-btn--secondary ms-btn--sm"
                           style={{
-                            padding: '6px 14px',
-                            border: 0,
                             borderRadius: 999,
-                            cursor: 'pointer',
                             fontSize: 12.5,
                             fontWeight: 700,
-                            background: 'rgba(5, 31, 32, 0.85)',
-                            color: '#FFFFFF',
                           }}
                         >
                           🔍 {t.zoomIn}
@@ -1289,18 +1224,13 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                                   if (validationError) setValidationError(null);
                                 }
                               }}
+                              className={`ms-btn ms-btn--sm ${on ? (key === 'agree' ? 'ms-btn--primary' : 'ms-btn--danger') : 'ms-btn--ghost'}`}
                               style={{
                                 flex: 1,
-                                border: 0,
-                                cursor: disabled ? 'not-allowed' : 'pointer',
-                                opacity: disabled ? 0.45 : 1,
                                 padding: '8px 14px',
                                 borderRadius: 999,
                                 fontSize: 14,
                                 fontWeight: 800,
-                                background: on ? (key === 'agree' ? '#2E7D4F' : '#BA1A1A') : 'transparent',
-                                color: on ? '#FFFFFF' : '#235347',
-                                transition: 'all 0.15s ease',
                               }}
                             >
                               {t.reads[key]}
@@ -1426,17 +1356,11 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                             <button
                               type="button"
                               onClick={() => addChip(chip)}
+                              className="ms-btn ms-btn--chip ms-btn--secondary"
                               style={{
-                                padding: '6px 12px',
-                                borderRadius: 999,
-                                cursor: 'pointer',
                                 fontSize: 12.5,
                                 fontWeight: 700,
                                 textAlign: 'left',
-                                border: '1.5px solid #CCD9D2',
-                                background: '#F4F9F6',
-                                color: '#235347',
-                                transition: 'all 0.15s ease',
                               }}
                             >
                               + {chip}
@@ -1484,16 +1408,12 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                                   setDecision(key);
                                   if (validationError) setValidationError(null);
                                 }}
+                                className={`ms-btn ms-btn--md ${on ? (isRefer ? 'ms-btn--danger' : 'ms-btn--primary') : 'ms-btn--secondary'}`}
                                 style={{
                                   padding: '10px 20px',
                                   borderRadius: 16,
-                                  cursor: 'pointer',
                                   fontSize: 15,
                                   fontWeight: 800,
-                                  border: `2px solid ${on ? (isRefer ? '#BA1A1A' : '#235347') : '#E3ECE7'}`,
-                                  background: on ? (isRefer ? '#BA1A1A' : '#235347') : '#FFFFFF',
-                                  color: on ? '#FFFFFF' : '#00201C',
-                                  transition: 'all 0.15s ease',
                                 }}
                               >
                                 {t.decisions[key]}
@@ -1508,18 +1428,14 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                         type="button"
                         disabled={!ready}
                         onClick={send}
+                        className="ms-btn ms-btn--primary ms-btn--lg"
                         style={{
                           height: 52,
                           padding: '0 28px',
-                          border: 0,
                           borderRadius: 18,
-                          cursor: ready ? 'pointer' : 'default',
                           fontSize: 16,
                           fontWeight: 800,
-                          background: sent ? '#2E7D4F' : ready ? '#235347' : '#E3ECE7',
-                          color: sent || ready ? '#FFFFFF' : '#707975',
                           boxShadow: ready ? '0 4px 14px rgba(35, 83, 71, 0.3)' : 'none',
-                          transition: 'all 0.2s ease',
                         }}
                       >
                         {sent ? t.sent : t.send}

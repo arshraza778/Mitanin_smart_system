@@ -410,21 +410,12 @@ export function DoctorSplitLayout({
             type="button"
             onClick={() => setIsZoomed(false)}
             aria-label={tReview.close}
+            className="ms-btn ms-btn--close-round"
             style={{
               position: 'absolute',
               top: 24,
               right: 24,
-              width: 44,
-              height: 44,
-              borderRadius: '50%',
-              background: 'rgba(255, 255, 255, 0.25)',
-              color: '#FFFFFF',
-              border: 0,
-              fontSize: 22,
-              fontWeight: 800,
               cursor: 'pointer',
-              display: 'grid',
-              placeItems: 'center',
               zIndex: 100000,
             }}
           >
@@ -544,15 +535,13 @@ export function DoctorSplitLayout({
                   type="button"
                   onClick={() => setSearchQuery('')}
                   aria-label={lang === 'hi' ? 'खोज साफ़ करें' : 'Clear search'}
+                  className="ms-btn ms-btn--ghost ms-btn--close"
                   style={{
                     position: 'absolute',
                     right: 8,
                     top: '50%',
                     transform: 'translateY(-50%)',
-                    background: 'none',
-                    border: 0,
                     cursor: 'pointer',
-                    color: '#404945',
                     fontSize: 14,
                     fontWeight: 800,
                     padding: 4,
@@ -577,17 +566,10 @@ export function DoctorSplitLayout({
                     type="button"
                     aria-pressed={on}
                     onClick={() => setFilter(key)}
+                    className={`ms-btn ms-btn--chip ${on ? 'ms-btn--primary' : 'ms-btn--secondary'}`}
                     style={{
-                      padding: '5px 12px',
-                      borderRadius: 999,
-                      cursor: 'pointer',
                       fontSize: 12,
                       fontWeight: 800,
-                      border: `1.5px solid ${on ? '#235347' : '#CCD9D2'}`,
-                      background: on ? '#235347' : '#FFFFFF',
-                      color: on ? '#FFFFFF' : '#235347',
-                      transition: 'all 0.15s ease',
-                      minHeight: 32,
                     }}
                   >
                     {tInbox.filters[key]}
@@ -638,6 +620,7 @@ export function DoctorSplitLayout({
                         type="button"
                         onClick={() => setSelectedDoctorCaseId(c.id)}
                         title={`${patientSummary} - ${c.village[lang]}`}
+                        className={`ms-btn ms-btn--card ${isSelected ? 'ms-btn--card-primary' : ''}`}
                         style={{
                           width: '100%',
                           display: 'flex',
@@ -646,12 +629,6 @@ export function DoctorSplitLayout({
                           padding: '10px 12px',
                           textAlign: 'left',
                           borderRadius: 14,
-                          cursor: 'pointer',
-                          border: isSelected ? '2px solid #235347' : '1px solid #E3ECE7',
-                          background: isSelected ? '#DAF1DE' : '#FFFFFF',
-                          color: '#00201C',
-                          transition: 'all 0.15s ease',
-                          boxShadow: isSelected ? 'none' : '0 1px 3px rgba(0, 32, 28, 0.03)',
                         }}
                       >
                         <Thumb has={c.photo} src={c.photoData} alt={tInbox.photoAlt} empty={tInbox.noPhoto} />
@@ -778,6 +755,7 @@ export function DoctorSplitLayout({
                               type="button"
                               onClick={() => setSelectedDoctorCaseId(c.id)}
                               title={`${patientSummary} - ${c.village[lang]}`}
+                              className={`ms-btn ms-btn--card ${isSelected ? 'ms-btn--card-primary' : ''}`}
                               style={{
                                 width: '100%',
                                 display: 'flex',
@@ -786,10 +764,6 @@ export function DoctorSplitLayout({
                                 padding: '8px 12px',
                                 textAlign: 'left',
                                 borderRadius: 14,
-                                cursor: 'pointer',
-                                border: isSelected ? '2px solid #235347' : '1px solid #E3ECE7',
-                                background: isSelected ? '#DAF1DE' : '#FFFFFF',
-                                color: '#00201C',
                                 opacity: 0.9,
                               }}
                             >
@@ -969,22 +943,17 @@ export function DoctorSplitLayout({
                       <button
                         type="button"
                         onClick={handleAskPhoto}
+                        className="ms-btn ms-btn--primary ms-btn--md"
                         style={{
                           width: '100%',
-                          minHeight: 44,
                           padding: '8px 16px',
                           borderRadius: 12,
-                          border: 0,
-                          cursor: 'pointer',
                           fontSize: 13.5,
                           fontWeight: 800,
-                          background: isPhotoRequested ? '#2E7D4F' : '#235347',
-                          color: '#FFFFFF',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
                           gap: 6,
-                          transition: 'all 0.15s ease',
                         }}
                       >
                         {isPhotoRequested ? (
@@ -1003,22 +972,17 @@ export function DoctorSplitLayout({
                       <button
                         type="button"
                         onClick={handleReplyWithoutPhoto}
+                        className="ms-btn ms-btn--secondary ms-btn--md"
                         style={{
                           width: '100%',
-                          minHeight: 44,
                           padding: '8px 16px',
                           borderRadius: 12,
-                          border: '1.5px solid #CCD9D2',
-                          cursor: 'pointer',
                           fontSize: 13.5,
                           fontWeight: 700,
-                          background: isNoPhotoReplying ? '#DAF1DE' : '#FFFFFF',
-                          color: '#235347',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
                           gap: 6,
-                          transition: 'all 0.15s ease',
                         }}
                       >
                         <FileText size={16} />
@@ -1047,16 +1011,12 @@ export function DoctorSplitLayout({
                     <button
                       type="button"
                       onClick={() => setImageError(false)}
+                      className="ms-btn ms-btn--secondary ms-btn--sm"
                       style={{
                         padding: '6px 18px',
                         borderRadius: 999,
-                        border: '1px solid #BA1A1A',
-                        background: '#FFFFFF',
-                        color: '#BA1A1A',
                         fontSize: 13,
                         fontWeight: 800,
-                        cursor: 'pointer',
-                        minHeight: 36,
                       }}
                     >
                       {tReview.retry}
@@ -1106,22 +1066,15 @@ export function DoctorSplitLayout({
                     <button
                       type="button"
                       onClick={() => setIsZoomed(true)}
+                      className="ms-btn ms-btn--secondary ms-btn--sm"
                       style={{
                         position: 'absolute',
                         right: 10,
                         bottom: 10,
                         padding: '6px 12px',
                         borderRadius: 999,
-                        border: 0,
-                        cursor: 'pointer',
                         fontSize: 12,
                         fontWeight: 700,
-                        background: 'rgba(5, 31, 32, 0.85)',
-                        color: '#FFFFFF',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 4,
-                        zIndex: 2,
                       }}
                     >
                       <ZoomIn size={14} />
@@ -1221,22 +1174,13 @@ export function DoctorSplitLayout({
                             onClick={() => {
                               if (!disabled) handleReadChange(key);
                             }}
+                            className={`ms-btn ms-btn--sm ${on ? (key === 'agree' ? 'ms-btn--primary' : 'ms-btn--danger') : 'ms-btn--ghost'}`}
                             style={{
                               flex: 1,
-                              border: 0,
-                              cursor: disabled ? 'not-allowed' : 'pointer',
-                              opacity: disabled ? 0.45 : 1,
                               padding: '8px 12px',
                               borderRadius: 999,
                               fontSize: 13,
                               fontWeight: 800,
-                              background: on
-                                ? key === 'agree'
-                                  ? '#2E7D4F'
-                                  : '#BA1A1A'
-                                : 'transparent',
-                              color: on ? '#FFFFFF' : '#235347',
-                              transition: 'all 0.15s ease',
                               minHeight: 36,
                             }}
                           >
@@ -1413,18 +1357,11 @@ export function DoctorSplitLayout({
                           <button
                             type="button"
                             onClick={() => addChip(chip)}
+                            className="ms-btn ms-btn--chip ms-btn--secondary"
                             style={{
-                              padding: '5px 12px',
-                              borderRadius: 999,
-                              cursor: 'pointer',
                               fontSize: 12,
                               fontWeight: 700,
                               textAlign: 'left',
-                              border: '1.5px solid #CCD9D2',
-                              background: '#F8FAF9',
-                              color: '#235347',
-                              transition: 'all 0.15s ease',
-                              minHeight: 32,
                             }}
                           >
                             + {chip}
@@ -1501,19 +1438,12 @@ export function DoctorSplitLayout({
                               role="radio"
                               aria-checked={on}
                               onClick={() => handleDecisionChange(key)}
+                              className={`ms-btn ms-btn--md ${on ? (isRefer ? 'ms-btn--danger' : 'ms-btn--primary') : 'ms-btn--secondary'}`}
                               style={{
                                 padding: '8px 16px',
                                 borderRadius: 12,
-                                cursor: 'pointer',
                                 fontSize: 14,
                                 fontWeight: 800,
-                                minHeight: 44,
-                                border: `2px solid ${
-                                  on ? (isRefer ? '#BA1A1A' : '#235347') : '#CCD9D2'
-                                }`,
-                                background: on ? (isRefer ? '#BA1A1A' : '#235347') : '#FFFFFF',
-                                color: on ? '#FFFFFF' : '#00201C',
-                                transition: 'all 0.15s ease',
                               }}
                             >
                               {tReview.decisions[key]}
@@ -1527,19 +1457,14 @@ export function DoctorSplitLayout({
                       type="button"
                       disabled={!readyToSend}
                       onClick={handleSend}
+                      className="ms-btn ms-btn--primary ms-btn--md"
                       style={{
                         height: 48,
                         minHeight: 44,
                         padding: '0 24px',
-                        border: 0,
                         borderRadius: 14,
-                        cursor: readyToSend ? 'pointer' : 'not-allowed',
                         fontSize: 15,
                         fontWeight: 800,
-                        background: justSent ? '#2E7D4F' : readyToSend ? '#235347' : '#CCD9D2',
-                        color: justSent || readyToSend ? '#FFFFFF' : '#404945',
-                        boxShadow: 'none',
-                        transition: 'all 0.15s ease',
                       }}
                     >
                       {justSent ? tReview.sent : tReview.send}

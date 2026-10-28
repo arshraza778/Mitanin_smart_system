@@ -292,14 +292,9 @@ export default function ScreeningSymptoms({ lang, online = true, onNavigate }: S
       <button
         type="button"
         onClick={() => onNavigate('/mitanin/screening/patient')}
+        className="ms-btn ms-btn--ghost ms-btn--sm"
         style={{
-          border: 0,
-          background: 'none',
-          color: '#235347',
-          fontSize: 12.5,
-          fontWeight: 700,
           textDecoration: 'underline',
-          cursor: 'pointer',
           padding: '4px 6px',
           flexShrink: 0,
         }}
@@ -331,18 +326,17 @@ export default function ScreeningSymptoms({ lang, online = true, onNavigate }: S
               role="checkbox"
               aria-checked={on}
               onClick={() => toggle(i)}
+              className="ms-btn ms-btn--ghost"
               style={{
                 flex: 1,
                 minWidth: 0,
                 minHeight: 64,
                 display: 'flex',
                 alignItems: 'center',
+                justifyContent: 'flex-start',
                 gap: 12,
                 padding: '12px 14px',
                 textAlign: 'left',
-                border: 0,
-                background: 'none',
-                cursor: 'pointer',
                 color: '#00201C',
               }}
             >
@@ -371,15 +365,9 @@ export default function ScreeningSymptoms({ lang, online = true, onNavigate }: S
               onClick={() => speak(i)}
               aria-label={`${t.listen}: ${label}`}
               aria-pressed={speaking === i}
+              className="ms-btn ms-btn--ghost ms-btn--icon"
               style={{
                 flex: '0 0 52px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                border: 0,
-                borderLeft: '1px solid #E3ECE7',
-                background: 'none',
-                cursor: 'pointer',
                 color: speaking === i ? '#235347' : '#707975',
               }}
             >
@@ -427,18 +415,7 @@ export default function ScreeningSymptoms({ lang, online = true, onNavigate }: S
               type="button"
               onClick={() => onNavigate('/mitanin/screening/patient')}
               aria-label={t.back}
-              style={{
-                width: 38,
-                height: 38,
-                borderRadius: 10,
-                background: '#F8FAF9',
-                border: '1px solid #E3ECE7',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#051F20',
-                cursor: 'pointer',
-              }}
+              className="ms-btn ms-btn--ghost ms-btn--icon"
             >
               <ArrowLeft size={18} />
             </button>
@@ -493,20 +470,7 @@ export default function ScreeningSymptoms({ lang, online = true, onNavigate }: S
           <button
             type="button"
             onClick={() => onNavigate('/mitanin/screening/patient')}
-            style={{
-              padding: '0 16px',
-              height: 56,
-              borderRadius: 14,
-              border: '1px solid #CCD9D2',
-              background: '#F8FAF9',
-              cursor: 'pointer',
-              fontSize: 15,
-              fontWeight: 700,
-              color: '#235347',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-            }}
+            className="ms-btn ms-btn--secondary ms-btn--lg"
           >
             <ArrowLeft size={18} />
             <span>{t.back}</span>
@@ -514,24 +478,8 @@ export default function ScreeningSymptoms({ lang, online = true, onNavigate }: S
           <button
             type="button"
             onClick={handleNext}
-            className="ms-btn-primary"
-            style={{
-              flex: 1,
-              height: 56,
-              border: 0,
-              borderRadius: 14,
-              cursor: 'pointer',
-              fontSize: 16,
-              fontWeight: 700,
-              background: '#235347',
-              color: '#FFFFFF',
-              boxShadow: '0 4px 14px rgba(35, 83, 71, 0.25)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 8,
-              transition: 'all 0.15s ease',
-            }}
+            className="ms-btn ms-btn--primary ms-btn--lg ms-btn--block"
+            style={{ flex: 1 }}
           >
             <span>{t.next}</span>
             <ArrowRight size={18} />
@@ -640,19 +588,7 @@ export default function ScreeningSymptoms({ lang, online = true, onNavigate }: S
               <button
                 type="button"
                 onClick={() => onNavigate('/mitanin/screening/patient')}
-                style={{
-                  padding: '12px 20px',
-                  borderRadius: 12,
-                  border: '1px solid #CCD9D2',
-                  background: '#F8FAF9',
-                  cursor: 'pointer',
-                  fontSize: 15,
-                  fontWeight: 700,
-                  color: '#235347',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                }}
+                className="ms-btn ms-btn--secondary ms-btn--md"
               >
                 <ArrowLeft size={18} />
                 <span>{t.back}</span>
@@ -660,22 +596,7 @@ export default function ScreeningSymptoms({ lang, online = true, onNavigate }: S
               <button
                 type="button"
                 onClick={handleNext}
-                className="ms-btn-primary"
-                style={{
-                  padding: '0 32px',
-                  height: 52,
-                  border: 0,
-                  borderRadius: 14,
-                  cursor: 'pointer',
-                  fontSize: 16,
-                  fontWeight: 700,
-                  background: '#235347',
-                  color: '#FFFFFF',
-                  boxShadow: '0 4px 14px rgba(35, 83, 71, 0.25)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                }}
+                className="ms-btn ms-btn--primary ms-btn--md"
               >
                 <span>{t.next}</span>
                 <ArrowRight size={18} />
