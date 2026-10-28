@@ -6,6 +6,7 @@ import { dataService } from '../services';
 import { useCaseStore } from '../store/CaseStore';
 import { useScreenDraft } from '../ScreenDraftContext';
 import { priority } from '../domain';
+import { CountUp, useCountUp, isMotionOff } from '../motion';
 import { PhoneCall, Bell, AlertTriangle, ArrowRight } from 'lucide-react';
 
 type Lang = 'en' | 'hi';
@@ -69,6 +70,10 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
   const { syncedCases, getLoopClosureRate, isOverdue, demoClockOffsetMinutes } = useCaseStore();
   const { selectedSupervisorCaseId, setSelectedSupervisorCaseId } = useScreenDraft();
   const loopRate = getLoopClosureRate(24);
+  const loopRateFinal = loopRate != null ? Math.min(100, Math.round(loopRate * 100)) : null;
+  const { displayValue: animatedLoopRate } = useCountUp({ value: loopRateFinal, cap: 100 });
+  const animatedOffset = animatedLoopRate != null ? C * (1 - animatedLoopRate / 100) : C;
+  const loopRateText = animatedLoopRate != null ? `${Math.round(animatedLoopRate)}%` : '--';
   const [village, setVillage] = useState('all');
   const [mitanin, setMitanin] = useState('all');
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -314,11 +319,11 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
                 strokeWidth="14"
                 strokeLinecap="round"
                 strokeDasharray={C}
-                strokeDashoffset={loopRate != null ? C * (1 - loopRate) : C}
+                strokeDashoffset={animatedOffset}
                 transform="rotate(-90 72 72)"
               />
-              <text x="72" y="82" textAnchor="middle" fontSize="34" fontWeight="800" fill="#FFFFFF">
-                {loopRate != null ? `${Math.round(loopRate * 100)}%` : '--'}
+              <text x="72" y="82" textAnchor="middle" fontSize="34" fontWeight="800" fill="#FFFFFF" className="tabular-nums" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                {loopRateText}
               </text>
             </svg>
             <div>
@@ -372,9 +377,10 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
                   flexDirection: 'column',
                   justifyContent: 'flex-end',
                   boxShadow: 'var(--ms-shadow-card)',
+                  animation: !isMotionOff() ? `ms-fade-up-12 220ms var(--ms-ease-out) ${i * 60}ms both` : undefined,
                 }}
               >
-                <span className="tabular-nums" style={{ fontSize: 30, fontWeight: 800, lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>{dynamicStats[i]}</span>
+                <CountUp value={dynamicStats[i]} className="tabular-nums" style={{ fontSize: 30, fontWeight: 800, lineHeight: 1 }} />
                 <span style={{ marginTop: 3, fontSize: 12.5, fontWeight: 700, lineHeight: 1.2 }}>{t.stats[i]}</span>
               </li>
             ))}
@@ -510,6 +516,7 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
               boxShadow: 'var(--ms-shadow-card)',
               position: 'relative',
               overflow: 'hidden',
+              animation: !isMotionOff() ? 'ms-fade-up-12 220ms var(--ms-ease-out) 0ms both' : undefined,
             }}
           >
             <svg width="80" height="80" viewBox="0 0 144 144" role="img" aria-label={`${t.ringTitle}: ${loopRate != null ? Math.round(loopRate * 100) + '%' : '--'}`}>
@@ -523,11 +530,11 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
                 strokeWidth="15"
                 strokeLinecap="round"
                 strokeDasharray={C}
-                strokeDashoffset={loopRate != null ? C * (1 - loopRate) : C}
+                strokeDashoffset={animatedOffset}
                 transform="rotate(-90 72 72)"
               />
               <text x="72" y="81" textAnchor="middle" fontSize="30" fontWeight="800" fill="#FFFFFF" className="tabular-nums" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                {loopRate != null ? `${Math.round(loopRate * 100)}%` : '--'}
+                {loopRateText}
               </text>
             </svg>
             <div style={{ position: 'relative', zIndex: 1, minWidth: 0 }}>
@@ -571,9 +578,10 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
                 justifyContent: 'flex-end',
                 minHeight: 104,
                 boxShadow: 'var(--ms-shadow-card)',
+                animation: !isMotionOff() ? `ms-fade-up-12 220ms var(--ms-ease-out) ${(i + 1) * 60}ms both` : undefined,
               }}
             >
-              <span className="tabular-nums" style={{ fontSize: 36, fontWeight: 800, lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>{dynamicStats[i]}</span>
+              <CountUp value={dynamicStats[i]} className="tabular-nums" style={{ fontSize: 36, fontWeight: 800, lineHeight: 1 }} />
               <span style={{ marginTop: 6, fontSize: 13.5, fontWeight: 700, lineHeight: 1.2 }}>{t.stats[i]}</span>
             </div>
           ))}
@@ -648,7 +656,7 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
                     </tr>
                   </thead>
                   <tbody tabIndex={0} onKeyDown={handleTableKeyDown} style={{ outline: 'none' }}>
-                    {rows.map((r) => {
+                    {rows.map((r, idx) => {
                       const isSelected = selectedRow?.id === r.id;
                       const prio = getPriorityInfo(r.status);
                       const lateBy = getLateBy(r);
@@ -663,6 +671,7 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
                             borderBottom: '1px solid #E3ECE7',
                             transition: 'background 0.15s ease',
                             outline: isSelected ? '2px solid #235347' : 'none',
+                            animation: !isMotionOff() && idx < 8 ? `ms-fade-up-12 220ms var(--ms-ease-out) ${idx * 40}ms both` : undefined,
                           }}
                         >
                           <td style={{ padding: '12px 14px', minWidth: 120 }}>
@@ -730,6 +739,8 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
             <div className="col-span-4 @2xl:col-span-5 @4xl:col-span-4">
               {selectedRow ? (
                 <div
+                  key={selectedRow.id}
+                  className="ms-animate-cross-fade"
                   style={{
                     background: '#FFFFFF',
                     borderRadius: 24,

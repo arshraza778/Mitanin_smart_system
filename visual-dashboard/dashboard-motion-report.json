@@ -1,0 +1,164 @@
+[
+  {
+    "role": "Mitanin",
+    "screen": "Home",
+    "width": 390,
+    "mode": "off",
+    "result": "OK",
+    "errors": [],
+    "details": "390px [off]: content snippet length 390, hero btn OK"
+  },
+  {
+    "role": "Mitanin",
+    "screen": "Home",
+    "width": 390,
+    "mode": "reduced",
+    "result": "OK",
+    "errors": [],
+    "details": "390px [reduced]: content snippet length 390, hero btn OK"
+  },
+  {
+    "role": "Mitanin",
+    "screen": "Home",
+    "width": 390,
+    "mode": "on",
+    "result": "OK",
+    "errors": [],
+    "details": "390px [on]: content snippet length 390, hero btn OK"
+  },
+  {
+    "role": "Mitanin",
+    "screen": "Home",
+    "width": 1280,
+    "mode": "off",
+    "result": "OK",
+    "errors": [],
+    "details": "1280px [off]: content snippet length 645, hero btn OK"
+  },
+  {
+    "role": "Mitanin",
+    "screen": "Home",
+    "width": 1280,
+    "mode": "reduced",
+    "result": "OK",
+    "errors": [],
+    "details": "1280px [reduced]: content snippet length 645, hero btn OK"
+  },
+  {
+    "role": "Mitanin",
+    "screen": "Home",
+    "width": 1280,
+    "mode": "on",
+    "result": "OK",
+    "errors": [],
+    "details": "1280px [on]: content snippet length 645, hero btn OK"
+  },
+  {
+    "role": "Supervisor",
+    "screen": "Overview",
+    "width": 390,
+    "mode": "off",
+    "result": "OK",
+    "errors": [],
+    "details": "390px [off]: content snippet length 943, hero btn OK"
+  },
+  {
+    "role": "Supervisor",
+    "screen": "Overview",
+    "width": 390,
+    "mode": "reduced",
+    "result": "OK",
+    "errors": [],
+    "details": "390px [reduced]: content snippet length 943, hero btn OK"
+  },
+  {
+    "role": "Supervisor",
+    "screen": "Overview",
+    "width": 390,
+    "mode": "on",
+    "result": "OK",
+    "errors": [],
+    "details": "390px [on]: content snippet length 943, hero btn OK"
+  },
+  {
+    "role": "Supervisor",
+    "screen": "Overview",
+    "width": 1280,
+    "mode": "off",
+    "result": "OK",
+    "errors": [],
+    "details": "1280px [off]: content snippet length 1143, hero btn OK"
+  },
+  {
+    "role": "Supervisor",
+    "screen": "Overview",
+    "width": 1280,
+    "mode": "reduced",
+    "result": "OK",
+    "errors": [],
+    "details": "1280px [reduced]: content snippet length 1143, hero btn OK"
+  },
+  {
+    "role": "Supervisor",
+    "screen": "Overview",
+    "width": 1280,
+    "mode": "on",
+    "result": "OK",
+    "errors": [],
+    "details": "1280px [on]: content snippet length 1143, hero btn OK"
+  },
+  {
+    "role": "Doctor",
+    "screen": "Inbox",
+    "width": 390,
+    "mode": "off",
+    "result": "OK",
+    "errors": [],
+    "details": "390px [off]: content snippet length 537, hero btn OK"
+  },
+  {
+    "role": "Doctor",
+    "screen": "Inbox",
+    "width": 390,
+    "mode": "reduced",
+    "result": "OK",
+    "errors": [],
+    "details": "390px [reduced]: content snippet length 537, hero btn OK"
+  },
+  {
+    "role": "Doctor",
+    "screen": "Inbox",
+    "width": 390,
+    "mode": "on",
+    "result": "OK",
+    "errors": [],
+    "details": "390px [on]: content snippet length 537, hero btn OK"
+  },
+  {
+    "role": "Doctor",
+    "screen": "Inbox",
+    "width": 1280,
+    "mode": "off",
+    "result": "OK",
+    "errors": [],
+    "details": "1280px [off]: content snippet length 1093, hero btn OK"
+  },
+  {
+    "role": "Doctor",
+    "screen": "Inbox",
+    "width": 1280,
+    "mode": "reduced",
+    "result": "OK",
+    "errors": [],
+    "details": "1280px [reduced]: content snippet length 1093, hero btn OK"
+  },
+  {
+    "role": "Doctor",
+    "screen": "Inbox",
+    "width": 1280,
+    "mode": "on",
+    "result": "OK",
+    "errors": [],
+    "details": "1280px [on]: content snippet length 1093, hero btn OK"
+  }
+]

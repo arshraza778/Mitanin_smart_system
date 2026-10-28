@@ -1,3 +1,5 @@
+@import './motion/motion.css';
+
 :root {
   color-scheme: light;
 
@@ -160,6 +162,8 @@
   align-items: center;
   gap: 4px;
   font-size: 12px;
+  animation: none !important;
+  transition: none !important;
 }
 .ms-pill-due {
   background-color: var(--ms-warn-bg);
@@ -333,6 +337,124 @@ button:disabled,
 .ms-btn-primary:active:not(:disabled):not([aria-disabled="true"]) {
   background-color: #053C31;
   color: #FFFFFF;
+}
+
+/* Hero button: used only for 'New screening' on Mitanin Home */
+.ms-btn--hero {
+  background: linear-gradient(90deg, #235347, #163832);
+  color: #FFFFFF;
+  font-size: 18px;
+  font-weight: 700;
+  height: 64px;
+  min-height: 64px;
+  border-radius: 12px;
+  border: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  box-shadow: var(--ms-shadow);
+  cursor: pointer;
+  transition: transform 80ms var(--ms-ease-out);
+}
+
+@container (min-width: 672px) {
+  .ms-btn--hero {
+    height: 56px;
+    min-height: 56px;
+  }
+}
+@media (min-width: 768px) {
+  .ms-btn--hero {
+    height: 56px;
+    min-height: 56px;
+  }
+}
+
+.ms-btn--hero-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ms-btn--hero-circle {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  border-radius: 50%;
+  background-color: #DAF1DE;
+  color: #235347;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.ms-btn--hero-circle svg {
+  color: #235347;
+}
+
+.ms-btn--hero-label {
+  color: #FFFFFF;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+
+.ms-btn--hero-arrow {
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 120ms var(--ms-ease-out);
+}
+
+@media (hover: hover) {
+  .ms-btn--hero:hover:not(:disabled):not([aria-disabled="true"]) {
+    background: linear-gradient(90deg, #163832, #053C31);
+    color: #FFFFFF;
+  }
+  .ms-btn--hero:hover:not(:disabled):not([aria-disabled="true"]) .ms-btn--hero-arrow {
+    transform: translateX(4px);
+  }
+}
+
+.ms-btn--hero:active:not(:disabled):not([aria-disabled="true"]) {
+  transform: scale(0.98);
+}
+
+.ms-btn--hero:focus-visible {
+  outline: 3px solid #235347;
+  outline-offset: 2px;
+}
+
+.on-dark-900 .ms-btn--hero:focus-visible,
+.on-dark-800 .ms-btn--hero:focus-visible {
+  outline: 3px solid #8EB69B;
+  outline-offset: 2px;
+}
+
+.ms-btn--hero:disabled,
+.ms-btn--hero[aria-disabled="true"] {
+  background: #E3ECE7 !important;
+  color: #404945 !important;
+  border: 0 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.ms-btn--hero:disabled .ms-btn--hero-circle,
+.ms-btn--hero[aria-disabled="true"] .ms-btn--hero-circle {
+  background-color: #FFFFFF !important;
+  color: #404945 !important;
+}
+
+.ms-btn--hero:disabled .ms-btn--hero-arrow,
+.ms-btn--hero[aria-disabled="true"] .ms-btn--hero-arrow {
+  color: #404945 !important;
+  transform: none !important;
 }
 
 /* Secondary: background #FFFFFF, 1.5px solid #235347, text #235347; hover #E7F0EA; pressed #DAF1DE */

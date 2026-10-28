@@ -1,0 +1,162 @@
+/* =============================================================================
+   Mitanin Signal - Motion System Tokens and Entrance Animations
+   Applies strict motion rules:
+   - Tokens: --ms-ease-out, durations (micro: 120ms, enter: 220ms, panel: 320ms, counter: 800ms)
+   - Animates ONLY: transform, opacity, and SVG stroke-dashoffset
+   - Never: width, height, top, left, margin, box-shadow, filter, blur
+   - Motion is OFF when data-motion="off" on <html> or prefers-reduced-motion
+   ============================================================================= */
+
+:root {
+  --ms-ease-out: cubic-bezier(0.2, 0, 0, 1);
+  --ms-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ms-duration-micro: 120ms;
+  --ms-duration-enter: 220ms;
+  --ms-duration-panel: 320ms;
+  --ms-duration-counter: 800ms;
+}
+
+/* -----------------------------------------------------------------------------
+   Keyframe Animations (Transform, Opacity, stroke-dashoffset ONLY)
+   ----------------------------------------------------------------------------- */
+@keyframes ms-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes ms-fade-up-8 {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ms-fade-up-12 {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ms-cross-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes ms-badge-pop {
+  0% {
+    transform: scale(0.8);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes ms-ring-draw {
+  from {
+    stroke-dashoffset: var(--ms-ring-circumference, 339.292);
+  }
+  to {
+    stroke-dashoffset: var(--ms-ring-target-offset, 0);
+  }
+}
+
+@keyframes ms-sync-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* -----------------------------------------------------------------------------
+   Animation Utility Classes
+   ----------------------------------------------------------------------------- */
+.ms-animate-fade {
+  animation: ms-fade-in 220ms var(--ms-ease-out) both;
+}
+
+.ms-animate-fade-up-8 {
+  animation: ms-fade-up-8 220ms var(--ms-ease-out) both;
+}
+
+.ms-animate-fade-up-12 {
+  animation: ms-fade-up-12 220ms var(--ms-ease-out) both;
+}
+
+.ms-animate-hero-rise {
+  animation: ms-fade-up-12 220ms var(--ms-ease-out) 60ms both;
+}
+
+.ms-animate-cross-fade {
+  animation: ms-cross-fade 150ms var(--ms-ease-out) both;
+}
+
+.ms-animate-badge-pop {
+  animation: ms-badge-pop 200ms var(--ms-ease-out) both;
+}
+
+.ms-sync-spin {
+  animation: ms-sync-spin 1s linear infinite;
+}
+
+/* -----------------------------------------------------------------------------
+   Visually Hidden Utility for Accessible Live Counters
+   ----------------------------------------------------------------------------- */
+.ms-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* -----------------------------------------------------------------------------
+   Motion OFF: data-motion="off" on <html> or prefers-reduced-motion
+   Renders final state immediately. Only the sync icon while syncing may spin.
+   ----------------------------------------------------------------------------- */
+html[data-motion="off"] *:not(.ms-sync-spin):not(.animate-spin),
+html[data-motion="off"] *:not(.ms-sync-spin):not(.animate-spin)::before,
+html[data-motion="off"] *:not(.ms-sync-spin):not(.animate-spin)::after {
+  animation-duration: 0.001ms !important;
+  animation-delay: 0ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  transition-delay: 0ms !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *:not(.ms-sync-spin):not(.animate-spin),
+  *:not(.ms-sync-spin):not(.animate-spin)::before,
+  *:not(.ms-sync-spin):not(.animate-spin)::after {
+    animation-duration: 0.001ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    transition-delay: 0ms !important;
+  }
+}

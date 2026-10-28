@@ -3,6 +3,7 @@ import { Home, Calendar, Bell, User, Inbox, FolderKanban, LayoutDashboard } from
 import enLocale from './i18n/en.json';
 import hiLocale from './i18n/hi.json';
 import { useCaseStore } from './store/CaseStore';
+import { AlertBadge } from './motion/AlertBadge';
 
 export type Role = 'mitanin' | 'doctor' | 'supervisor';
 export type Lang = 'en' | 'hi';
@@ -167,7 +168,9 @@ export default function BottomNav({ role, route, lang, onNavigate }: BottomNavPr
                 <span style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
                   {tab.icon}
                   {tab.id === 'alerts' && unreadAlertsCount > 0 && (
-                    <span
+                    <AlertBadge
+                      count={unreadAlertsCount}
+                      maxDisplay={9}
                       style={{
                         position: 'absolute',
                         top: -5,
@@ -175,18 +178,8 @@ export default function BottomNav({ role, route, lang, onNavigate }: BottomNavPr
                         minWidth: 18,
                         height: 18,
                         padding: '0 4px',
-                        borderRadius: 'var(--ms-radius-pill)',
-                        background: 'var(--ms-danger)',
-                        color: 'var(--ms-text-white)',
-                        fontSize: 10,
-                        fontWeight: 800,
-                        display: 'grid',
-                        placeItems: 'center',
-                        lineHeight: 1,
                       }}
-                    >
-                      {unreadAlertsCount > 9 ? '9+' : unreadAlertsCount}
-                    </span>
+                    />
                   )}
                 </span>
                 <span

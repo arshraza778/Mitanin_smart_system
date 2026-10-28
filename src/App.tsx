@@ -7,6 +7,7 @@ import hiLocale from './i18n/hi.json';
 import { ViewModeProvider, useViewMode, type ViewMode } from './ViewModeContext';
 import { CaseProvider, useCaseStore } from './store/CaseStore';
 import { ScreenDraftProvider, useScreenDraft } from './ScreenDraftContext';
+import { AlertBadge } from './motion/AlertBadge';
 
 export { ViewModeProvider, useViewMode, type ViewMode };
 
@@ -256,7 +257,9 @@ function WebSidebar({
                     >
                       {tab.icon}
                       {tab.id === 'alerts' && unreadAlertsCount > 0 && (
-                        <span
+                        <AlertBadge
+                          count={unreadAlertsCount}
+                          maxDisplay={99}
                           style={{
                             position: 'absolute',
                             top: -6,
@@ -264,18 +267,8 @@ function WebSidebar({
                             minWidth: 16,
                             height: 16,
                             padding: '0 4px',
-                            borderRadius: 'var(--ms-radius-pill)',
-                            background: 'var(--ms-danger)',
-                            color: 'var(--ms-text-white)',
-                            fontSize: 10,
-                            fontWeight: 800,
-                            display: 'grid',
-                            placeItems: 'center',
-                            lineHeight: 1,
                           }}
-                        >
-                          {unreadAlertsCount > 99 ? '99+' : unreadAlertsCount}
-                        </span>
+                        />
                       )}
                     </span>
                     <span style={{ flex: 1 }}>{t.navigation[tab.labelKey]}</span>

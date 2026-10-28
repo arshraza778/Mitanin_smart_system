@@ -4,6 +4,7 @@ import type { ScreenProps } from '../App';
 import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
 import { useCaseStore } from '../store/CaseStore';
+import { CountUp, Reveal } from '../motion';
 
 const COPY = { en: enLocale.screens.MitaninHome, hi: hiLocale.screens.MitaninHome } as const;
 
@@ -114,7 +115,7 @@ export default function MitaninHome({ lang, online, onNavigate, onToggleOnline }
 
   // Shared greeting card
   const renderGreetingCard = () => (
-    <section
+    <section className="ms-animate-fade"
       aria-label="Worker Profile"
       style={{
         background: 'var(--ms-card)',
@@ -203,37 +204,23 @@ export default function MitaninHome({ lang, online, onNavigate, onToggleOnline }
 
   // Shared New Screening Button
   const renderNewScreeningButton = () => (
-    <button
-      type="button"
-      onClick={() => onNavigate('/mitanin/screening/patient')}
-      className="ms-btn ms-btn--primary ms-btn--lg ms-btn--block"
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '16px 20px',
-        boxShadow: 'var(--ms-shadow)',
-        cursor: 'pointer',
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        <div
-          style={{
-            width: 34,
-            height: 34,
-            borderRadius: 'var(--ms-radius-sm)',
-            background: 'rgba(255, 255, 255, 0.2)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <Plus size={22} strokeWidth={2.6} />
-        </div>
-        <span style={{ fontSize: 16.5, fontWeight: 800, letterSpacing: '-0.2px' }}>{t.newScreening}</span>
-      </div>
-      <ArrowRight size={22} />
-    </button>
+    <div className="ms-animate-hero-rise">
+      <button
+        type="button"
+        onClick={() => onNavigate('/mitanin/screening/patient')}
+        className="ms-btn ms-btn--hero ms-btn--block"
+      >
+        <span className="ms-btn--hero-left">
+          <span className="ms-btn--hero-circle">
+            <Plus size={22} strokeWidth={2.6} />
+          </span>
+          <span className="ms-btn--hero-label">{t.newScreening}</span>
+        </span>
+        <span className="ms-btn--hero-arrow">
+          <ArrowRight size={22} />
+        </span>
+      </button>
+    </div>
   );
 
   // Shared Needs Attention List
@@ -276,8 +263,10 @@ export default function MitaninHome({ lang, online, onNavigate, onToggleOnline }
         </div>
       ) : (
         <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 10 }}>
-          {needsAttentionList.map((item) => (
-            <li
+          {needsAttentionList.map((item, idx) => (
+            <Reveal
+              as="li"
+              index={idx}
               key={item.id}
               style={{
                 background: 'var(--ms-surface-alt)',
@@ -310,7 +299,7 @@ export default function MitaninHome({ lang, online, onNavigate, onToggleOnline }
               >
                 {item.actionLabel}
               </button>
-            </li>
+            </Reveal>
           ))}
         </ul>
       )}
@@ -358,9 +347,11 @@ export default function MitaninHome({ lang, online, onNavigate, onToggleOnline }
       </div>
 
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
-        <span style={{ fontSize: 36, fontWeight: 900, color: 'var(--ms-primary)', lineHeight: 1 }}>
-          {priorityCounts[2] ?? 0}
-        </span>
+        <CountUp
+          value={priorityCounts[2] ?? 0}
+          className="tabular-nums"
+          style={{ fontSize: 36, fontWeight: 900, color: 'var(--ms-primary)', lineHeight: 1 }}
+        />
         <span style={{ fontSize: 13, color: 'var(--ms-muted)', fontWeight: 600 }}>
           {lang === 'hi' ? 'डॉक्टर के जवाब की प्रतीक्षा' : 'cases awaiting doctor reply'}
         </span>
@@ -414,8 +405,8 @@ export default function MitaninHome({ lang, online, onNavigate, onToggleOnline }
       </div>
 
       <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 10 }}>
-        {t.visits.map((v) => (
-          <li key={v.name}>
+        {t.visits.map((v, idx) => (
+          <Reveal as="li" index={idx} key={v.name}>
             <button
               type="button"
               onClick={() => onNavigate('/mitanin/visits')}
@@ -438,7 +429,7 @@ export default function MitaninHome({ lang, online, onNavigate, onToggleOnline }
                 {v.village} • {v.task}
               </div>
             </button>
-          </li>
+          </Reveal>
         ))}
       </ul>
     </section>

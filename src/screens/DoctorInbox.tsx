@@ -7,6 +7,7 @@ import { useCaseStore } from '../store/CaseStore';
 import { useViewMode } from '../ViewModeContext';
 import { useScreenDraft } from '../ScreenDraftContext';
 import { DoctorSplitLayout } from '../DoctorSplitLayout';
+import { CountUp, Reveal } from '../motion';
 
 type Filter = 'all' | 'over2h' | 'photos';
 type Read = 'agree' | 'disagree';
@@ -365,7 +366,7 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                 color: '#FFFFFF',
               }}
             >
-              {list.length}
+              <CountUp value={list.length} />
             </span>
           </div>
 
@@ -401,8 +402,8 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
             <p style={{ margin: '30px 20px', textAlign: 'center', color: '#404945', fontSize: 14.5 }}>{t.empty}</p>
           ) : (
             <ul style={{ listStyle: 'none', margin: 0, padding: '12px 20px 0', display: 'grid', gap: 12 }}>
-              {waitingList.map((c) => (
-                <li key={c.id}>
+              {waitingList.map((c, idx) => (
+                <Reveal as="li" index={idx} key={c.id}>
                   <button
                     type="button"
                     onClick={() => {
@@ -443,7 +444,7 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                       </span>
                     </span>
                   </button>
-                </li>
+                </Reveal>
               ))}
             </ul>
           )}
@@ -553,7 +554,7 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                     color: '#FFFFFF',
                   }}
                 >
-                  {list.length}
+                  <CountUp value={list.length} />
                 </span>
               </div>
             </div>
@@ -585,10 +586,10 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
               <p style={{ margin: '20px 0', textAlign: 'center', color: '#404945', fontSize: 14 }}>{t.empty}</p>
             ) : (
               <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 10, maxHeight: 'calc(100vh - 350px)', overflowY: 'auto' }}>
-                {waitingList.map((c) => {
+                {waitingList.map((c, idx) => {
                   const isSelected = selectedCase?.id === c.id;
                   return (
-                    <li key={c.id}>
+                    <Reveal as="li" index={idx} key={c.id}>
                       <button
                         type="button"
                         onClick={() => handleSelectCase(c.id)}
@@ -626,7 +627,7 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                           </span>
                         </span>
                       </button>
-                    </li>
+                    </Reveal>
                   );
                 })}
               </ul>
@@ -687,7 +688,7 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
           {/* Right Panel: Review Panel (about 65%) */}
           <div className="col-span-12 @2xl:col-span-8 @4xl:col-span-8" style={{ background: '#FFFFFF', borderRadius: 24, border: '1px solid #E3ECE7', boxShadow: '0 2px 10px rgba(0, 32, 28, 0.04)', padding: '26px 28px', display: 'flex', flexDirection: 'column', gap: 20 }}>
             {selectedCase ? (
-              <>
+              <div key={selectedCase.id} className="ms-animate-cross-fade" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
                 {/* Review Header */}
                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', borderBottom: '1px solid #E3ECE7', paddingBottom: 16 }}>
                   <div>
@@ -1079,7 +1080,7 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                     {validationError}
                   </div>
                 )}
-              </>
+              </div>
             ) : null}
           </div>
         </div>

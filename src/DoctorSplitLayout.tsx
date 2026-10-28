@@ -5,6 +5,7 @@ import enLocale from './i18n/en.json';
 import hiLocale from './i18n/hi.json';
 import { useCaseStore } from './store/CaseStore';
 import { useScreenDraft } from './ScreenDraftContext';
+import { CountUp, Reveal } from './motion';
 import States from './screens/States';
 
 export interface DoctorSplitLayoutProps {
@@ -491,7 +492,7 @@ export function DoctorSplitLayout({
                     color: '#FFFFFF',
                   }}
                 >
-                  {waitingCases.length}
+                  <CountUp value={waitingCases.length} />
                 </span>
               </div>
             </div>
@@ -609,13 +610,13 @@ export function DoctorSplitLayout({
                   outline: 'none',
                 }}
               >
-                {waitingCases.map((c) => {
+                {waitingCases.map((c, idx) => {
                   const isSelected = selectedCase?.id === c.id;
                   const isLate = c.waitingMin > 120;
                   const patientSummary = getPatientSummary(c.patientId, lang) || c.name[lang];
 
                   return (
-                    <li key={c.id} role="option" aria-selected={isSelected}>
+                    <Reveal as="li" index={idx} key={c.id} role="option" aria-selected={isSelected}>
                       <button
                         type="button"
                         onClick={() => setSelectedDoctorCaseId(c.id)}
@@ -716,7 +717,7 @@ export function DoctorSplitLayout({
                           </span>
                         </div>
                       </button>
-                    </li>
+                    </Reveal>
                   );
                 })}
 
@@ -826,7 +827,7 @@ export function DoctorSplitLayout({
           }}
         >
           {selectedCase ? (
-            <div style={{ flex: 1, overflowY: 'auto', padding: '20px 24px 32px' }}>
+            <div key={selectedCase.id} className="ms-animate-cross-fade" style={{ flex: 1, overflowY: 'auto', padding: '20px 24px 32px' }}>
               {/* Case Header inside Right Pane */}
               <div
                 style={{
