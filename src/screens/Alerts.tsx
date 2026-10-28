@@ -96,7 +96,7 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
     selectScreeningPatient,
     createReferral,
   } = useCaseStore();
-  const { selectedAlertId: draftAlertId, setSelectedAlertId: setDraftAlertId } = useScreenDraft();
+  const { selectedAlertId: draftAlertId, setSelectedAlertId: setDraftAlertId, currentRole, setSelectedDoctorCaseId } = useScreenDraft();
   const patientId = currentScreening?.patientId || 'p1';
   const alertsList = state.alerts;
   const isDev = typeof window !== 'undefined' && window.location.search.includes('dev=1');
@@ -166,12 +166,26 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
     [state.demoClockOffsetMinutes, lang]
   );
 
+  const getRoleKindLabel = (kind: Kind) => {
+    if (currentRole === 'doctor') {
+      if (kind === 'replied') return { en: 'Photo received', hi: 'फ़ोटो प्राप्त हुई' };
+      if (kind === 'overdue') return { en: 'Late', hi: 'देरी' };
+      return { en: 'New case', hi: 'नया केस' };
+    }
+    return KIND_LABEL[kind];
+  };
+
   const handleViewReply = (a: any) => {
     if (isSubmitting) return;
     setIsSubmitting(true);
     setTimeout(() => setIsSubmitting(false), 500);
 
     markAlertRead(a.id);
+    if (currentRole === 'doctor') {
+      if (a.caseId) setSelectedDoctorCaseId(a.caseId);
+      onNavigate('/doctor/review');
+      return;
+    }
     if (a.caseId) setCurrentCaseId(a.caseId);
     if (a.patientId) selectScreeningPatient(a.patientId);
     onNavigate('/mitanin/consult');
@@ -594,7 +608,7 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
                                     color: st.fg,
                                   }}
                                 >
-                                  {KIND_LABEL[a.kind][lang]}
+                                  {getRoleKindLabel(a.kind)[lang]}
                                 </span>
                                 <span
                                   style={{
@@ -762,7 +776,7 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
                                 </span>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 5 }}>
                                   <span style={{ display: 'inline-block', padding: '1px 7px', borderRadius: 999, fontSize: 10.5, fontWeight: 700, background: st.tint, color: st.fg }}>
-                                    {KIND_LABEL[a.kind][lang]}
+                                    {getRoleKindLabel(a.kind)[lang]}
                                   </span>
                                   <span style={{ fontSize: 12, color: COLORS.muted }}>
                                     {a.time[lang]}
@@ -810,7 +824,7 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
                         {KIND_ICON[selectedAlert.kind]}
                       </span>
                       <span style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: KIND_STYLE[selectedAlert.kind].fg }}>
-                        {KIND_LABEL[selectedAlert.kind][lang]}
+                        {getRoleKindLabel(selectedAlert.kind)[lang]}
                       </span>
                     </div>
                     <span style={{ fontSize: 13, color: COLORS.muted, fontWeight: 600 }}>
@@ -885,7 +899,11 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
                             boxShadow: '0 4px 14px rgba(40, 103, 73, 0.2)',
                           }}
                         >
-                          <span>{lang === 'hi' ? 'जवाब देखें' : 'View reply'}</span>
+                          <span>
+                            {currentRole === 'doctor'
+                              ? (lang === 'hi' ? 'केस समीक्षा करें' : 'Review case')
+                              : (lang === 'hi' ? 'जवाब देखें' : 'View reply')}
+                          </span>
                           <ArrowRight size={16} />
                         </button>
 
@@ -951,7 +969,12 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
                         type="button"
                         onClick={() => {
                           markAlertRead(selectedAlert.id);
-                          onNavigate('/case');
+                          if (currentRole === 'doctor') {
+                            if (selectedAlert.caseId) setSelectedDoctorCaseId(selectedAlert.caseId);
+                            onNavigate('/doctor/review');
+                          } else {
+                            onNavigate('/case');
+                          }
                         }}
                         style={{
                           width: '100%',
@@ -970,7 +993,11 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
                           boxShadow: '0 4px 14px rgba(40, 103, 73, 0.2)',
                         }}
                       >
-                        <span>{lang === 'hi' ? 'केस समयरेखा देखें' : 'View Case Timeline'}</span>
+                        <span>
+                          {currentRole === 'doctor'
+                            ? (lang === 'hi' ? 'केस समीक्षा करें' : 'Review case')
+                            : (lang === 'hi' ? 'केस समयरेखा देखें' : 'View Case Timeline')}
+                        </span>
                         <ArrowRight size={16} />
                       </button>
                     </>

@@ -5,6 +5,9 @@ import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
 import { dataService } from '../services';
 import { useCaseStore } from '../store/CaseStore';
+import { useViewMode } from '../ViewModeContext';
+import { useScreenDraft } from '../ScreenDraftContext';
+import { DoctorCasesTable } from '../DoctorCasesTable';
 import States from './States';
 import { formatDateTime } from '../domain';
 
@@ -138,7 +141,21 @@ const base: Record<string, CSSProperties> = {
   },
 };
 
-export default function CaseTimeline({ lang, onNavigate }: ScreenProps) {
+export default function CaseTimeline({ lang, online, onNavigate, onToggleOnline }: ScreenProps) {
+  const { isWeb } = useViewMode();
+  const { currentRole } = useScreenDraft();
+
+  if (isWeb && currentRole === 'doctor') {
+    return (
+      <DoctorCasesTable
+        lang={lang}
+        online={online}
+        onNavigate={onNavigate}
+        onToggleOnline={onToggleOnline}
+      />
+    );
+  }
+
   const t = COPY[lang];
   const { state, getCaseByPatientId, currentScreening, getPatient, getPatientSummary, getConsultByCaseId } = useCaseStore();
   const patientId = currentScreening?.patientId || 'p1';

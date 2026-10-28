@@ -4,6 +4,9 @@ import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
 import { dataService } from '../services';
 import { useCaseStore } from '../store/CaseStore';
+import { useViewMode } from '../ViewModeContext';
+import { useScreenDraft } from '../ScreenDraftContext';
+import { DoctorSplitLayout } from '../DoctorSplitLayout';
 
 type Filter = 'all' | 'over2h' | 'photos';
 type Read = 'agree' | 'disagree';
@@ -79,6 +82,8 @@ function Thumb({ has, src, alt, empty }: { has: boolean; src?: string; alt: stri
 }
 
 export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }: ScreenProps) {
+  const { isWeb } = useViewMode();
+  const { selectedDoctorCaseId, setSelectedDoctorCaseId } = useScreenDraft();
   const t = COPY.inbox[lang];
   const tReview = COPY.review[lang];
   const {
@@ -243,6 +248,18 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
       online
     );
   };
+
+  if (isWeb) {
+    return (
+      <DoctorSplitLayout
+        lang={lang}
+        online={online}
+        onNavigate={onNavigate}
+        onToggleOnline={onToggleOnline}
+        initialSelectedCaseId={selectedDoctorCaseId || selectedCaseId}
+      />
+    );
+  }
 
   return (
     <div>
@@ -418,6 +435,7 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                   <button
                     type="button"
                     onClick={() => {
+                      setSelectedDoctorCaseId(c.id);
                       if (typeof window !== 'undefined') {
                         localStorage.setItem('ms_selected_doctor_case', c.id);
                       }
@@ -474,6 +492,7 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
                     <button
                       type="button"
                       onClick={() => {
+                        setSelectedDoctorCaseId(c.id);
                         if (typeof window !== 'undefined') {
                           localStorage.setItem('ms_selected_doctor_case', c.id);
                         }

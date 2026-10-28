@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import type { Role } from './BottomNav';
 
 export interface NewPatientDraft {
   name: string;
@@ -7,6 +8,12 @@ export interface NewPatientDraft {
   village: string;
   customVillage: string;
   pregnant: boolean;
+}
+
+export interface AdviceDraft {
+  advice: string;
+  decision?: 'local' | 'refer' | null;
+  read?: 'agree' | 'disagree' | null;
 }
 
 export interface ScreenDraftContextValue {
@@ -22,8 +29,16 @@ export interface ScreenDraftContextValue {
   setTestResult: (patientId: string, res: 'positive' | 'negative' | 'invalid') => void;
   getTestPhoto: (patientId: string) => string | null;
   setTestPhoto: (patientId: string, photo: string | null) => void;
-  getAdviceDraft: (caseId: string) => { advice: string; decision?: string } | null;
-  setAdviceDraft: (caseId: string, draft: { advice: string; decision?: string }) => void;
+  getAdviceDraft: (caseId: string) => AdviceDraft | null;
+  setAdviceDraft: (caseId: string, draft: AdviceDraft) => void;
+  selectedDoctorCaseId: string | null;
+  setSelectedDoctorCaseId: (id: string | null) => void;
+  noPhotoReplyingCases: Record<string, boolean>;
+  setNoPhotoReplying: (caseId: string, replying: boolean) => void;
+  photoRequestedCases: Record<string, boolean>;
+  setPhotoRequested: (caseId: string, requested: boolean) => void;
+  currentRole: Role | null;
+  setCurrentRole: (role: Role | null) => void;
 }
 
 const defaultPatientDraft: NewPatientDraft = {
@@ -44,7 +59,54 @@ export function ScreenDraftProvider({ children }: { children: ReactNode }) {
   const [symptomTicksMap, setSymptomTicksMap] = useState<Record<string, boolean[]>>({});
   const [testResultMap, setTestResultMap] = useState<Record<string, 'positive' | 'negative' | 'invalid'>>({});
   const [testPhotoMap, setTestPhotoMap] = useState<Record<string, string | null>>({});
-  const [adviceDraftMap, setAdviceDraftMap] = useState<Record<string, { advice: string; decision?: string }>>({});
+  const [adviceDraftMap, setAdviceDraftMap] = useState<Record<string, AdviceDraft>>({});
+  
+  const [selectedDoctorCaseId, setSelectedDoctorCaseIdState] = useState<string | null>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('ms_selected_doctor_case') || null;
+    }
+    return null;
+  });
+
+  const [currentRole, setCurrentRoleState] = useState<Role | null>(() => {
+    if (typeof window !== 'undefined') {
+      return (localStorage.getItem('ms_current_role') as Role | null) || null;
+    }
+    return null;
+  });
+
+  const [noPhotoReplyingCases, setNoPhotoReplyingCases] = useState<Record<string, boolean>>({});
+  const [photoRequestedCases, setPhotoRequestedCases] = useState<Record<string, boolean>>({});
+
+  const setSelectedDoctorCaseId = useCallback((id: string | null) => {
+    setSelectedDoctorCaseIdState(id);
+    if (typeof window !== 'undefined') {
+      if (id) {
+        localStorage.setItem('ms_selected_doctor_case', id);
+      } else {
+        localStorage.removeItem('ms_selected_doctor_case');
+      }
+    }
+  }, []);
+
+  const setCurrentRole = useCallback((role: Role | null) => {
+    setCurrentRoleState(role);
+    if (typeof window !== 'undefined') {
+      if (role) {
+        localStorage.setItem('ms_current_role', role);
+      } else {
+        localStorage.removeItem('ms_current_role');
+      }
+    }
+  }, []);
+
+  const setNoPhotoReplying = useCallback((caseId: string, replying: boolean) => {
+    setNoPhotoReplyingCases((prev) => ({ ...prev, [caseId]: replying }));
+  }, []);
+
+  const setPhotoRequested = useCallback((caseId: string, requested: boolean) => {
+    setPhotoRequestedCases((prev) => ({ ...prev, [caseId]: requested }));
+  }, []);
 
   const getSymptomTicks = useCallback((patientId: string) => {
     return symptomTicksMap[patientId] ?? null;
@@ -74,7 +136,7 @@ export function ScreenDraftProvider({ children }: { children: ReactNode }) {
     return adviceDraftMap[caseId] ?? null;
   }, [adviceDraftMap]);
 
-  const setAdviceDraft = useCallback((caseId: string, draft: { advice: string; decision?: string }) => {
+  const setAdviceDraft = useCallback((caseId: string, draft: AdviceDraft) => {
     setAdviceDraftMap((prev) => ({ ...prev, [caseId]: draft }));
   }, []);
 
@@ -95,6 +157,14 @@ export function ScreenDraftProvider({ children }: { children: ReactNode }) {
         setTestPhoto,
         getAdviceDraft,
         setAdviceDraft,
+        selectedDoctorCaseId,
+        setSelectedDoctorCaseId,
+        noPhotoReplyingCases,
+        setNoPhotoReplying,
+        photoRequestedCases,
+        setPhotoRequested,
+        currentRole,
+        setCurrentRole,
       }}
     >
       {children}

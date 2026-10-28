@@ -5,6 +5,7 @@ import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
 import { useViewMode } from '../ViewModeContext';
 import { useCaseStore, type SyncItem } from '../store/CaseStore';
+import { useScreenDraft } from '../ScreenDraftContext';
 
 const COPY = { en: enLocale.screens.Profile, hi: hiLocale.screens.Profile } as const;
 
@@ -18,6 +19,7 @@ export default function Profile({
   const isHindi = lang === 'hi';
   const t = COPY[lang];
   const { mode, setMode } = useViewMode();
+  const { currentRole } = useScreenDraft();
   const { syncNow, resetDemoData, waitingSyncCount, state } = useCaseStore();
   const [syncingState, setSyncingState] = useState(false);
   const [resetToast, setResetToast] = useState(false);
@@ -37,11 +39,17 @@ export default function Profile({
     setTimeout(() => setResetToast(false), 2400);
   };
 
+  const isDoctor = currentRole === 'doctor';
   const pageTitle = isHindi ? 'प्रोफ़ाइल' : 'Profile';
   const allSyncedText = isHindi ? 'सब सिंक है (सिम्युलेटेड)' : 'All synced (Simulated)';
   const pendingText = isHindi ? `${waitingSyncCount || 4} लंबित (सिम्युलेटेड)` : `${waitingSyncCount || 4} pending (Simulated)`;
   const activeText = isHindi ? 'सक्रिय' : 'Active';
-  const subCenterText = isHindi ? 'कोटरा उप-केंद्र' : 'Kotra Sub-Center';
+  const personInitial = isDoctor ? (isHindi ? 'डॉ' : 'R') : (isHindi ? 'सु' : 'S');
+  const personName = isDoctor ? 'Dr. Rao' : t.name;
+  const personRole = isDoctor ? (isHindi ? 'चिकित्सक' : 'Doctor') : t.role;
+  const subCenterText = isDoctor
+    ? (isHindi ? 'ज़िला अस्पताल डेस्क' : 'District Hospital Desk')
+    : (isHindi ? 'कोटरा उप-केंद्र' : 'Kotra Sub-Center');
   const connectedText = isHindi ? 'सर्वर से जुड़ा है' : 'Connected to server';
   const offlineStorageText = isHindi ? 'स्थानीय संग्रहण सक्रिय' : 'Local storage active';
   const syncQueueTitle = isHindi ? 'सिंक कतार (सिम्युलेटेड सिंक)' : 'Sync Queue (Simulated sync)';
@@ -83,12 +91,12 @@ export default function Profile({
             fontWeight: 800,
           }}
         >
-          {isHindi ? 'सु' : 'S'}
+          {personInitial}
         </div>
         <div style={{ minWidth: 0, flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
             <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: '#00201C', lineHeight: 1.2 }}>
-              {t.name}
+              {personName}
             </h2>
             <span
               style={{
@@ -108,7 +116,7 @@ export default function Profile({
             </span>
           </div>
           <p style={{ margin: '4px 0 0', fontSize: 13, color: '#404945', fontWeight: 600 }}>
-            {t.role} • {subCenterText}
+            {personRole} • {subCenterText}
           </p>
         </div>
       </div>

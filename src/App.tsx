@@ -6,7 +6,7 @@ import enLocale from './i18n/en.json';
 import hiLocale from './i18n/hi.json';
 import { ViewModeProvider, useViewMode, type ViewMode } from './ViewModeContext';
 import { CaseProvider, useCaseStore } from './store/CaseStore';
-import { ScreenDraftProvider } from './ScreenDraftContext';
+import { ScreenDraftProvider, useScreenDraft } from './ScreenDraftContext';
 
 export { ViewModeProvider, useViewMode, type ViewMode };
 
@@ -660,6 +660,8 @@ function WebTopbar({
 }
 
 function AppContent() {
+  const { currentRole, setCurrentRole } = useScreenDraft();
+
   const [route, setRoute] = useState<string>(() => {
     if (typeof window !== 'undefined' && ROUTES[window.location.pathname]) {
       return window.location.pathname;
@@ -669,10 +671,17 @@ function AppContent() {
 
   const [role, setRole] = useState<Role | null>(() => {
     if (typeof window !== 'undefined' && ROUTES[window.location.pathname]) {
-      return inferRoleFromRoute(window.location.pathname);
+      const inferred = inferRoleFromRoute(window.location.pathname);
+      if (inferred) return inferred;
+      const stored = localStorage.getItem('ms_current_role') as Role | null;
+      if (stored) return stored;
     }
     return null;
   });
+
+  useEffect(() => {
+    setCurrentRole(role);
+  }, [role, setCurrentRole]);
 
   const [lang, setLang] = useState<Lang>('en');
   const [online, setOnline] = useState<boolean>(true);

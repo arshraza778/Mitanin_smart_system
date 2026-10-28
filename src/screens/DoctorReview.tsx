@@ -4,6 +4,10 @@ import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
 import { dataService } from '../services';
 import { useCaseStore } from '../store/CaseStore';
+import { useViewMode } from '../ViewModeContext';
+import { useScreenDraft } from '../ScreenDraftContext';
+import { DoctorSplitLayout } from '../DoctorSplitLayout';
+import { Camera, FileText, AlertCircle, Check } from 'lucide-react';
 
 type Filter = 'all' | 'over2h' | 'photos';
 type Read = 'agree' | 'disagree';
@@ -83,6 +87,17 @@ function Thumb({ has, src, alt, empty }: { has: boolean; src?: string; alt: stri
 const dist = (a: React.Touch, b: React.Touch) => Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
 
 export default function DoctorReview({ lang, online, onNavigate, onToggleOnline }: ScreenProps) {
+  const { isWeb } = useViewMode();
+  const {
+    selectedDoctorCaseId,
+    setSelectedDoctorCaseId,
+    getAdviceDraft,
+    setAdviceDraft,
+    noPhotoReplyingCases,
+    setNoPhotoReplying,
+    photoRequestedCases,
+    setPhotoRequested,
+  } = useScreenDraft();
   const t = COPY.review[lang];
   const tInbox = COPY.inbox[lang];
   const {
@@ -121,6 +136,7 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
   // Wide mode split view state
   const [filter, setFilter] = useState<Filter>('all');
   const [selectedCaseId, setSelectedCaseId] = useState<string>(() => {
+    if (selectedDoctorCaseId) return selectedDoctorCaseId;
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('ms_selected_doctor_case');
       if (stored) return stored;
@@ -293,6 +309,18 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
     timer.current = window.setTimeout(() => onNavigate('/doctor/inbox'), 1800);
   };
 
+  if (isWeb) {
+    return (
+      <DoctorSplitLayout
+        lang={lang}
+        online={online}
+        onNavigate={onNavigate}
+        onToggleOnline={onToggleOnline}
+        initialSelectedCaseId={selectedCaseId}
+      />
+    );
+  }
+
   return (
     <div>
       {/* Fullscreen Zoom In Viewer */}
@@ -421,17 +449,75 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                   flexDirection: 'column',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  padding: '24px 20px',
+                  padding: '20px 16px',
                   textAlign: 'center',
                   background: '#F4F9F6',
                   color: '#404945',
                   border: '1.5px dashed #CCD9D2',
                   borderRadius: 24,
+                  gap: 10,
                 }}
               >
-                <p style={{ margin: 0, fontSize: 15, fontWeight: 700, lineHeight: 1.4 }}>
+                <div
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: '50%',
+                    background: '#FFF1CC',
+                    color: '#8A5A00',
+                    display: 'grid',
+                    placeItems: 'center',
+                  }}
+                >
+                  <Camera size={20} aria-hidden="true" />
+                </div>
+                <p style={{ margin: 0, fontSize: 14, fontWeight: 700, lineHeight: 1.35 }}>
                   {t.noPhotoSent}
                 </p>
+                <div style={{ display: 'flex', gap: 8, width: '100%', maxWidth: 320 }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (selectedCase?.id) setPhotoRequested(selectedCase.id, true);
+                    }}
+                    style={{
+                      flex: 1,
+                      minHeight: 40,
+                      padding: '6px 10px',
+                      borderRadius: 10,
+                      border: 0,
+                      cursor: 'pointer',
+                      fontSize: 12,
+                      fontWeight: 800,
+                      background: selectedCase?.id && photoRequestedCases[selectedCase.id] ? '#2E7D4F' : '#235347',
+                      color: '#FFFFFF',
+                    }}
+                  >
+                    {selectedCase?.id && photoRequestedCases[selectedCase.id]
+                      ? '✓ Requested'
+                      : (lang === 'hi' ? 'फ़ोटो माँगें' : 'Ask photo')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (selectedCase?.id) setNoPhotoReplying(selectedCase.id, true);
+                    }}
+                    style={{
+                      flex: 1,
+                      minHeight: 40,
+                      padding: '6px 10px',
+                      borderRadius: 10,
+                      border: '1.5px solid #CCD9D2',
+                      cursor: 'pointer',
+                      fontSize: 12,
+                      fontWeight: 700,
+                      background: selectedCase?.id && noPhotoReplyingCases[selectedCase.id] ? '#DAF1DE' : '#FFFFFF',
+                      color: '#235347',
+                    }}
+                  >
+                    {lang === 'hi' ? 'बिना फ़ोटो' : 'Reply w/o photo'}
+                  </button>
+                </div>
               </div>
             ) : imageError ? (
               <div
@@ -746,24 +832,42 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
                     </li>
                   ))}
                 </ul>
-                <textarea
-                  id="advice"
-                  value={advice}
-                  onChange={(e) => handleAdviceChange(e.target.value)}
-                  placeholder={t.advicePlaceholder}
-                  rows={4}
-                  style={{
-                    width: '100%',
-                    resize: 'none',
-                    padding: '12px 16px',
-                    borderRadius: 20,
-                    border: '2px solid #E3ECE7',
-                    font: 'inherit',
-                    fontSize: 16,
-                    color: '#00201C',
-                    background: '#FFFFFF',
-                  }}
-                />
+                <div style={{ position: 'relative' }}>
+                  <textarea
+                    id="advice"
+                    value={advice}
+                    maxLength={500}
+                    onChange={(e) => handleAdviceChange(e.target.value)}
+                    placeholder={t.advicePlaceholder}
+                    rows={4}
+                    style={{
+                      width: '100%',
+                      resize: 'none',
+                      padding: '12px 16px',
+                      paddingBottom: 28,
+                      borderRadius: 20,
+                      border: '2px solid #E3ECE7',
+                      font: 'inherit',
+                      fontSize: 16,
+                      color: '#00201C',
+                      background: '#FFFFFF',
+                      boxSizing: 'border-box',
+                    }}
+                  />
+                  <span
+                    aria-live="polite"
+                    style={{
+                      position: 'absolute',
+                      right: 14,
+                      bottom: 8,
+                      fontSize: 12,
+                      fontWeight: 700,
+                      color: advice.length > 480 ? '#BA1A1A' : '#707975',
+                    }}
+                  >
+                    {advice.length} / 500
+                  </span>
+                </div>
               </div>
 
               <div>
