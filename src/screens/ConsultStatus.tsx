@@ -15,6 +15,7 @@ import type { ScreenProps } from '../App';
 import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
 import { useCaseStore } from '../store/CaseStore';
+import States from './States';
 import { formatTime } from '../domain';
 
 type Variant = 'waiting' | 'replied';
@@ -88,7 +89,6 @@ export default function ConsultStatus({ lang, online = true, onNavigate }: Scree
     state,
     currentCaseId,
     currentScreening,
-    getCaseByPatientId,
     getCase,
     getConsultByCaseId,
     requestConsult,
@@ -99,10 +99,31 @@ export default function ConsultStatus({ lang, online = true, onNavigate }: Scree
   } = useCaseStore();
 
   const isDev = typeof window !== 'undefined' && window.location.search.includes('dev=1');
-  const patientId = currentScreening?.patientId || 'p1';
-  const caseId = currentCaseId || (patientId === 'p1' ? 'c1' : `c-${patientId}`);
-  const caseRecord = getCase(caseId) || getCaseByPatientId(patientId);
-  const consult = getConsultByCaseId(caseId) || state.consults.find((c) => c.caseId === caseId || c.patientId === patientId);
+  const caseId = currentCaseId || currentScreening?.caseId;
+  const caseRecord = caseId ? getCase(caseId) : undefined;
+  const patientId = caseRecord?.patientId || currentScreening?.patientId || '';
+  const consult = caseId ? (getConsultByCaseId(caseId) || state.consults.find((c) => c.caseId === caseId)) : undefined;
+
+  if (!caseId || !caseRecord) {
+    return (
+      <div style={{ padding: '24px 16px', paddingBottom: 'var(--ms-screen-padding-bottom)' }}>
+        <States variant="empty" lang={lang}>
+          <div style={{ marginTop: 8 }}>
+            <p style={{ margin: '0 0 16px', fontSize: 16, fontWeight: 700, color: 'var(--ms-ink)' }}>
+              {lang === 'hi' ? 'केस नहीं मिला' : 'Case not found'}
+            </p>
+            <button
+              type="button"
+              className="ms-btn ms-btn--primary ms-btn--lg"
+              onClick={() => onNavigate('/mitanin/home')}
+            >
+              {lang === 'hi' ? 'मुख्य पृष्ठ पर जाएँ' : 'Go to Home'}
+            </button>
+          </div>
+        </States>
+      </div>
+    );
+  }
 
   const replied =
     consult?.status === 'replied' ||

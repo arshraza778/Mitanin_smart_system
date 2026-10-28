@@ -141,7 +141,7 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
       const stored = localStorage.getItem('ms_selected_doctor_case');
       if (stored) return stored;
     }
-    return CASES[0]?.id ?? 'c1';
+    return CASES[0]?.id ?? '';
   });
 
   // Review form state
@@ -293,7 +293,7 @@ export default function DoctorReview({ lang, online, onNavigate, onToggleOnline 
       decision === 'refer' ? 'send_to_hospital' : 'treat_locally';
 
     const res = doctorReply(
-      selectedCase.id || 'c1',
+      selectedCase.id,
       trimmed,
       normalizedDecision,
       read || undefined,

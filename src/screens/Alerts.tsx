@@ -97,7 +97,7 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
     createReferral,
   } = useCaseStore();
   const { selectedAlertId: draftAlertId, setSelectedAlertId: setDraftAlertId, currentRole, setSelectedDoctorCaseId, setSelectedSupervisorCaseId } = useScreenDraft();
-  const patientId = currentScreening?.patientId || 'p1';
+  const patientId = currentScreening?.patientId || '';
   const alertsList = state.alerts;
   const isDev = typeof window !== 'undefined' && window.location.search.includes('dev=1');
   const [view, setView] = useState<View>('alerts');
@@ -192,7 +192,7 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
       return;
     }
     if (a.caseId) setCurrentCaseId(a.caseId);
-    if (a.patientId) selectScreeningPatient(a.patientId);
+    if (a.patientId && a.caseId) selectScreeningPatient(a.patientId, a.caseId);
     onNavigate('/mitanin/consult');
   };
 
@@ -202,7 +202,9 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
     setTimeout(() => setIsSubmitting(false), 500);
 
     markAlertRead(a.id);
-    createReferral(a.caseId || 'c1', a.patientId || 'p1', { en: 'District hospital', hi: 'ज़िला अस्पताल' }, 24, true);
+    if (a.caseId && a.patientId) {
+      createReferral(a.caseId, a.patientId, { en: 'District hospital', hi: 'ज़िला अस्पताल' }, 24, true);
+    }
     onNavigate('/mitanin/referral');
   };
 
@@ -916,7 +918,7 @@ export default function Alerts({ lang, onNavigate }: ScreenProps) {
                           {lang === 'hi' ? 'संबंधित मरीज़' : 'Associated Patient'}
                         </span>
                         <p style={{ margin: '4px 0 0', fontSize: 15, fontWeight: 800, color: COLORS.green }}>
-                          {getPatientSummary(selectedAlert.patientId || patientId, lang)}
+                          {selectedAlert.patientId ? getPatientSummary(selectedAlert.patientId, lang) : ''}
                         </p>
                       </div>
 

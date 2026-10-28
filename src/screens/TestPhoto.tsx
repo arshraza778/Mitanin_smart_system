@@ -12,6 +12,7 @@ import {
   X,
 } from 'lucide-react';
 import type { ScreenProps } from '../App';
+import States from './States';
 import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
 import { useCaseStore } from '../store/CaseStore';
@@ -91,10 +92,11 @@ export function CassetteDemo({ type = 'positive' }: { type?: 'positive' | 'negat
 
 export default function TestPhoto({ lang, online = true, onNavigate }: ScreenProps) {
   const t = COPY[lang];
-  const { updateScreening, getCaseByPatientId, currentScreening, getPatientSummary } = useCaseStore();
+  const { updateScreening, getCase, currentScreening, getPatientSummary } = useCaseStore();
   const { getTestResult, setTestResult, getTestPhoto, setTestPhoto } = useScreenDraft();
-  const patientId = currentScreening?.patientId || 'p1';
-  const existingCase = getCaseByPatientId(patientId);
+  const patientId = currentScreening?.patientId;
+  const caseId = currentScreening?.caseId;
+  const existingCase = caseId ? getCase(caseId) : undefined;
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const scratchRef = useRef<HTMLCanvasElement | null>(null);
@@ -110,7 +112,7 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
   const [cameraActive, setCameraActive] = useState<boolean>(false);
   const [quality, setQuality] = useState<[boolean, boolean, boolean]>([false, false, false]);
   const [photo, setPhotoState] = useState<string | null>(() => {
-    const draftPhoto = getTestPhoto(patientId);
+    const draftPhoto = patientId ? getTestPhoto(patientId) : null;
     if (draftPhoto !== null) return draftPhoto;
     if (existingCase?.photoData) return existingCase.photoData;
     if (typeof existingCase?.photo === 'string' && existingCase.photo.startsWith('data:image')) {
@@ -121,21 +123,21 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
   const setPhoto = (valOrFn: string | null | ((prev: string | null) => string | null)) => {
     setPhotoState((prev) => {
       const next = typeof valOrFn === 'function' ? valOrFn(prev) : valOrFn;
-      setTestPhoto(patientId, next);
+      if (patientId) setTestPhoto(patientId, next);
       return next;
     });
   };
 
   const [isDemoPhoto, setIsDemoPhoto] = useState<boolean>(() => Boolean(existingCase?.photoIsDemo));
   const [result, setResultState] = useState<Result | null>(() => {
-    const draftRes = getTestResult(patientId);
+    const draftRes = patientId ? getTestResult(patientId) : null;
     if (draftRes !== null) return draftRes;
     return existingCase?.testResult ?? 'positive';
   });
   const setResult = (valOrFn: Result | null | ((prev: Result | null) => Result | null)) => {
     setResultState((prev) => {
       const next = typeof valOrFn === 'function' ? valOrFn(prev) : valOrFn;
-      if (next) setTestResult(patientId, next);
+      if (next && patientId) setTestResult(patientId, next);
       return next;
     });
   };
@@ -330,7 +332,8 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
       stopCameraStream();
       updateScreening(
         {
-          patientId,
+          patientId: patientId || '',
+          caseId,
           photo: Boolean(photo),
           photoData: photo || undefined,
           photoIsDemo: isDemoPhoto,
@@ -1363,6 +1366,27 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
       )}
     </>
   );
+
+  if (!patientId || !caseId) {
+    return (
+      <div style={{ padding: '24px 16px', paddingBottom: 'var(--ms-screen-padding-bottom)' }}>
+        <States variant="empty" lang={lang}>
+          <div style={{ marginTop: 8 }}>
+            <p style={{ margin: '0 0 16px', fontSize: 16, fontWeight: 700, color: 'var(--ms-ink)' }}>
+              {lang === 'hi' ? 'केस नहीं मिला' : 'Case not found'}
+            </p>
+            <button
+              type="button"
+              className="ms-btn ms-btn--primary ms-btn--lg"
+              onClick={() => onNavigate('/mitanin/home')}
+            >
+              {lang === 'hi' ? 'मुख्य पृष्ठ पर जाएँ' : 'Go to Home'}
+            </button>
+          </div>
+        </States>
+      </div>
+    );
+  }
 
   return (
     <div>

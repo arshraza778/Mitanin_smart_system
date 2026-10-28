@@ -17,6 +17,7 @@ import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
 import { useCaseStore } from '../store/CaseStore';
 import { useScreenDraft } from '../ScreenDraftContext';
+import States from './States';
 
 const STEP = 2;
 
@@ -32,13 +33,14 @@ const SYMPTOM_ICONS: ReactElement[] = [
 
 export default function ScreeningSymptoms({ lang, online = true, onNavigate }: ScreenProps) {
   const t = COPY[lang];
-  const { updateScreening, getCaseByPatientId, currentScreening, getPatientSummary } = useCaseStore();
+  const { updateScreening, getCase, currentScreening, getPatientSummary } = useCaseStore();
   const { getSymptomTicks, setSymptomTicks } = useScreenDraft();
-  const patientId = currentScreening?.patientId || 'p1';
-  const existingCase = getCaseByPatientId(patientId);
+  const patientId = currentScreening?.patientId;
+  const caseId = currentScreening?.caseId;
+  const existingCase = caseId ? getCase(caseId) : undefined;
 
   const [checked, setCheckedState] = useState<boolean[]>(() => {
-    const draft = getSymptomTicks(patientId);
+    const draft = patientId ? getSymptomTicks(patientId) : null;
     if (draft && draft.length === t.items.length) {
       return draft;
     }
@@ -59,11 +61,32 @@ export default function ScreeningSymptoms({ lang, online = true, onNavigate }: S
   const setChecked = (fnOrVal: boolean[] | ((prev: boolean[]) => boolean[])) => {
     setCheckedState((prev) => {
       const next = typeof fnOrVal === 'function' ? fnOrVal(prev) : fnOrVal;
-      setSymptomTicks(patientId, next);
+      if (patientId) setSymptomTicks(patientId, next);
       return next;
     });
   };
   const [speaking, setSpeaking] = useState<number | null>(null);
+
+  if (!patientId || !caseId) {
+    return (
+      <div style={{ padding: '24px 16px', paddingBottom: 'var(--ms-screen-padding-bottom)' }}>
+        <States variant="empty" lang={lang}>
+          <div style={{ marginTop: 8 }}>
+            <p style={{ margin: '0 0 16px', fontSize: 16, fontWeight: 700, color: 'var(--ms-ink)' }}>
+              {lang === 'hi' ? 'केस नहीं मिला' : 'Case not found'}
+            </p>
+            <button
+              type="button"
+              className="ms-btn ms-btn--primary ms-btn--lg"
+              onClick={() => onNavigate('/mitanin/home')}
+            >
+              {lang === 'hi' ? 'मुख्य पृष्ठ पर जाएँ' : 'Go to Home'}
+            </button>
+          </div>
+        </States>
+      </div>
+    );
+  }
 
   const toggle = (i: number) => {
     setNoneSelected(false);
@@ -99,6 +122,7 @@ export default function ScreeningSymptoms({ lang, online = true, onNavigate }: S
     updateScreening(
       {
         patientId,
+        caseId,
         symptoms: {
           en: selectedEn.join(', '),
           hi: selectedHi.join(', '),

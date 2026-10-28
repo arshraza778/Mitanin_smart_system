@@ -121,7 +121,7 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
   }, [syncedCases]);
 
   const [filter, setFilter] = useState<Filter>('all');
-  const [selectedCaseId, setSelectedCaseId] = useState<string>(() => caseList[0]?.id ?? 'c1');
+  const [selectedCaseId, setSelectedCaseId] = useState<string>(() => caseList[0]?.id ?? '');
 
   // Review panel state for selected case
   const [scale, setScale] = useState(1);
@@ -241,13 +241,15 @@ export default function DoctorInbox({ lang, online, onNavigate, onToggleOnline }
       return;
     }
     setSent(true);
-    doctorReply(
-      selectedCase.id || 'c1',
-      advice.trim(),
-      decision === 'refer' ? 'send_to_hospital' : 'treat_locally',
-      read || undefined,
-      online
-    );
+    if (selectedCase?.id) {
+      doctorReply(
+        selectedCase.id,
+        advice.trim(),
+        decision === 'refer' ? 'send_to_hospital' : 'treat_locally',
+        read || undefined,
+        online
+      );
+    }
   };
 
   if (isWeb) {

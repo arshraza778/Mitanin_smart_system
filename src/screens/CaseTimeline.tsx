@@ -167,9 +167,10 @@ export default function CaseTimeline({ lang, online, onNavigate, onToggleOnline 
   }
 
   const t = COPY[lang];
-  const { state, getCaseByPatientId, currentScreening, getPatient, getPatientSummary, getConsultByCaseId } = useCaseStore();
-  const patientId = currentScreening?.patientId || 'p1';
-  const caseRecord = getCaseByPatientId(patientId);
+  const { state, getCase, currentCaseId, currentScreening, getPatient, getPatientSummary, getConsultByCaseId } = useCaseStore();
+  const caseId = currentCaseId || currentScreening?.caseId;
+  const caseRecord = caseId ? getCase(caseId) : undefined;
+  const patientId = caseRecord?.patientId || currentScreening?.patientId || '';
 
   if (!caseRecord) {
     return (

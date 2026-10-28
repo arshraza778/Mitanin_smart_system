@@ -39,16 +39,11 @@ export default function ScreeningResult({ lang, online = true, onNavigate }: Scr
     currentScreening,
     currentCaseId,
     getCase,
-    getCaseByPatientId,
     getPatientSummary,
   } = useCaseStore();
 
-  const patientId = currentScreening?.patientId;
-  const caseId = currentCaseId || (patientId === 'p1' ? 'c1' : patientId ? `c-${patientId}` : '');
-  const currentCase =
-    (caseId ? getCase(caseId) : undefined) ||
-    (patientId ? getCaseByPatientId(patientId) : undefined) ||
-    getCase('c1');
+  const caseId = currentScreening?.caseId || currentCaseId;
+  const currentCase = caseId ? getCase(caseId) : undefined;
 
   const [saved, setSaved] = useState(false);
   const timer = useRef<number | undefined>(undefined);
@@ -76,8 +71,8 @@ export default function ScreeningResult({ lang, online = true, onNavigate }: Scr
     );
   }
 
-  const effectivePatientId = currentCase.patientId || patientId || 'p1';
-  const effectiveCaseId = currentCase.id || caseId || 'c1';
+  const effectivePatientId = currentCase.patientId;
+  const effectiveCaseId = currentCase.id;
 
   // Compute priority & danger signs using domain functions
   const isDanger = hasDangerSigns(currentCase);
@@ -164,6 +159,7 @@ export default function ScreeningResult({ lang, online = true, onNavigate }: Scr
     updateScreening(
       {
         patientId: effectivePatientId,
+        caseId: effectiveCaseId,
         state: 'SCREENED',
       },
       online
@@ -178,6 +174,7 @@ export default function ScreeningResult({ lang, online = true, onNavigate }: Scr
     updateScreening(
       {
         patientId: effectivePatientId,
+        caseId: effectiveCaseId,
         state: 'SCREENED',
       },
       online

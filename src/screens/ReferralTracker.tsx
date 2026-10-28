@@ -36,9 +36,10 @@ const ACTION_ICONS = [
 
 export default function ReferralTracker({ lang, online = true }: ScreenProps) {
   const t = COPY[lang];
-  const { getReferralByPatientId, referralAction, currentScreening, getPatientSummary } = useCaseStore();
-  const patientId = currentScreening?.patientId || 'p1';
-  const storeReferral = getReferralByPatientId(patientId);
+  const { getReferralByPatientId, referralAction, currentScreening, currentCaseId, state, getPatientSummary } = useCaseStore();
+  const caseId = currentCaseId || currentScreening?.caseId;
+  const storeReferral = (caseId ? state.referrals.find((r) => r.caseId === caseId) : undefined) ||
+    (currentScreening?.patientId ? getReferralByPatientId(currentScreening.patientId) : undefined);
   const defaultReferral = dataService.getReferrals()[0];
   const referral = storeReferral
     ? {

@@ -54,6 +54,16 @@ describe('Phase 1 vitest tests: Clinical content dynamic & validated', () => {
 
   // (a) no ticks and no "None of these signs" blocks Next
   it('(a) no ticks and no "None of these signs" blocks Next button from proceeding', () => {
+    const seed = getInitialSeedState();
+    seed.currentScreening = { patientId: 'p1', caseId: 'c-test-screening' };
+    mockLocalStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        ...seed,
+        schemaVersion: SCHEMA_VERSION,
+      })
+    );
+
     // Render ScreeningSymptoms with fresh state (no draft, no existing case ticks)
     const html = renderToString(
       <CaseProvider>
@@ -100,7 +110,7 @@ describe('Phase 1 vitest tests: Clinical content dynamic & validated', () => {
     expect(prio.reason).toBe('danger signs');
 
     seed.cases = [dangerCase, ...seed.cases];
-    seed.currentScreening = { patientId: 'p-danger-1' };
+    seed.currentScreening = { patientId: 'p-danger-1', caseId: 'c-danger-case' };
     seed.currentCaseId = 'c-danger-case';
 
     mockLocalStorage.setItem(
@@ -156,7 +166,7 @@ describe('Phase 1 vitest tests: Clinical content dynamic & validated', () => {
     expect(prio.rank).not.toBe(1);
 
     seed.cases = [negativeCase, ...seed.cases];
-    seed.currentScreening = { patientId: 'p-neg-1' };
+    seed.currentScreening = { patientId: 'p-neg-1', caseId: 'c-negative-case' };
     seed.currentCaseId = 'c-negative-case';
 
     mockLocalStorage.setItem(
@@ -205,7 +215,7 @@ describe('Phase 1 vitest tests: Clinical content dynamic & validated', () => {
     };
 
     seed.cases = [otherCase, ...seed.cases];
-    seed.currentScreening = { patientId: 'p2' };
+    seed.currentScreening = { patientId: 'p2', caseId: 'c-p2' };
     seed.currentCaseId = 'c-p2';
 
     mockLocalStorage.setItem(

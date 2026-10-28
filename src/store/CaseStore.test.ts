@@ -64,6 +64,7 @@ describe('CaseStore: state transitions and actions', () => {
       type: 'UPDATE_SCREENING',
       payload: {
         patientId: 'p1',
+        caseId: 'c1',
         state: 'SCREENED',
       },
       online: true,
@@ -98,6 +99,7 @@ describe('CaseStore: state transitions and actions', () => {
       payload: {
         caseId: 'c1',
         patientId: 'p1',
+        referralId: 'r-p1',
       },
       online: true,
     });
@@ -919,6 +921,7 @@ describe('CaseStore: state transitions and actions', () => {
       type: 'UPDATE_SCREENING',
       payload: {
         patientId,
+        caseId,
         symptoms: { en: 'High fever and shivering', hi: 'तेज़ बुखार और कंपकंपी' },
         symptomFlags: ['fever'],
         photo: demoPositivePhoto,
