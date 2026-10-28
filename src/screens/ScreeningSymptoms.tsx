@@ -36,6 +36,7 @@ export default function ScreeningSymptoms({ lang, online = true, onNavigate }: S
   const { getSymptomTicks, setSymptomTicks } = useScreenDraft();
   const patientId = currentScreening?.patientId || 'p1';
   const existingCase = getCaseByPatientId(patientId);
+
   const [checked, setCheckedState] = useState<boolean[]>(() => {
     const draft = getSymptomTicks(patientId);
     if (draft && draft.length === t.items.length) {
@@ -45,7 +46,14 @@ export default function ScreeningSymptoms({ lang, online = true, onNavigate }: S
       const flags = ['fever', 'drink', 'fits', 'sleepy', 'palm'];
       return flags.map((f) => existingCase.symptomFlags?.includes(f) ?? false);
     }
-    return t.items.map((_, i) => i === 0);
+    return t.items.map(() => false);
+  });
+
+  const [noneSelected, setNoneSelected] = useState<boolean>(() => {
+    if (existingCase && Array.isArray(existingCase.symptomFlags) && existingCase.symptomFlags.length === 0) {
+      return true;
+    }
+    return false;
   });
 
   const setChecked = (fnOrVal: boolean[] | ((prev: boolean[]) => boolean[])) => {
@@ -57,21 +65,45 @@ export default function ScreeningSymptoms({ lang, online = true, onNavigate }: S
   };
   const [speaking, setSpeaking] = useState<number | null>(null);
 
+  const toggle = (i: number) => {
+    setNoneSelected(false);
+    setChecked((c) => c.map((v, j) => (j === i ? !v : v)));
+  };
+
+  const toggleNone = () => {
+    setNoneSelected((prev) => {
+      const next = !prev;
+      if (next) {
+        setChecked(t.items.map(() => false));
+      }
+      return next;
+    });
+  };
+
+  const canProceed = checked.some(Boolean) || noneSelected;
+
   const handleNext = () => {
-    const selectedEn = enLocale.screens.ScreeningSymptoms.items.filter((_, i) => checked[i]);
-    const selectedHi = hiLocale.screens.ScreeningSymptoms.items.filter((_, i) => checked[i]);
+    if (!canProceed) return;
     const flagNames = ['fever', 'drink', 'fits', 'sleepy', 'palm'];
-    const selectedFlags = checked.map((c, i) => (c ? flagNames[i] : null)).filter(Boolean) as string[];
-    const hasDanger = Boolean(checked[1] || checked[2] || checked[3] || checked[4]);
+    const selectedFlags = noneSelected
+      ? []
+      : (checked.map((c, i) => (c ? flagNames[i] : null)).filter(Boolean) as string[]);
+    const selectedEn = noneSelected
+      ? []
+      : enLocale.screens.ScreeningSymptoms.items.filter((_, i) => checked[i]);
+    const selectedHi = noneSelected
+      ? []
+      : hiLocale.screens.ScreeningSymptoms.items.filter((_, i) => checked[i]);
+    const hasDanger = !noneSelected && Boolean(checked[1] || checked[2] || checked[3] || checked[4]);
 
     updateScreening(
       {
         patientId,
         symptoms: {
-          en: selectedEn.length ? selectedEn.join(', ') : 'Fever over 2 days, test positive',
-          hi: selectedHi.length ? selectedHi.join(', ') : '2 दिन से ज़्यादा बुखार, जाँच पॉज़िटिव',
+          en: selectedEn.join(', '),
+          hi: selectedHi.join(', '),
         },
-        symptomFlags: selectedFlags.length ? selectedFlags : ['fever'],
+        symptomFlags: selectedFlags,
         hasDangerSigns: hasDanger,
         state: 'SCREENED',
       },
@@ -89,8 +121,6 @@ export default function ScreeningSymptoms({ lang, online = true, onNavigate }: S
     if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     setSpeaking(null);
   }, [lang]);
-
-  const toggle = (i: number) => setChecked((c) => c.map((v, j) => (j === i ? !v : v)));
 
   const speak = (i: number) => {
     if (!('speechSynthesis' in window)) return;
@@ -389,6 +419,59 @@ export default function ScreeningSymptoms({ lang, online = true, onNavigate }: S
           </li>
         );
       })}
+
+      <li
+        style={{
+          display: 'flex',
+          alignItems: 'stretch',
+          borderRadius: 16,
+          background: noneSelected ? 'linear-gradient(to right, #FFFFFF, rgba(218, 241, 222, 0.25))' : '#FFFFFF',
+          border: `2px solid ${noneSelected ? '#235347' : '#E3ECE7'}`,
+          boxShadow: noneSelected ? '0 2px 10px rgba(35, 83, 71, 0.08)' : '0 1px 3px rgba(0,0,0,0.03)',
+          transition: 'all 0.15s ease',
+        }}
+      >
+        <button
+          type="button"
+          role="checkbox"
+          aria-checked={noneSelected}
+          onClick={toggleNone}
+          className="ms-btn ms-btn--ghost"
+          style={{
+            flex: 1,
+            minWidth: 0,
+            minHeight: 64,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-start',
+            gap: 12,
+            padding: '12px 14px',
+            textAlign: 'left',
+            color: '#00201C',
+          }}
+        >
+          <span
+            aria-hidden
+            style={{
+              width: 24,
+              height: 24,
+              borderRadius: 6,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: `2px solid ${noneSelected ? '#235347' : '#707975'}`,
+              background: noneSelected ? '#235347' : '#FFFFFF',
+              color: '#FFFFFF',
+              flexShrink: 0,
+            }}
+          >
+            {noneSelected && <Check size={16} strokeWidth={3} />}
+          </span>
+          <span style={{ fontSize: 14.5, fontWeight: 600, lineHeight: 1.35, color: '#00201C' }}>
+            {t.noneOfThese}
+          </span>
+        </button>
+      </li>
     </ul>
   );
 
@@ -477,6 +560,8 @@ export default function ScreeningSymptoms({ lang, online = true, onNavigate }: S
           </button>
           <button
             type="button"
+            disabled={!canProceed}
+            aria-disabled={!canProceed}
             onClick={handleNext}
             className="ms-btn ms-btn--primary ms-btn--lg ms-btn--block"
             style={{ flex: 1 }}
@@ -595,6 +680,8 @@ export default function ScreeningSymptoms({ lang, online = true, onNavigate }: S
               </button>
               <button
                 type="button"
+                disabled={!canProceed}
+                aria-disabled={!canProceed}
                 onClick={handleNext}
                 className="ms-btn ms-btn--primary ms-btn--md"
               >
@@ -608,4 +695,3 @@ export default function ScreeningSymptoms({ lang, online = true, onNavigate }: S
     </div>
   );
 }
-

@@ -14,30 +14,161 @@ import type { ScreenProps } from '../App';
 import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
 import { useCaseStore } from '../store/CaseStore';
+import { priority, hasDangerSigns } from '../domain/priority';
+import States from './States';
 
 const STEP = 4;
 
 const COPY = { en: enLocale.screens.ScreeningResult, hi: hiLocale.screens.ScreeningResult } as const;
 
+const SYMPTOM_LABELS: Record<string, { en: string; hi: string }> = {
+  fever: { en: 'Fever for more than 2 days', hi: '2 दिन से ज़्यादा बुखार' },
+  drink: { en: 'Unable to drink or feed', hi: 'पी या खा नहीं पा रहा' },
+  fits: { en: 'Fits or convulsions', hi: 'दौरे आना' },
+  sleepy: { en: 'Very sleepy or unconscious', hi: 'बहुत सुस्त या बेहोश' },
+  palm: { en: 'Pale palms', hi: 'हथेलियाँ सफ़ेद' },
+};
+
+const DANGER_FLAGS = ['drink', 'fits', 'sleepy', 'palm'];
+
 export default function ScreeningResult({ lang, online = true, onNavigate }: ScreenProps) {
   const t = COPY[lang];
-  const { updateScreening, requestConsult, currentScreening, getPatientSummary } = useCaseStore();
-  const patientId = currentScreening?.patientId || 'p1';
-  const caseId = patientId === 'p1' ? 'c1' : `c-${patientId}`;
+  const {
+    updateScreening,
+    requestConsult,
+    currentScreening,
+    currentCaseId,
+    getCase,
+    getCaseByPatientId,
+    getPatientSummary,
+  } = useCaseStore();
+
+  const patientId = currentScreening?.patientId;
+  const caseId = currentCaseId || (patientId === 'p1' ? 'c1' : patientId ? `c-${patientId}` : '');
+  const currentCase =
+    (caseId ? getCase(caseId) : undefined) ||
+    (patientId ? getCaseByPatientId(patientId) : undefined) ||
+    getCase('c1');
+
   const [saved, setSaved] = useState(false);
   const timer = useRef<number | undefined>(undefined);
 
   useEffect(() => () => window.clearTimeout(timer.current), []);
 
+  if (!currentCase) {
+    return (
+      <div style={{ padding: '24px 16px', paddingBottom: 'var(--ms-screen-padding-bottom)' }}>
+        <States variant="empty" lang={lang}>
+          <div style={{ marginTop: 8 }}>
+            <p style={{ margin: '0 0 16px', fontSize: 16, fontWeight: 700, color: '#00201C' }}>
+              {t.caseNotFound}
+            </p>
+            <button
+              type="button"
+              className="ms-btn ms-btn--primary ms-btn--lg"
+              onClick={() => onNavigate('/mitanin/home')}
+            >
+              {t.goToHome}
+            </button>
+          </div>
+        </States>
+      </div>
+    );
+  }
+
+  const effectivePatientId = currentCase.patientId || patientId || 'p1';
+  const effectiveCaseId = currentCase.id || caseId || 'c1';
+
+  // Compute priority & danger signs using domain functions
+  const isDanger = hasDangerSigns(currentCase);
+  const prioResult = priority(currentCase);
+  const isHigh = isDanger || prioResult.rank === 1;
+  const isMedium = !isHigh && currentCase.testResult === 'positive';
+
+  const priorityText = isHigh
+    ? t.priorityHigh
+    : isMedium
+      ? t.priorityMedium
+      : t.priorityRoutine;
+
+  const priorityBadgeStyle = isHigh
+    ? { background: '#FFDAD6', color: '#BA1A1A' }
+    : isMedium
+      ? { background: '#FFF1CC', color: '#8A5A00' }
+      : { background: '#DAF1DE', color: '#235347' };
+
+  // What was measured: ticked symptoms & test result
+  const measuredSymptomItems: string[] = [];
+  if (Array.isArray(currentCase.symptomFlags) && currentCase.symptomFlags.length > 0) {
+    for (const flag of currentCase.symptomFlags) {
+      if (SYMPTOM_LABELS[flag]) {
+        measuredSymptomItems.push(SYMPTOM_LABELS[flag][lang]);
+      }
+    }
+  } else if (typeof currentCase.symptoms === 'object' && currentCase.symptoms) {
+    const symStr = currentCase.symptoms[lang] || currentCase.symptoms.en;
+    if (symStr && symStr.trim().length > 0) {
+      measuredSymptomItems.push(symStr);
+    }
+  }
+
+  if (measuredSymptomItems.length === 0) {
+    measuredSymptomItems.push(t.noneOfTheseSigns);
+  }
+
+  const testResultText =
+    currentCase.testResult === 'positive'
+      ? t.testResultPositive
+      : currentCase.testResult === 'negative'
+        ? t.testResultNegative
+        : currentCase.testResult === 'invalid'
+          ? t.testResultInvalid
+          : t.noTestDone;
+
+  const whatMeasuredList = [...measuredSymptomItems, testResultText];
+
+  // Why this priority
+  let whyText = '';
+  let actionText = '';
+
+  if (isHigh) {
+    const dangerSignNames: string[] = [];
+    if (Array.isArray(currentCase.symptomFlags)) {
+      for (const flag of currentCase.symptomFlags) {
+        if (DANGER_FLAGS.includes(flag) && SYMPTOM_LABELS[flag]) {
+          dangerSignNames.push(SYMPTOM_LABELS[flag][lang]);
+        }
+      }
+    }
+    if (dangerSignNames.length === 0 && Array.isArray((currentCase as any).dangerSigns)) {
+      dangerSignNames.push(...((currentCase as any).dangerSigns as unknown[]).map(String));
+    }
+    const signsString =
+      dangerSignNames.length > 0
+        ? dangerSignNames.join(', ')
+        : (lang === 'hi' ? 'ख़तरे के लक्षण' : 'danger signs');
+    whyText = t.whyDangerSigns.replace('{signs}', signsString);
+    actionText = t.actionDangerSigns;
+  } else if (currentCase.testResult === 'positive') {
+    whyText = t.whyPositiveTest;
+    actionText = t.actionPositiveTest;
+  } else if (currentCase.testResult === 'negative') {
+    whyText = t.whyNegativeTest;
+    actionText = t.actionNegativeTest;
+  } else {
+    whyText = t.whyNoTest;
+    actionText = t.actionNoTest;
+  }
+
   const handleAskDoctor = () => {
     updateScreening(
       {
-        patientId,
+        patientId: effectivePatientId,
         state: 'SCREENED',
       },
       online
     );
-    requestConsult(caseId, patientId, online);
+    requestConsult(effectiveCaseId, effectivePatientId, online);
     onNavigate('/mitanin/consult');
   };
 
@@ -46,7 +177,7 @@ export default function ScreeningResult({ lang, online = true, onNavigate }: Scr
     setSaved(true);
     updateScreening(
       {
-        patientId,
+        patientId: effectivePatientId,
         state: 'SCREENED',
       },
       online
@@ -156,7 +287,7 @@ export default function ScreeningResult({ lang, online = true, onNavigate }: Scr
           <User size={18} />
         </div>
         <p style={{ margin: 0, fontSize: 14.5, fontWeight: 700, color: '#0B2B26', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          {getPatientSummary(patientId, lang)}
+          {getPatientSummary(effectivePatientId, lang)}
         </p>
       </div>
     </div>
@@ -164,14 +295,14 @@ export default function ScreeningResult({ lang, online = true, onNavigate }: Scr
 
   const renderResultContent = () => (
     <div style={{ display: 'grid', gap: 14 }}>
-      {/* Urgency Alert Card */}
+      {/* Block 2: Why this priority */}
       <div
         style={{
           padding: 16,
           borderRadius: 16,
           background: '#FFFFFF',
-          border: '1px solid #FFDAD6',
-          boxShadow: '0 2px 8px rgba(186, 26, 26, 0.06)',
+          border: `1px solid ${isHigh ? '#FFDAD6' : '#E3ECE7'}`,
+          boxShadow: isHigh ? '0 2px 8px rgba(186, 26, 26, 0.06)' : '0 2px 8px rgba(0,0,0,0.04)',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -184,23 +315,23 @@ export default function ScreeningResult({ lang, online = true, onNavigate }: Scr
               borderRadius: 999,
               fontSize: 12.5,
               fontWeight: 700,
-              background: '#FFDAD6',
-              color: '#BA1A1A',
+              background: priorityBadgeStyle.background,
+              color: priorityBadgeStyle.color,
             }}
           >
-            <AlertTriangle size={14} color="#BA1A1A" />
-            <span>{t.priority}</span>
+            {isHigh && <AlertTriangle size={14} color="#BA1A1A" />}
+            <span>{priorityText}</span>
           </span>
           <span style={{ fontSize: 11, fontWeight: 700, color: '#707975', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-            {lang === 'hi' ? 'प्रोटोकॉल मिलान' : 'Protocol Match'}
+            {t.whyPriorityTitle}
           </span>
         </div>
         <p style={{ margin: '12px 0 0', fontSize: 15, fontWeight: 600, lineHeight: 1.45, color: '#00201C' }}>
-          {t.why}
+          {whyText}
         </p>
       </div>
 
-      {/* Recommended Action Card (Primary Dark Band) */}
+      {/* Block 3: Suggested action */}
       <div
         style={{
           padding: 18,
@@ -214,7 +345,7 @@ export default function ScreeningResult({ lang, online = true, onNavigate }: Scr
           {t.actionLabel}
         </p>
         <p style={{ margin: '6px 0 0', fontSize: 20, fontWeight: 800, lineHeight: 1.25, color: '#FFFFFF' }}>
-          {t.action}
+          {actionText}
         </p>
         <span
           style={{
@@ -235,15 +366,15 @@ export default function ScreeningResult({ lang, online = true, onNavigate }: Scr
         </span>
       </div>
 
-      {/* Key Findings List */}
+      {/* Block 1: What was measured */}
       <div style={{ marginTop: 4 }}>
         <h3 style={{ margin: '0 0 8px', fontSize: 12, fontWeight: 700, color: '#163832', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-          {lang === 'hi' ? 'जाँच तथ्य' : 'Key Findings'}
+          {t.whatMeasuredTitle}
         </h3>
         <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-          {t.facts.map((f) => (
+          {whatMeasuredList.map((item, idx) => (
             <li
-              key={f}
+              key={`${item}-${idx}`}
               style={{
                 padding: '6px 14px',
                 borderRadius: 999,
@@ -254,7 +385,7 @@ export default function ScreeningResult({ lang, online = true, onNavigate }: Scr
                 border: '1px solid rgba(142, 182, 155, 0.4)',
               }}
             >
-              {f}
+              {item}
             </li>
           ))}
         </ul>
@@ -304,11 +435,11 @@ export default function ScreeningResult({ lang, online = true, onNavigate }: Scr
               borderRadius: 999,
               fontSize: 11.5,
               fontWeight: 700,
-              background: '#FFDAD6',
-              color: '#BA1A1A',
+              background: priorityBadgeStyle.background,
+              color: priorityBadgeStyle.color,
             }}
           >
-            {t.priority}
+            {priorityText}
           </span>
         </header>
 
@@ -387,11 +518,11 @@ export default function ScreeningResult({ lang, online = true, onNavigate }: Scr
                   borderRadius: 999,
                   fontSize: 12.5,
                   fontWeight: 700,
-                  background: '#FFDAD6',
-                  color: '#BA1A1A',
+                  background: priorityBadgeStyle.background,
+                  color: priorityBadgeStyle.color,
                 }}
               >
-                {t.priority}
+                {priorityText}
               </span>
             </div>
           </header>
@@ -404,7 +535,7 @@ export default function ScreeningResult({ lang, online = true, onNavigate }: Scr
               alignItems: 'start',
             }}
           >
-            {/* Left: Patient and Key Findings */}
+            {/* Left: Patient and What was measured */}
             <div style={{ display: 'grid', gap: 20 }}>
               <div
                 style={{
@@ -431,12 +562,12 @@ export default function ScreeningResult({ lang, online = true, onNavigate }: Scr
                       letterSpacing: '0.04em',
                     }}
                   >
-                    {lang === 'hi' ? 'जाँच तथ्य' : 'Key Findings'}
+                    {t.whatMeasuredTitle}
                   </h3>
                   <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
-                    {t.facts.map((f) => (
+                    {whatMeasuredList.map((item, idx) => (
                       <li
-                        key={f}
+                        key={`${item}-${idx}`}
                         style={{
                           padding: '10px 16px',
                           borderRadius: 12,
@@ -451,7 +582,7 @@ export default function ScreeningResult({ lang, online = true, onNavigate }: Scr
                         }}
                       >
                         <CheckCircle2 size={16} color="#235347" style={{ flexShrink: 0 }} />
-                        <span>{f}</span>
+                        <span>{item}</span>
                       </li>
                     ))}
                   </ul>
@@ -459,7 +590,7 @@ export default function ScreeningResult({ lang, online = true, onNavigate }: Scr
               </div>
             </div>
 
-            {/* Right: Priority, Suggested Action, Ask Doctor, Save and decide later */}
+            {/* Right: Why this priority, Suggested action, Buttons */}
             <div style={{ display: 'grid', gap: 20 }}>
               <div
                 style={{
@@ -472,14 +603,14 @@ export default function ScreeningResult({ lang, online = true, onNavigate }: Scr
                   gap: 16,
                 }}
               >
-                {/* Priority alert card */}
+                {/* Block 2: Why this priority */}
                 <div
                   style={{
                     padding: 18,
                     borderRadius: 16,
                     background: '#FFFFFF',
-                    border: '1px solid #FFDAD6',
-                    boxShadow: '0 2px 8px rgba(186, 26, 26, 0.06)',
+                    border: `1px solid ${isHigh ? '#FFDAD6' : '#E3ECE7'}`,
+                    boxShadow: isHigh ? '0 2px 8px rgba(186, 26, 26, 0.06)' : '0 2px 8px rgba(0,0,0,0.04)',
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -492,23 +623,23 @@ export default function ScreeningResult({ lang, online = true, onNavigate }: Scr
                         borderRadius: 999,
                         fontSize: 12.5,
                         fontWeight: 700,
-                        background: '#FFDAD6',
-                        color: '#BA1A1A',
+                        background: priorityBadgeStyle.background,
+                        color: priorityBadgeStyle.color,
                       }}
                     >
-                      <AlertTriangle size={14} color="#BA1A1A" />
-                      <span>{t.priority}</span>
+                      {isHigh && <AlertTriangle size={14} color="#BA1A1A" />}
+                      <span>{priorityText}</span>
                     </span>
                     <span style={{ fontSize: 11, fontWeight: 700, color: '#707975', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                      {lang === 'hi' ? 'प्रोटोकॉल मिलान' : 'Protocol Match'}
+                      {t.whyPriorityTitle}
                     </span>
                   </div>
                   <p style={{ margin: '12px 0 0', fontSize: 15, fontWeight: 600, lineHeight: 1.45, color: '#00201C' }}>
-                    {t.why}
+                    {whyText}
                   </p>
                 </div>
 
-                {/* Recommended action card */}
+                {/* Block 3: Suggested action */}
                 <div
                   style={{
                     padding: 20,
@@ -522,7 +653,7 @@ export default function ScreeningResult({ lang, online = true, onNavigate }: Scr
                     {t.actionLabel}
                   </p>
                   <p style={{ margin: '6px 0 0', fontSize: 20, fontWeight: 800, lineHeight: 1.25, color: '#FFFFFF' }}>
-                    {t.action}
+                    {actionText}
                   </p>
                   <span
                     style={{
@@ -629,4 +760,3 @@ export default function ScreeningResult({ lang, online = true, onNavigate }: Scr
     </div>
   );
 }
-
