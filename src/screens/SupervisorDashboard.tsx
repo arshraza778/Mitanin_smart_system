@@ -68,8 +68,33 @@ const selectStyle = {
 
 export default function SupervisorDashboard({ lang, online = true, onNavigate, onToggleOnline }: ScreenProps) {
   const t = COPY[lang];
-  const { syncedCases, getLoopClosureRate, isOverdue, demoClockOffsetMinutes } = useCaseStore();
+  const {
+    syncedCases,
+    getLoopClosureRate,
+    isOverdue,
+    demoClockOffsetMinutes,
+    state,
+    decideTransport,
+  } = useCaseStore();
   const demoTimeStr = formatTime(getDemoDate(demoClockOffsetMinutes || 0), lang);
+
+  const transportRows = useMemo(() => {
+    return (state.transportRequests || [])
+      .map((tr) => {
+        const c = state.cases.find((cs) => cs.id === tr.caseId);
+        if (!c) return null;
+        const patient = state.patients.find((p) => p.id === tr.patientId || p.id === c.patientId);
+        if (!patient) return null;
+        const villageText = typeof patient.village === 'string'
+          ? (lang === 'hi' ? VILLAGE_HI[patient.village] || patient.village : patient.village)
+          : (patient.village?.[lang] || '');
+        const patientCode = patient.patientCode || tr.patientId;
+        return { tr, c, patient, villageText, patientCode };
+      })
+      .filter((row): row is NonNullable<typeof row> => row !== null);
+  }, [state.transportRequests, state.cases, state.patients, lang]);
+
+  const openTransportRequestsCount = transportRows.filter((r) => r.tr.status === 'requested').length;
   const { selectedSupervisorCaseId, setSelectedSupervisorCaseId } = useScreenDraft();
   const loopRate = getLoopClosureRate(24);
   const loopRateFinal = loopRate != null ? Math.min(100, Math.round(loopRate * 100)) : null;
@@ -277,6 +302,132 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
     }
   };
 
+  const renderTransportRequestsPanel = () => (
+    <div
+      style={{
+        marginTop: 20,
+        padding: 18,
+        borderRadius: 20,
+        background: 'var(--ms-card)',
+        border: '1px solid var(--ms-border)',
+        boxShadow: 'var(--ms-shadow-card)',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+        <h2 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: 'var(--ms-text)' }}>
+          {t.transportRequestsTitle}
+        </h2>
+        <span
+          style={{
+            display: 'inline-block',
+            padding: '3px 10px',
+            borderRadius: 999,
+            fontSize: 12,
+            fontWeight: 700,
+            background: openTransportRequestsCount > 0 ? 'var(--ms-warn-bg)' : 'var(--ms-mint)',
+            color: openTransportRequestsCount > 0 ? 'var(--ms-warn)' : 'var(--ms-primary)',
+          }}
+        >
+          {t.openRequestsCount.replace('{count}', String(openTransportRequestsCount))}
+        </span>
+      </div>
+
+      {transportRows.length === 0 ? (
+        <p style={{ margin: '8px 0 0', fontSize: 13.5, color: 'var(--ms-muted)' }}>
+          {t.noTransportRequests}
+        </p>
+      ) : (
+        <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 10 }}>
+          {transportRows.map((r) => (
+            <li
+              key={r.tr.id}
+              style={{
+                padding: 12,
+                borderRadius: 16,
+                border: '1px solid var(--ms-border)',
+                background: 'var(--ms-card)',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                <span style={{ fontSize: 14, fontWeight: 800, color: 'var(--ms-text)' }}>
+                  {r.patientCode} · {r.villageText}
+                </span>
+                <span
+                  style={{
+                    padding: '2px 10px',
+                    borderRadius: 999,
+                    fontSize: 11.5,
+                    fontWeight: 700,
+                    background:
+                      r.tr.status === 'arranged'
+                        ? 'var(--ms-mint)'
+                        : r.tr.status === 'cannot_arrange'
+                        ? 'var(--ms-danger-bg)'
+                        : 'var(--ms-warn-bg)',
+                    color:
+                      r.tr.status === 'arranged'
+                        ? 'var(--ms-primary)'
+                        : r.tr.status === 'cannot_arrange'
+                        ? 'var(--ms-danger)'
+                        : 'var(--ms-warn)',
+                  }}
+                >
+                  {r.tr.status === 'arranged'
+                    ? t.transportStatusArranged
+                    : r.tr.status === 'cannot_arrange'
+                    ? t.transportStatusCannotArrange
+                    : t.transportStatusRequested}
+                </span>
+              </div>
+
+              {r.tr.note ? (
+                <p style={{ margin: '6px 0 0', fontSize: 13, color: 'var(--ms-text)', wordBreak: 'break-word' }}>
+                  {r.tr.note}
+                </p>
+              ) : null}
+
+              <p style={{ margin: '6px 0 0', fontSize: 12, color: 'var(--ms-muted)', fontWeight: 600 }}>
+                {t.transportRequestedAt.replace('{time}', formatTime(r.tr.requestedAt, lang))}
+              </p>
+
+              {r.tr.status === 'requested' ? (
+                <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+                  <button
+                    type="button"
+                    onClick={() => decideTransport({ requestId: r.tr.id, status: 'arranged', online })}
+                    className="ms-btn ms-btn--secondary ms-btn--sm"
+                    style={{ minHeight: 48, padding: '0 16px', fontWeight: 700 }}
+                  >
+                    {t.transportArranged}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => decideTransport({ requestId: r.tr.id, status: 'cannot_arrange', online })}
+                    className="ms-btn ms-btn--danger ms-btn--sm"
+                    style={{ minHeight: 48, padding: '0 16px', fontWeight: 700 }}
+                  >
+                    {t.transportCannotArrange}
+                  </button>
+                </div>
+              ) : (
+                <div style={{ marginTop: 8, fontSize: 12.5, fontWeight: 600, color: 'var(--ms-muted)' }}>
+                  <span>
+                    {r.tr.status === 'arranged' ? t.transportStatusArranged : t.transportStatusCannotArrange}
+                  </span>
+                  {r.tr.decidedAt && (
+                    <span style={{ marginLeft: 8 }}>
+                      · {formatTime(r.tr.decidedAt, lang)}
+                    </span>
+                  )}
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+
   return (
     <div>
       {/* ===================== NARROW PHONE LAYOUT (@md and below) ===================== */}
@@ -469,6 +620,7 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
               ))}
             </ul>
           )}
+          {renderTransportRequestsPanel()}
         </section>
       </div>
 
@@ -848,6 +1000,7 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
             </div>
           </div>
         )}
+        {renderTransportRequestsPanel()}
       </div>
 
       {/* Action Toast Notification */}

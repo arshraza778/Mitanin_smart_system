@@ -329,7 +329,15 @@
       "hourUnit": "h",
       "minuteUnit": "min",
       "dueWithin": "Within 24 hours",
-      "leftSuffix": "left"
+      "leftSuffix": "left",
+      "transportTitle": "Transport",
+      "requestTransport": "Request transport",
+      "transportNotePlaceholder": "Note (optional)",
+      "transportStatusRequested": "Requested",
+      "transportStatusArranged": "Arranged",
+      "transportStatusCannotArrange": "Cannot arrange",
+      "transportAlreadyRequested": "Already requested",
+      "transportRequestedAt": "Requested at {time}"
     },
     "RoleSelect": {
       "title": "Choose your role",
@@ -509,7 +517,16 @@
         "Calling {who}",
         "Reminder sent to {who}",
         "Escalated: {name}"
-      ]
+      ],
+      "transportRequestsTitle": "Transport requests",
+      "openRequestsCount": "Open requests: {count}",
+      "noTransportRequests": "No transport requests",
+      "transportArranged": "Arranged",
+      "transportCannotArrange": "Cannot arrange",
+      "transportStatusRequested": "Requested",
+      "transportStatusArranged": "Arranged",
+      "transportStatusCannotArrange": "Cannot arrange",
+      "transportRequestedAt": "Requested at {time}"
     },
     "TestPhoto": {
       "steps": [

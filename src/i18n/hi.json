@@ -329,7 +329,15 @@
       "hourUnit": "घंटे",
       "minuteUnit": "मिनट",
       "dueWithin": "24 घंटे के भीतर",
-      "leftSuffix": "बाकी"
+      "leftSuffix": "बाकी",
+      "transportTitle": "परिवहन",
+      "requestTransport": "परिवहन का अनुरोध करें",
+      "transportNotePlaceholder": "टिप्पणी (वैकल्पिक)",
+      "transportStatusRequested": "अनुरोध किया गया",
+      "transportStatusArranged": "व्यवस्था हो गई",
+      "transportStatusCannotArrange": "व्यवस्था नहीं हो सकी",
+      "transportAlreadyRequested": "पहले ही अनुरोध किया जा चुका है",
+      "transportRequestedAt": "{time} पर अनुरोध किया गया"
     },
     "RoleSelect": {
       "title": "अपनी भूमिका चुनें",
@@ -509,7 +517,16 @@
         "{who} को कॉल हो रही है",
         "{who} को रिमाइंडर भेजा गया",
         "आगे बढ़ाया: {name}"
-      ]
+      ],
+      "transportRequestsTitle": "परिवहन अनुरोध",
+      "openRequestsCount": "खुले अनुरोध: {count}",
+      "noTransportRequests": "कोई परिवहन अनुरोध नहीं",
+      "transportArranged": "व्यवस्था हो गई",
+      "transportCannotArrange": "व्यवस्था नहीं हो सकी",
+      "transportStatusRequested": "अनुरोध किया गया",
+      "transportStatusArranged": "व्यवस्था हो गई",
+      "transportStatusCannotArrange": "व्यवस्था नहीं हो सकी",
+      "transportRequestedAt": "{time} पर अनुरोध किया गया"
     },
     "TestPhoto": {
       "steps": [

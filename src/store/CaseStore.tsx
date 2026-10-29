@@ -13,7 +13,7 @@ import { dataService } from '../services';
 export type { CaseState };
 
 export const STORAGE_KEY = 'ms-state-v1';
-export const SCHEMA_VERSION = 4;
+export const SCHEMA_VERSION = 5;
 
 export function formatPatientCode(num: number): string {
   return `MS-P-${String(num).padStart(4, '0')}`;
@@ -117,6 +117,19 @@ export interface AlertRecord {
   timestamp: string;
 }
 
+export type TransportStatus = 'requested' | 'arranged' | 'cannot_arrange';
+
+export interface TransportRequestRecord {
+  id: string;
+  caseId: string;
+  patientId: string;
+  referralId?: string;
+  note: string;
+  status: TransportStatus;
+  requestedAt: string;
+  decidedAt: string | null;
+}
+
 export interface SyncItem {
   id: string;
   actionType: string;
@@ -136,6 +149,7 @@ export interface CaseStoreState {
   referrals: ReferralRecord[];
   consults: ConsultRecord[];
   alerts: AlertRecord[];
+  transportRequests: TransportRequestRecord[];
   syncQueue: SyncItem[];
   processedActionIds: string[];
   demoClockOffsetMinutes: number;
@@ -363,6 +377,7 @@ export function getInitialSeedState(): CaseStoreState {
     referrals: initialReferrals,
     consults: initialConsults,
     alerts: initialAlerts,
+    transportRequests: [],
     syncQueue: [],
     processedActionIds: [],
     demoClockOffsetMinutes: 0,
@@ -474,7 +489,30 @@ export type CaseAction =
       online: boolean;
     }
   | { type: 'SYNC_NOW'; nowISO?: string }
-  | { type: 'SET_CLOCK_OFFSET'; payload: { offsetMinutes: number } };
+  | { type: 'SET_CLOCK_OFFSET'; payload: { offsetMinutes: number } }
+  | {
+      type: 'REQUEST_TRANSPORT';
+      payload: {
+        id?: string;
+        caseId: string;
+        patientId?: string;
+        referralId?: string;
+        note?: string;
+        requestedAt?: string;
+        syncItemId?: string;
+      };
+      online?: boolean;
+    }
+  | {
+      type: 'DECIDE_TRANSPORT';
+      payload: {
+        requestId: string;
+        status: 'arranged' | 'cannot_arrange';
+        decidedAt?: string;
+        syncItemId?: string;
+      };
+      online?: boolean;
+    };
 
 export function caseReducer(state: CaseStoreState, action: CaseAction): CaseStoreState {
   switch (action.type) {
@@ -1102,6 +1140,92 @@ export function caseReducer(state: CaseStoreState, action: CaseAction): CaseStor
       };
     }
 
+    case 'REQUEST_TRANSPORT': {
+      const { payload, online } = action;
+      if (payload.syncItemId && state.processedActionIds.includes(payload.syncItemId)) {
+        return state;
+      }
+      if (!payload.caseId) return state;
+      const targetCase = state.cases.find((c) => c.id === payload.caseId);
+      if (!targetCase) return state;
+      if (state.transportRequests.some((tr) => tr.caseId === payload.caseId || (payload.id && tr.id === payload.id))) {
+        return state;
+      }
+      const newRecord: TransportRequestRecord = {
+        id: payload.id || `tr-${payload.caseId}`,
+        caseId: payload.caseId,
+        patientId: payload.patientId || targetCase.patientId,
+        referralId: payload.referralId,
+        note: (payload.note || '').trim().slice(0, 140),
+        status: 'requested',
+        requestedAt: payload.requestedAt || new Date().toISOString(),
+        decidedAt: null,
+      };
+      const nextRequests = [newRecord, ...state.transportRequests];
+      const syncItem: SyncItem | null = online === false
+        ? {
+            id: payload.syncItemId || `sync-transport-${payload.caseId}`,
+            actionType: 'REQUEST_TRANSPORT',
+            payload,
+            status: 'waiting_to_send',
+            createdAt: payload.requestedAt || new Date().toISOString(),
+            description: {
+              en: `Transport requested for case ${payload.caseId}`,
+              hi: `केस ${payload.caseId} के लिए परिवहन का अनुरोध किया गया`,
+            },
+          }
+        : null;
+      return {
+        ...state,
+        transportRequests: nextRequests,
+        syncQueue: syncItem ? [syncItem, ...state.syncQueue] : state.syncQueue,
+        processedActionIds: payload.syncItemId
+          ? [...state.processedActionIds, payload.syncItemId].slice(-500)
+          : state.processedActionIds,
+      };
+    }
+
+    case 'DECIDE_TRANSPORT': {
+      const { payload, online } = action;
+      if (payload.syncItemId && state.processedActionIds.includes(payload.syncItemId)) {
+        return state;
+      }
+      if (payload.status !== 'arranged' && payload.status !== 'cannot_arrange') {
+        return state;
+      }
+      const existingReq = state.transportRequests.find((r) => r.id === payload.requestId);
+      if (!existingReq || existingReq.status !== 'requested') {
+        return state;
+      }
+      const decidedAt = payload.decidedAt || new Date().toISOString();
+      const nextRequests = state.transportRequests.map((r) =>
+        r.id === payload.requestId
+          ? { ...r, status: payload.status, decidedAt }
+          : r
+      );
+      const syncItem: SyncItem | null = online === false
+        ? {
+            id: payload.syncItemId || `sync-decide-transport-${payload.requestId}-${payload.status}`,
+            actionType: 'DECIDE_TRANSPORT',
+            payload,
+            status: 'waiting_to_send',
+            createdAt: decidedAt,
+            description: {
+              en: `Transport ${payload.status} for request ${payload.requestId}`,
+              hi: `अनुरोध ${payload.requestId} के लिए परिवहन ${payload.status}`,
+            },
+          }
+        : null;
+      return {
+        ...state,
+        transportRequests: nextRequests,
+        syncQueue: syncItem ? [syncItem, ...state.syncQueue] : state.syncQueue,
+        processedActionIds: payload.syncItemId
+          ? [...state.processedActionIds, payload.syncItemId].slice(-500)
+          : state.processedActionIds,
+      };
+    }
+
     default:
       return state;
   }
@@ -1189,6 +1313,9 @@ export interface CaseStoreContextValue {
     awaitingDoctorCount: number;
   };
   getLoopClosureRate: (windowHours?: number) => number | null;
+  requestTransport: (params: { caseId: string; note?: string; online?: boolean }) => void;
+  decideTransport: (params: { requestId: string; status: 'arranged' | 'cannot_arrange'; online?: boolean }) => void;
+  getTransportRequestForCase: (caseId: string | undefined) => TransportRequestRecord | null;
 }
 
 const CaseStoreContext = createContext<CaseStoreContextValue | null>(null);
@@ -1348,6 +1475,31 @@ export function loadPersistedState(): CaseStoreState {
       }
     }
 
+    const validStatuses: TransportStatus[] = ['requested', 'arranged', 'cannot_arrange'];
+    const transportRequests: TransportRequestRecord[] = Array.isArray(parsed.transportRequests)
+      ? parsed.transportRequests
+          .filter((tr: any) =>
+            tr &&
+            typeof tr.id === 'string' &&
+            typeof tr.caseId === 'string' &&
+            typeof tr.patientId === 'string' &&
+            typeof tr.note === 'string' &&
+            validStatuses.includes(tr.status) &&
+            typeof tr.requestedAt === 'string' &&
+            (tr.decidedAt === null || typeof tr.decidedAt === 'string')
+          )
+          .map((tr: any) => ({
+            id: tr.id,
+            caseId: tr.caseId,
+            patientId: tr.patientId,
+            referralId: typeof tr.referralId === 'string' ? tr.referralId : undefined,
+            note: tr.note.slice(0, 140),
+            status: tr.status,
+            requestedAt: tr.requestedAt,
+            decidedAt: tr.decidedAt ?? null,
+          }))
+      : [];
+
     return {
       schemaVersion: SCHEMA_VERSION,
       patients: migratedPatients,
@@ -1362,6 +1514,7 @@ export function loadPersistedState(): CaseStoreState {
       referrals,
       consults,
       alerts: dedupedAlerts,
+      transportRequests,
       syncQueue: Array.isArray(parsed.syncQueue) ? parsed.syncQueue : [],
       processedActionIds: Array.isArray(parsed.processedActionIds) ? parsed.processedActionIds.slice(-500) : [],
       demoClockOffsetMinutes: parsed.demoClockOffsetMinutes ?? 0,
@@ -1752,6 +1905,87 @@ export function CaseProvider({ children }: { children: ReactNode }) {
     [state.cases]
   );
 
+  const requestTransport = useCallback(
+    ({
+      caseId,
+      note,
+      online = true,
+    }: {
+      caseId: string;
+      note?: string;
+      online?: boolean;
+    }) => {
+      if (!caseId) return;
+      const targetCase = state.cases.find((c) => c.id === caseId);
+      if (!targetCase) return;
+      if (state.transportRequests.some((tr) => tr.caseId === caseId)) return;
+
+      const id = `tr-${caseId}`;
+      const patientId = targetCase.patientId;
+      const referral = state.referrals.find((r) => r.caseId === caseId);
+      const referralId = referral?.id;
+      const trimmedNote = (note || '').trim().slice(0, 140);
+      const demoNow = getDemoDate(state.demoClockOffsetMinutes || 0);
+      const requestedAt = demoNow.toISOString();
+      const syncItemId = `sync-transport-${caseId}`;
+
+      dispatch({
+        type: 'REQUEST_TRANSPORT',
+        payload: {
+          id,
+          caseId,
+          patientId,
+          referralId,
+          note: trimmedNote,
+          requestedAt,
+          syncItemId,
+        },
+        online,
+      });
+    },
+    [state.cases, state.referrals, state.transportRequests, state.demoClockOffsetMinutes]
+  );
+
+  const decideTransport = useCallback(
+    ({
+      requestId,
+      status,
+      online = true,
+    }: {
+      requestId: string;
+      status: 'arranged' | 'cannot_arrange';
+      online?: boolean;
+    }) => {
+      if (status !== 'arranged' && status !== 'cannot_arrange') return;
+      const req = state.transportRequests.find((r) => r.id === requestId);
+      if (!req || req.status !== 'requested') return;
+
+      const demoNow = getDemoDate(state.demoClockOffsetMinutes || 0);
+      const decidedAt = demoNow.toISOString();
+      const syncItemId = `sync-decide-transport-${requestId}-${status}`;
+
+      dispatch({
+        type: 'DECIDE_TRANSPORT',
+        payload: {
+          requestId,
+          status,
+          decidedAt,
+          syncItemId,
+        },
+        online,
+      });
+    },
+    [state.transportRequests, state.demoClockOffsetMinutes]
+  );
+
+  const getTransportRequestForCase = useCallback(
+    (caseId: string | undefined): TransportRequestRecord | null => {
+      if (!caseId) return null;
+      return state.transportRequests.find((tr) => tr.caseId === caseId) || null;
+    },
+    [state.transportRequests]
+  );
+
   const unreadAlertsCount = state.alerts.filter((a) => !a.readAt).length;
   const waitingSyncCount = state.syncQueue.filter((s) => s.status === 'waiting_to_send').length;
 
@@ -1800,6 +2034,9 @@ export function CaseProvider({ children }: { children: ReactNode }) {
     referralAction,
     getPriorityStats,
     getLoopClosureRate,
+    requestTransport,
+    decideTransport,
+    getTransportRequestForCase,
   };
 
   return <CaseStoreContext.Provider value={value}>{children}</CaseStoreContext.Provider>;

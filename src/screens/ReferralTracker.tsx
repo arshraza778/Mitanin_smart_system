@@ -14,6 +14,7 @@ import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
 import { dataService } from '../services';
 import { useCaseStore } from '../store/CaseStore';
+import { formatTime } from '../domain/dateUtils';
 
 type Outcome = 'completed' | 'rescheduled' | 'escalated' | 'unresolved';
 
@@ -36,8 +37,19 @@ const ACTION_ICONS = [
 
 export default function ReferralTracker({ lang, online = true }: ScreenProps) {
   const t = COPY[lang];
-  const { getReferralByPatientId, referralAction, currentScreening, currentCaseId, state, getPatientSummary } = useCaseStore();
+  const {
+    getReferralByPatientId,
+    referralAction,
+    currentScreening,
+    currentCaseId,
+    state,
+    getPatientSummary,
+    getTransportRequestForCase,
+    requestTransport,
+  } = useCaseStore();
   const caseId = currentCaseId || currentScreening?.caseId;
+  const transportReq = getTransportRequestForCase(caseId);
+  const [transportNote, setTransportNote] = useState('');
   const storeReferral = (caseId ? state.referrals.find((r) => r.caseId === caseId) : undefined) ||
     (currentScreening?.patientId ? getReferralByPatientId(currentScreening.patientId) : undefined);
   const defaultReferral = dataService.getReferrals()[0];
@@ -284,6 +296,111 @@ export default function ReferralTracker({ lang, online = true }: ScreenProps) {
     </div>
   );
 
+  // Render Transport Block
+  const renderTransportBlock = () => {
+    if (stage >= 4 || !!outcome || !caseId) return null;
+    return (
+      <div
+        style={{
+          padding: 18,
+          borderRadius: 20,
+          background: 'var(--ms-card)',
+          border: '1px solid var(--ms-border)',
+          boxShadow: 'var(--ms-shadow-card)',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+          <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: 'var(--ms-text)' }}>
+            {t.transportTitle}
+          </h2>
+          {transportReq && (
+            <span
+              style={{
+                display: 'inline-block',
+                padding: '4px 12px',
+                borderRadius: 999,
+                fontSize: 12,
+                fontWeight: 700,
+                background:
+                  transportReq.status === 'arranged'
+                    ? 'var(--ms-mint)'
+                    : transportReq.status === 'cannot_arrange'
+                    ? 'var(--ms-danger-bg)'
+                    : 'var(--ms-warn-bg)',
+                color:
+                  transportReq.status === 'arranged'
+                    ? 'var(--ms-primary)'
+                    : transportReq.status === 'cannot_arrange'
+                    ? 'var(--ms-danger)'
+                    : 'var(--ms-warn)',
+              }}
+            >
+              {transportReq.status === 'arranged'
+                ? t.transportStatusArranged
+                : transportReq.status === 'cannot_arrange'
+                ? t.transportStatusCannotArrange
+                : t.transportStatusRequested}
+            </span>
+          )}
+        </div>
+
+        {transportReq ? (
+          <div>
+            <p style={{ margin: 0, fontSize: 13.5, fontWeight: 600, color: 'var(--ms-text)' }}>
+              {transportReq.status === 'arranged'
+                ? t.transportStatusArranged
+                : transportReq.status === 'cannot_arrange'
+                ? t.transportStatusCannotArrange
+                : t.transportStatusRequested}
+            </p>
+            {transportReq.note ? (
+              <p style={{ margin: '6px 0 0', fontSize: 13.5, color: 'var(--ms-muted)', wordBreak: 'break-word' }}>
+                {transportReq.note}
+              </p>
+            ) : null}
+            <p style={{ margin: '6px 0 0', fontSize: 12.5, color: 'var(--ms-muted)', fontWeight: 600 }}>
+              {t.transportRequestedAt.replace('{time}', formatTime(transportReq.requestedAt, lang))}
+            </p>
+          </div>
+        ) : (
+          <div>
+            <input
+              type="text"
+              maxLength={140}
+              value={transportNote}
+              onChange={(e) => setTransportNote(e.target.value)}
+              placeholder={t.transportNotePlaceholder}
+              aria-label={t.transportNotePlaceholder}
+              style={{
+                width: '100%',
+                boxSizing: 'border-box',
+                height: 48,
+                padding: '0 14px',
+                borderRadius: 14,
+                border: '1.5px solid var(--ms-border)',
+                font: 'inherit',
+                fontSize: 14.5,
+                color: 'var(--ms-text)',
+                background: 'var(--ms-card)',
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => {
+                requestTransport({ caseId, note: transportNote, online });
+                setTransportNote('');
+              }}
+              className="ms-btn ms-btn--secondary ms-btn--md ms-btn--block"
+              style={{ minHeight: 48, marginTop: 10 }}
+            >
+              {t.requestTransport}
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div>
       {/* ===================== NARROW PHONE LAYOUT (@md and below) ===================== */}
@@ -311,6 +428,7 @@ export default function ReferralTracker({ lang, online = true }: ScreenProps) {
         <section style={{ padding: '16px 16px 0', display: 'grid', gap: 14 }}>
           {renderReferralCard()}
           {renderTracker()}
+          {renderTransportBlock()}
           {renderActions()}
         </section>
       </div>
@@ -335,6 +453,9 @@ export default function ReferralTracker({ lang, online = true }: ScreenProps) {
               </div>
               <div>
                 {renderTracker()}
+                <div style={{ marginTop: 24 }}>
+                  {renderTransportBlock()}
+                </div>
               </div>
             </div>
           </div>

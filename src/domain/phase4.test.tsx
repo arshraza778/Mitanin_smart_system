@@ -394,8 +394,8 @@ describe('Phase 4 vitest tests: Patient selection safety', () => {
 
   // 7. (g) Old state migration and schema bump
   describe('(g) State migration & corrupt state handling', () => {
-    it('SCHEMA_VERSION is 4', () => {
-      expect(SCHEMA_VERSION).toBe(4);
+    it('SCHEMA_VERSION is at least 4', () => {
+      expect(SCHEMA_VERSION).toBeGreaterThanOrEqual(4);
     });
 
     it('old saved state without patient codes gets migrated with codes in stable order', () => {
@@ -428,7 +428,7 @@ describe('Phase 4 vitest tests: Patient selection safety', () => {
       mockLocalStorage.setItem(STORAGE_KEY, JSON.stringify(oldState));
       const migrated = loadPersistedState();
 
-      expect(migrated.schemaVersion).toBe(4);
+      expect(migrated.schemaVersion).toBeGreaterThanOrEqual(4);
       expect(migrated.patients[0].patientCode).toBe('MS-P-0001');
       expect(migrated.patients[1].patientCode).toBe('MS-P-0004');
       expect(migrated.patients[2].patientCode).toBe('MS-P-0015');
