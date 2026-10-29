@@ -58,13 +58,7 @@ export default function ScreeningSymptoms({ lang, online = true, onNavigate }: S
     return false;
   });
 
-  const setChecked = (fnOrVal: boolean[] | ((prev: boolean[]) => boolean[])) => {
-    setCheckedState((prev) => {
-      const next = typeof fnOrVal === 'function' ? fnOrVal(prev) : fnOrVal;
-      if (patientId) setSymptomTicks(patientId, next);
-      return next;
-    });
-  };
+
   const [speaking, setSpeaking] = useState<number | null>(null);
 
   if (!patientId || !caseId) {
@@ -90,17 +84,19 @@ export default function ScreeningSymptoms({ lang, online = true, onNavigate }: S
 
   const toggle = (i: number) => {
     setNoneSelected(false);
-    setChecked((c) => c.map((v, j) => (j === i ? !v : v)));
+    const next = checked.map((v, j) => (j === i ? !v : v));
+    setCheckedState(next);
+    if (patientId) setSymptomTicks(patientId, next);
   };
 
   const toggleNone = () => {
-    setNoneSelected((prev) => {
-      const next = !prev;
-      if (next) {
-        setChecked(t.items.map(() => false));
-      }
-      return next;
-    });
+    const nextNone = !noneSelected;
+    setNoneSelected(nextNone);
+    if (nextNone) {
+      const nextTicks = t.items.map(() => false);
+      setCheckedState(nextTicks);
+      if (patientId) setSymptomTicks(patientId, nextTicks);
+    }
   };
 
   const canProceed = checked.some(Boolean) || noneSelected;
