@@ -81,14 +81,14 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
   const transportRows = useMemo(() => {
     return (state.transportRequests || [])
       .map((tr) => {
-        const c = state.cases.find((cs) => cs.id === tr.caseId);
+        const c = state.cases.find((cs) => cs.id === tr.caseId) || dataService.getCases().find((cs: any) => cs.id === tr.caseId);
         if (!c) return null;
-        const patient = state.patients.find((p) => p.id === tr.patientId || p.id === c.patientId);
+        const patient = state.patients.find((p) => p.id === tr.patientId || p.id === c.patientId) || dataService.getPatient(tr.patientId || c.patientId);
         if (!patient) return null;
         const villageText = typeof patient.village === 'string'
           ? (lang === 'hi' ? VILLAGE_HI[patient.village] || patient.village : patient.village)
           : (patient.village?.[lang] || '');
-        const patientCode = patient.patientCode || tr.patientId;
+        const patientCode = (patient as any).patientCode || tr.patientId;
         return { tr, c, patient, villageText, patientCode };
       })
       .filter((row): row is NonNullable<typeof row> => row !== null);

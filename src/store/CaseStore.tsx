@@ -1548,6 +1548,7 @@ export function CaseProvider({ children }: { children: ReactNode }) {
         referrals: state.referrals,
         consults: state.consults,
         alerts: state.alerts,
+        transportRequests: state.transportRequests,
         syncQueue: state.syncQueue,
         processedActionIds: state.processedActionIds,
         demoClockOffsetMinutes: state.demoClockOffsetMinutes,

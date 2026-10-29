@@ -47,10 +47,9 @@ export default function ReferralTracker({ lang, online = true }: ScreenProps) {
     getTransportRequestForCase,
     requestTransport,
   } = useCaseStore();
-  const caseId = currentCaseId || currentScreening?.caseId;
-  const transportReq = getTransportRequestForCase(caseId);
-  const [transportNote, setTransportNote] = useState('');
-  const storeReferral = (caseId ? state.referrals.find((r) => r.caseId === caseId) : undefined) ||
+  const storeReferral =
+    (currentCaseId ? state.referrals.find((r) => r.caseId === currentCaseId) : undefined) ||
+    (currentScreening?.caseId ? state.referrals.find((r) => r.caseId === currentScreening.caseId) : undefined) ||
     (currentScreening?.patientId ? getReferralByPatientId(currentScreening.patientId) : undefined);
   const defaultReferral = dataService.getReferrals()[0];
   const referral = storeReferral
@@ -60,6 +59,24 @@ export default function ReferralTracker({ lang, online = true }: ScreenProps) {
         owner: storeReferral.owner || defaultReferral.owner,
       }
     : defaultReferral;
+
+  const activeCase =
+    (currentCaseId && state.cases.some((c) => c.id === currentCaseId)
+      ? currentCaseId
+      : undefined) ||
+    (storeReferral?.caseId && state.cases.some((c) => c.id === storeReferral.caseId)
+      ? storeReferral.caseId
+      : undefined) ||
+    (currentScreening?.caseId && state.cases.some((c) => c.id === currentScreening.caseId)
+      ? currentScreening.caseId
+      : undefined) ||
+    (('caseId' in referral && typeof (referral as any).caseId === 'string' && state.cases.some((c) => c.id === (referral as any).caseId))
+      ? (referral as any).caseId
+      : undefined);
+
+  const caseId = activeCase;
+  const transportReq = getTransportRequestForCase(caseId);
+  const [transportNote, setTransportNote] = useState('');
 
   const referralValues = [getPatientSummary(referral.patientId, lang), referral.facility[lang], referral.owner[lang], t.dueWithin];
   const [stage, setStage] = useState(() => storeReferral?.stage ?? 1);
