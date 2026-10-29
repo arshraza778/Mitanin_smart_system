@@ -6,7 +6,7 @@ import hiLocale from '../i18n/hi.json';
 import { dataService } from '../services';
 import { useCaseStore } from '../store/CaseStore';
 import { useScreenDraft } from '../ScreenDraftContext';
-import { validatePatient } from '../domain';
+import { validatePatient, findDuplicatePatients, getDemoDate, type ExistingPatientRecord } from '../domain';
 
 const STEP = 1;
 
@@ -19,7 +19,7 @@ const DIRECTORY = dataService.getDirectory();
 
 export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
   const t = COPY[lang];
-  const { patients, currentScreening, selectScreeningPatient, addPatient } = useCaseStore();
+  const { patients, currentScreening, selectScreeningPatient, addPatient, demoClockOffsetMinutes } = useCaseStore();
   const { newPatientDraft, setNewPatientDraft } = useScreenDraft();
 
   const [query, setQuery] = useState('');
@@ -43,7 +43,17 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
   const setFormCustomVillage = (customVillage: string) => setNewPatientDraft((p) => ({ ...p, customVillage }));
   const setFormPregnant = (pregnant: boolean) => setNewPatientDraft((p) => ({ ...p, pregnant }));
 
-  const [formErrors, setFormErrors] = useState<{ name?: string; age?: string }>({});
+  const [formYearOfBirth, setFormYearOfBirth] = useState('');
+  const [formHousehold, setFormHousehold] = useState('');
+  const [formConsent, setFormConsent] = useState(false);
+  const [duplicateMatches, setDuplicateMatches] = useState<ExistingPatientRecord[]>([]);
+
+  const [formErrors, setFormErrors] = useState<{
+    name?: string;
+    age?: string;
+    yearOfBirth?: string;
+    consent?: string;
+  }>({});
 
   const isFemaleAge12Plus = formSex === 'female' && Number(formAge) >= 12;
 
@@ -69,18 +79,56 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
     selectScreeningPatient(id);
   };
 
-  const handleSaveNewPatient = (e: React.FormEvent) => {
-    e.preventDefault();
+  const resetForm = () => {
+    setFormName('');
+    setFormAge('');
+    setFormYearOfBirth('');
+    setFormHousehold('');
+    setFormConsent(false);
+    setFormSex('');
+    setFormCustomVillage('');
+    setFormPregnant(false);
+    setFormErrors({});
+    setDuplicateMatches([]);
+  };
+
+  const commitAddPatient = (chosenVillage: { en: string; hi: string }) => {
+    const yobNum = formYearOfBirth.trim() ? Number(formYearOfBirth) : null;
+    const newRecord = addPatient({
+      name: { en: formName.trim(), hi: formName.trim() },
+      age: Number(formAge),
+      village: chosenVillage,
+      sex: formSex || undefined,
+      pregnant: isFemaleAge12Plus ? formPregnant : undefined,
+      yearOfBirth: yobNum,
+      household: formHousehold.trim() || undefined,
+      consent: true,
+    });
+
+    setSelectedPatientId(newRecord.id);
+    selectScreeningPatient(newRecord.id);
+    setShowAddForm(false);
+    resetForm();
+  };
+
+  const handleSaveNewPatient = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const currentDemoYear = getDemoDate(demoClockOffsetMinutes || 0).getFullYear();
     const validation = validatePatient(
       {
         name: formName,
         age: formAge,
+        yearOfBirth: formYearOfBirth,
+        household: formHousehold,
+        consentGiven: formConsent,
+        requireConsent: true,
         sex: formSex,
         village: formVillage,
         customVillage: formCustomVillage,
         pregnant: isFemaleAge12Plus ? formPregnant : false,
       },
-      lang
+      lang,
+      currentDemoYear
     );
 
     if (!validation.isValid) {
@@ -98,22 +146,46 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
             hi: DIRECTORY.villages.find((v) => v.en === formVillage)?.hi || formVillage,
           };
 
-    const newRecord = addPatient({
-      name: { en: formName.trim(), hi: formName.trim() },
-      age: Number(formAge),
+    const candidate = {
+      name: formName,
+      age: formAge,
       village: chosenVillage,
-      sex: formSex || undefined,
-      pregnant: isFemaleAge12Plus ? formPregnant : undefined,
-    });
+    };
 
-    setSelectedPatientId(newRecord.id);
-    selectScreeningPatient(newRecord.id);
+    const matches = findDuplicatePatients(candidate, patients);
+    if (matches.length > 0) {
+      setDuplicateMatches(matches);
+      return;
+    }
+
+    commitAddPatient(chosenVillage);
+  };
+
+  const handleUseExistingPatient = (existingId: string) => {
+    setSelectedPatientId(existingId);
+    selectScreeningPatient(existingId);
     setShowAddForm(false);
-    setFormName('');
-    setFormAge('');
-    setFormSex('');
-    setFormCustomVillage('');
-    setFormPregnant(false);
+    resetForm();
+  };
+
+  const handleAddAsNewAnyway = () => {
+    if (!formConsent) {
+      setFormErrors((errs) => ({
+        ...errs,
+        consent: t.errors.consentRequired,
+      }));
+      return;
+    }
+
+    const chosenVillage =
+      formVillage === 'other'
+        ? { en: formCustomVillage.trim() || 'Other', hi: formCustomVillage.trim() || 'अन्य' }
+        : {
+            en: formVillage,
+            hi: DIRECTORY.villages.find((v) => v.en === formVillage)?.hi || formVillage,
+          };
+
+    commitAddPatient(chosenVillage);
   };
 
   const handleNext = () => {
@@ -375,6 +447,75 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
         )}
       </div>
 
+      {/* Year of Birth Field */}
+      <div>
+        <label
+          htmlFor={isAlwaysOpen ? 'ms-patient-yob-wide' : 'ms-patient-yob'}
+          style={{ display: 'block', fontSize: 12.5, fontWeight: 700, color: 'var(--ms-text)', marginBottom: 6 }}
+        >
+          {t.yearOfBirthLabel}
+        </label>
+        <input
+          id={isAlwaysOpen ? 'ms-patient-yob-wide' : 'ms-patient-yob'}
+          type="number"
+          min="1900"
+          value={formYearOfBirth}
+          onChange={(e) => {
+            setFormYearOfBirth(e.target.value);
+            if (formErrors.yearOfBirth) setFormErrors((errs) => ({ ...errs, yearOfBirth: undefined }));
+          }}
+          placeholder={t.yearOfBirthPlaceholder}
+          style={{
+            width: '100%',
+            height: 48,
+            padding: '0 14px',
+            borderRadius: 'var(--ms-radius-md)',
+            border: `1px solid ${formErrors.yearOfBirth ? 'var(--ms-danger)' : 'var(--ms-border)'}`,
+            background: 'var(--ms-page)',
+            color: 'var(--ms-text)',
+            fontSize: 14,
+            fontWeight: 500,
+            boxSizing: 'border-box',
+            outline: 'none',
+          }}
+        />
+        {formErrors.yearOfBirth && (
+          <span role="alert" style={{ display: 'block', marginTop: 4, fontSize: 12, fontWeight: 600, color: 'var(--ms-danger)' }}>
+            {formErrors.yearOfBirth}
+          </span>
+        )}
+      </div>
+
+      {/* Household Field */}
+      <div>
+        <label
+          htmlFor={isAlwaysOpen ? 'ms-patient-household-wide' : 'ms-patient-household'}
+          style={{ display: 'block', fontSize: 12.5, fontWeight: 700, color: 'var(--ms-text)', marginBottom: 6 }}
+        >
+          {t.householdLabel}
+        </label>
+        <input
+          id={isAlwaysOpen ? 'ms-patient-household-wide' : 'ms-patient-household'}
+          type="text"
+          value={formHousehold}
+          onChange={(e) => setFormHousehold(e.target.value)}
+          placeholder={t.householdPlaceholder}
+          style={{
+            width: '100%',
+            height: 48,
+            padding: '0 14px',
+            borderRadius: 'var(--ms-radius-md)',
+            border: '1px solid var(--ms-border)',
+            background: 'var(--ms-page)',
+            color: 'var(--ms-text)',
+            fontSize: 14,
+            fontWeight: 500,
+            boxSizing: 'border-box',
+            outline: 'none',
+          }}
+        />
+      </div>
+
       {/* Sex Field */}
       <div>
         <label style={{ display: 'block', fontSize: 12.5, fontWeight: 700, color: '#00201C', marginBottom: 6 }}>
@@ -487,13 +628,148 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
         </div>
       )}
 
-      {/* Submit form button */}
-      <button
-        type="submit"
-        className="ms-btn ms-btn--primary ms-btn--lg ms-btn--block"
-      >
-        {t.savePatient}
-      </button>
+      {/* Consent Checkbox */}
+      <div>
+        <label
+          htmlFor={isAlwaysOpen ? 'ms-patient-consent-wide' : 'ms-patient-consent'}
+          style={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: 10,
+            cursor: 'pointer',
+            fontSize: 13,
+            fontWeight: 600,
+            color: 'var(--ms-text)',
+            minHeight: 48,
+            padding: '4px 0',
+            userSelect: 'none',
+          }}
+        >
+          <input
+            id={isAlwaysOpen ? 'ms-patient-consent-wide' : 'ms-patient-consent'}
+            type="checkbox"
+            checked={formConsent}
+            onChange={(e) => {
+              setFormConsent(e.target.checked);
+              if (formErrors.consent) setFormErrors((errs) => ({ ...errs, consent: undefined }));
+            }}
+            style={{
+              width: 20,
+              height: 20,
+              marginTop: 2,
+              accentColor: 'var(--ms-primary)',
+              cursor: 'pointer',
+              flexShrink: 0,
+            }}
+          />
+          <span>{t.consentLabel}</span>
+        </label>
+        {formErrors.consent && (
+          <span role="alert" style={{ display: 'block', marginTop: 4, fontSize: 12, fontWeight: 600, color: 'var(--ms-danger)' }}>
+            {formErrors.consent}
+          </span>
+        )}
+      </div>
+
+      {/* Possible Duplicate Panel or Submit Button */}
+      {duplicateMatches.length > 0 ? (
+        <div
+          role="alert"
+          style={{
+            padding: 16,
+            borderRadius: 'var(--ms-radius-md)',
+            background: 'var(--ms-warn-bg)',
+            border: '1px solid var(--ms-warn)',
+            display: 'grid',
+            gap: 12,
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--ms-warn)' }}>
+              {t.possibleDuplicate}
+            </span>
+          </div>
+          <p style={{ margin: 0, fontSize: 13, color: 'var(--ms-text)', fontWeight: 500 }}>
+            {t.duplicateFoundText}
+          </p>
+
+          <div style={{ display: 'grid', gap: 10 }}>
+            {duplicateMatches.map((match) => {
+              const villageText = typeof match.village === 'string' ? match.village : match.village[lang];
+              return (
+                <div
+                  key={match.id}
+                  style={{
+                    padding: 12,
+                    borderRadius: 'var(--ms-radius-sm)',
+                    background: 'var(--ms-card)',
+                    border: '1px solid var(--ms-border)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 8,
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--ms-text)' }}>
+                      {match.name[lang]}
+                    </span>
+                    <span style={{ fontSize: 12, color: 'var(--ms-muted)' }}>
+                      {match.age} {t.years} • {villageText}
+                    </span>
+                    {match.patientCode && (
+                      <span
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 700,
+                          color: 'var(--ms-primary)',
+                          background: 'var(--ms-mint)',
+                          padding: '2px 6px',
+                          borderRadius: 'var(--ms-radius-sm)',
+                        }}
+                      >
+                        {match.patientCode}
+                      </span>
+                    )}
+                  </div>
+                  <div>
+                    <button
+                      type="button"
+                      onClick={() => handleUseExistingPatient(match.id)}
+                      className="ms-btn ms-btn--primary ms-btn--md"
+                    >
+                      <span>{t.useThisPatient}</span>
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              onClick={handleAddAsNewAnyway}
+              className="ms-btn ms-btn--secondary ms-btn--md"
+            >
+              <span>{t.addAsNewAnyway}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setDuplicateMatches([])}
+              className="ms-btn ms-btn--ghost ms-btn--sm"
+            >
+              <span>{t.cancel}</span>
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button
+          type="submit"
+          className="ms-btn ms-btn--primary ms-btn--lg ms-btn--block"
+        >
+          {t.savePatient}
+        </button>
+      )}
     </form>
   );
 
@@ -574,6 +850,21 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
                             }}
                           >
                             {ageText}
+                          </span>
+                        )}
+                        {p.patientCode && (
+                          <span
+                            style={{
+                              fontSize: 11.5,
+                              fontWeight: 700,
+                              color: 'var(--ms-primary)',
+                              background: 'var(--ms-mint)',
+                              padding: '2px 8px',
+                              borderRadius: 'var(--ms-radius-sm)',
+                              letterSpacing: '0.02em',
+                            }}
+                          >
+                            {p.patientCode}
                           </span>
                         )}
                       </div>
@@ -668,7 +959,7 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
               border: '1px solid rgba(142, 182, 155, 0.4)',
             }}
           >
-            {filteredPatients.length} {lang === 'hi' ? 'रोगी' : 'Patients'}
+            {filteredPatients.length} {t.patientCount}
           </span>
         </header>
 
@@ -750,7 +1041,7 @@ export default function ScreeningPatient({ lang, onNavigate }: ScreenProps) {
                   border: '1px solid rgba(142, 182, 155, 0.4)',
                 }}
               >
-                {filteredPatients.length} {lang === 'hi' ? 'रोगी पंजीकृत' : 'Registered Patients'}
+                {filteredPatients.length} {t.registeredCount}
               </span>
             </div>
             {renderBanner()}

@@ -393,9 +393,22 @@
       "back": "Back",
       "changePatient": "Change patient",
       "years": "years",
+      "yearOfBirthLabel": "Year of birth (optional)",
+      "yearOfBirthPlaceholder": "e.g. 1998",
+      "householdLabel": "Household / head of household (optional)",
+      "householdPlaceholder": "e.g. Ram Prasad Sahu",
+      "consentLabel": "The patient or family agrees to this screening",
+      "possibleDuplicate": "Possible duplicate",
+      "duplicateFoundText": "An existing patient with similar details was found:",
+      "useThisPatient": "Use this patient",
+      "addAsNewAnyway": "Add as new anyway",
+      "patientCount": "Patients",
+      "registeredCount": "Registered Patients",
       "errors": {
         "nameRequired": "Patient name is required",
-        "ageInvalid": "Age must be a number between 0 and 120"
+        "ageInvalid": "Age must be a number between 0 and 120",
+        "yearOfBirthInvalid": "Year of birth must be between 1900 and current year",
+        "consentRequired": "Consent is required before saving a new patient"
       }
     },
     "ScreeningResult": {

@@ -6,14 +6,18 @@ import React, {
   useReducer,
   type ReactNode,
 } from 'react';
-import { priority, loopClosureRate, type CaseState } from '../domain';
+import { priority, loopClosureRate, getDemoDate, type CaseState } from '../domain';
 import { createCassetteJpeg } from '../domain/photoUtils';
 import { dataService } from '../services';
 
 export type { CaseState };
 
 export const STORAGE_KEY = 'ms-state-v1';
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
+
+export function formatPatientCode(num: number): string {
+  return `MS-P-${String(num).padStart(4, '0')}`;
+}
 
 export function generateCaseId(): string {
   const rand = Math.random().toString(36).substring(2, 8);
@@ -22,12 +26,16 @@ export function generateCaseId(): string {
 
 export interface PatientRecord {
   id: string; // patient ID
+  patientCode?: string; // e.g. "MS-P-0001"
   name: { en: string; hi: string };
   age: number | null;
   village: { en: string; hi: string } | string;
   caseId?: string;
   sex?: 'female' | 'male' | 'other';
   pregnant?: boolean;
+  yearOfBirth?: number | null;
+  household?: string;
+  consent?: boolean;
 }
 
 export interface CaseRecord {
@@ -155,15 +163,18 @@ export const LEGACY_RAMESH_PATIENT_ID = 'p1';
 export const LEGACY_RAMESH_CASE_ID = 'c1';
 
 export function getInitialSeedState(): CaseStoreState {
-  const rawPatients = [
-    ...(dataService.getPatients() as PatientRecord[]),
+  const rawPatients: PatientRecord[] = [
+    ...(dataService.getPatients() as any[]),
     {
       id: 'p-anita-netam',
       name: { en: 'Anita Netam', hi: 'अनीता नेताम' },
       age: 4,
       village: { en: 'Dhanora', hi: 'धनोरा' },
     },
-  ];
+  ].map((p, idx) => ({
+    ...p,
+    patientCode: p.patientCode || formatPatientCode(idx + 1),
+  }));
   const rawCases = dataService.getCases();
   const rawReferrals = dataService.getReferrals();
   const rawAlerts = dataService.getAlerts();
@@ -1126,6 +1137,9 @@ export interface CaseStoreContextValue {
     village: { en: string; hi: string } | string;
     sex?: 'female' | 'male' | 'other';
     pregnant?: boolean;
+    yearOfBirth?: number | null;
+    household?: string;
+    consent?: boolean;
   }) => PatientRecord;
   resetDemoData: () => void;
   syncNow: () => void;
@@ -1274,9 +1288,69 @@ export function loadPersistedState(): CaseStoreState {
       });
     }
 
+    // Migrate patients: fill missing patient codes in a stable order and ensure no consent claimed
+    const rawLoadedPatients: any[] =
+      Array.isArray(parsed.patients) && parsed.patients.length > 0
+        ? parsed.patients
+        : seed.patients;
+
+    let maxPatientCodeNum = 0;
+    for (const sp of seed.patients) {
+      if (sp && typeof sp.patientCode === 'string') {
+        const match = sp.patientCode.match(/^MS-P-(\d+)$/);
+        if (match) {
+          const num = parseInt(match[1], 10);
+          if (!isNaN(num) && num > maxPatientCodeNum) {
+            maxPatientCodeNum = num;
+          }
+        }
+      }
+    }
+    for (const p of rawLoadedPatients) {
+      if (p && typeof p.patientCode === 'string') {
+        const match = p.patientCode.match(/^MS-P-(\d+)$/);
+        if (match) {
+          const num = parseInt(match[1], 10);
+          if (!isNaN(num) && num > maxPatientCodeNum) {
+            maxPatientCodeNum = num;
+          }
+        }
+      }
+    }
+
+    const seedMap = new Map(seed.patients.map((sp) => [sp.id, sp.patientCode]));
+
+    const migratedPatients: PatientRecord[] = rawLoadedPatients.map((p: any) => {
+      let code = p.patientCode;
+      if (!code && seedMap.has(p.id)) {
+        code = seedMap.get(p.id)!;
+        const match = code.match(/^MS-P-(\d+)$/);
+        if (match) {
+          const num = parseInt(match[1], 10);
+          if (!isNaN(num) && num > maxPatientCodeNum) {
+            maxPatientCodeNum = num;
+          }
+        }
+      }
+      return {
+        ...p,
+        patientCode: code,
+      };
+    });
+
+    for (const p of migratedPatients) {
+      if (!p.patientCode) {
+        maxPatientCodeNum++;
+        p.patientCode = formatPatientCode(maxPatientCodeNum);
+      }
+      if (p.consent !== true) {
+        p.consent = undefined;
+      }
+    }
+
     return {
       schemaVersion: SCHEMA_VERSION,
-      patients: Array.isArray(parsed.patients) && parsed.patients.length > 0 ? parsed.patients : seed.patients,
+      patients: migratedPatients,
       currentScreening: parsed.currentScreening?.patientId
         ? {
             patientId: parsed.currentScreening.patientId,
@@ -1393,8 +1467,25 @@ export function CaseProvider({ children }: { children: ReactNode }) {
       village: { en: string; hi: string } | string;
       sex?: 'female' | 'male' | 'other';
       pregnant?: boolean;
+      yearOfBirth?: number | null;
+      household?: string;
+      consent?: boolean;
     }): PatientRecord => {
-      const id = `p-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+      let maxPatientCodeNum = 0;
+      for (const p of state.patients) {
+        if (p && typeof p.patientCode === 'string') {
+          const match = p.patientCode.match(/^MS-P-(\d+)$/);
+          if (match) {
+            const num = parseInt(match[1], 10);
+            if (!isNaN(num) && num > maxPatientCodeNum) {
+              maxPatientCodeNum = num;
+            }
+          }
+        }
+      }
+      const patientCode = formatPatientCode(maxPatientCodeNum + 1);
+
+      const id = `p-${getDemoDate(state.demoClockOffsetMinutes).getTime()}-${Math.random().toString(36).slice(2, 6)}`;
       const nameObj =
         typeof data.name === 'string'
           ? { en: data.name, hi: data.name }
@@ -1407,17 +1498,21 @@ export function CaseProvider({ children }: { children: ReactNode }) {
 
       const record: PatientRecord = {
         id,
+        patientCode,
         name: nameObj,
         age: data.age,
         village: villageObj,
         sex: data.sex,
         pregnant: data.pregnant,
+        yearOfBirth: data.yearOfBirth,
+        household: data.household,
+        consent: data.consent,
       };
 
       dispatch({ type: 'ADD_PATIENT', payload: record });
       return record;
     },
-    []
+    [state.patients, state.demoClockOffsetMinutes]
   );
 
   const resetDemoData = useCallback(() => {

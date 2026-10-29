@@ -393,9 +393,22 @@
       "back": "वापस",
       "changePatient": "मरीज़ बदलें",
       "years": "वर्ष",
+      "yearOfBirthLabel": "जन्म का वर्ष (वैकल्पिक)",
+      "yearOfBirthPlaceholder": "उदा. 1998",
+      "householdLabel": "परिवार / परिवार का मुखिया (वैकल्पिक)",
+      "householdPlaceholder": "उदा. राम प्रसाद साहू",
+      "consentLabel": "मरीज़ या परिवार इस जाँच के लिए सहमत है",
+      "possibleDuplicate": "संभावित डुप्लिकेट",
+      "duplicateFoundText": "समान विवरण वाला एक मौजूदा मरीज़ मिला:",
+      "useThisPatient": "इस मरीज़ का उपयोग करें",
+      "addAsNewAnyway": "फिर भी नया जोड़ें",
+      "patientCount": "रोगी",
+      "registeredCount": "रोगी पंजीकृत",
       "errors": {
         "nameRequired": "कृपया मरीज़ का नाम दर्ज करें",
-        "ageInvalid": "उम्र 0 से 120 के बीच होनी चाहिए"
+        "ageInvalid": "उम्र 0 से 120 के बीच होनी चाहिए",
+        "yearOfBirthInvalid": "जन्म का वर्ष 1900 से वर्तमान वर्ष के बीच होना चाहिए",
+        "consentRequired": "नया मरीज़ सहेजने से पहले सहमति आवश्यक है"
       }
     },
     "ScreeningResult": {
