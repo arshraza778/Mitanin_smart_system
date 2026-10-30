@@ -1440,7 +1440,7 @@ export default function TestPhoto({ lang, online = true, onNavigate }: ScreenPro
           style={{
             position: 'sticky',
             bottom: 0,
-            padding: '12px 16px calc(14px + env(safe-area-inset-bottom, 0px))',
+            padding: '12px 16px calc(14px + max(env(safe-area-inset-bottom, 0px), 16px))',
             display: 'flex',
             gap: 12,
             background: '#FFFFFF',

@@ -117,7 +117,7 @@ export default function BottomNav({ role, route, lang, onNavigate }: BottomNavPr
         transform: 'translateX(-50%)',
         width: '100%',
         maxWidth: 430,
-        padding: '0 12px calc(10px + env(safe-area-inset-bottom, 0px))',
+        padding: '0 12px calc(14px + max(env(safe-area-inset-bottom, 0px), 16px))',
         boxSizing: 'border-box',
         zIndex: 40,
         pointerEvents: 'none',

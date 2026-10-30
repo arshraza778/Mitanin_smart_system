@@ -1010,7 +1010,7 @@ export default function SupervisorDashboard({ lang, online = true, onNavigate, o
           position: 'fixed',
           left: '50%',
           transform: 'translateX(-50%)',
-          bottom: 'calc(110px + env(safe-area-inset-bottom, 0px))',
+          bottom: 'calc(110px + max(env(safe-area-inset-bottom, 0px), 16px))',
           width: 'min(calc(100% - 40px), 390px)',
           zIndex: 30,
           display: toast ? 'block' : 'none',

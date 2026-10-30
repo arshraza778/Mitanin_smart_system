@@ -1,56 +1,142 @@
-import { useState, type ReactElement } from 'react';
+import { useState, useContext, type ReactElement } from 'react';
 import type { ScreenProps } from '../App';
 import enLocale from '../i18n/en.json';
 import hiLocale from '../i18n/hi.json';
-import { HeartPulse, Stethoscope, LayoutDashboard, ChevronRight, ArrowRight } from 'lucide-react';
+import { ViewModeContext } from '../ViewModeContext';
+import { HeartPulse, Stethoscope, LayoutDashboard, Check, ArrowRight, ShieldCheck, Activity } from 'lucide-react';
 
 const COPY = { en: enLocale.screens.RoleSelect, hi: hiLocale.screens.RoleSelect } as const;
 
-const CARDS: {
+interface RoleCardMeta {
   key: 'mitanin' | 'doctor' | 'supervisor';
   route: string;
   tile: string;
+  badgeEn: string;
+  badgeHi: string;
+  badgeBg: string;
+  badgeColor: string;
+  personaEn: string;
+  personaHi: string;
   icon: ReactElement;
-}[] = [
-  { key: 'mitanin', route: '/mitanin/home', tile: '#235347', icon: <HeartPulse size={28} /> },
-  { key: 'doctor', route: '/doctor/inbox', tile: '#053C31', icon: <Stethoscope size={28} /> },
-  { key: 'supervisor', route: '/supervisor/overview', tile: '#2E7D4F', icon: <LayoutDashboard size={28} /> },
+}
+
+const CARDS: RoleCardMeta[] = [
+  {
+    key: 'mitanin',
+    route: '/mitanin/home',
+    tile: '#235347',
+    badgeEn: 'Field Mobile',
+    badgeHi: 'फ़ील्ड मोबाइल',
+    badgeBg: '#DAF1DE',
+    badgeColor: '#0B2B26',
+    personaEn: 'Frontline Worker • Sub-Center 04',
+    personaHi: 'स्वास्थ्य कार्यकर्ता • उप-केंद्र 04',
+    icon: <HeartPulse size={24} />,
+  },
+  {
+    key: 'doctor',
+    route: '/doctor/inbox',
+    tile: '#053C31',
+    badgeEn: 'Clinical Workstation',
+    badgeHi: 'क्लिनिकल वर्कस्टेशन',
+    badgeBg: '#C0EACC',
+    badgeColor: '#002111',
+    personaEn: 'Medical Officer • CHC / DH',
+    personaHi: 'चिकित्सा अधिकारी • सीएचसी / डीएच',
+    icon: <Stethoscope size={24} />,
+  },
+  {
+    key: 'supervisor',
+    route: '/supervisor/overview',
+    tile: '#2E7D4F',
+    badgeEn: 'Desk Dashboard',
+    badgeHi: 'डेस्क डैशबोर्ड',
+    badgeBg: '#FFF1CC',
+    badgeColor: '#8A5A00',
+    personaEn: 'Block Health Lead • Sector 4',
+    personaHi: 'ब्लॉक स्वास्थ्य प्रभारी • सेक्टर 4',
+    icon: <LayoutDashboard size={24} />,
+  },
 ];
 
-function Hero() {
+/* Medical & Clinical Tele-Triage Vector Illustration (Vivid, High-Contrast, Palette-Compliant) */
+function ClinicalIllustration({ compact = false }: { compact?: boolean }) {
+  const width = compact ? 200 : 280;
+  const height = compact ? 115 : 180;
+
   return (
     <svg
-      viewBox="0 0 430 300"
-      preserveAspectRatio="xMidYMax slice"
-      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
-      aria-hidden
+      viewBox="0 0 320 220"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      style={{
+        width: '100%',
+        maxWidth: width,
+        height: 'auto',
+        maxHeight: height,
+        display: 'block',
+        margin: '0 auto',
+      }}
+      aria-hidden="true"
     >
-      <rect width="430" height="300" fill="#002111" />
-      <circle cx="96" cy="96" r="44" fill="#C0EACC" opacity="0.35" />
-      <circle cx="96" cy="96" r="26" fill="#DAF1DE" opacity="0.7" />
+      {/* Ambient background glow ring */}
+      <circle cx="160" cy="110" r="92" fill="#163832" opacity="0.6" />
+      <circle cx="160" cy="110" r="76" stroke="#8EB69B" strokeWidth="1.2" strokeDasharray="4 6" opacity="0.45" />
 
-      {/* hills */}
-      <ellipse cx="110" cy="318" rx="250" ry="92" fill="#235347" />
-      <ellipse cx="360" cy="326" rx="240" ry="80" fill="#051F20" />
+      {/* Central Clinical Shield */}
+      <path
+        d="M160 38 C196 38 222 48 222 48 C222 110 192 148 160 166 C128 148 98 110 98 48 C98 48 124 38 160 38 Z"
+        fill="#235347"
+        stroke="#8EB69B"
+        strokeWidth="2.5"
+      />
 
-      {/* village */}
-      <g>
-        <rect x="64" y="236" width="38" height="26" fill="#DAF1DE" />
-        <polygon points="58,238 83,214 108,238" fill="#235347" />
-        <rect x="78" y="246" width="10" height="16" rx="2" fill="#053C31" />
+      {/* Inner Shield Accent */}
+      <path
+        d="M160 48 C188 48 208 56 208 56 C208 106 184 136 160 152 C136 136 112 106 112 56 C112 56 132 48 160 48 Z"
+        fill="#053C31"
+      />
 
-        <rect x="130" y="246" width="30" height="20" fill="#E7F0EA" />
-        <polygon points="125,248 145,230 165,248" fill="#8EB69B" />
-        <rect x="140" y="253" width="9" height="13" rx="2" fill="#053C31" />
+      {/* Medical Cross inside shield */}
+      <rect x="153" y="66" width="14" height="40" rx="4" fill="#C0EACC" />
+      <rect x="140" y="79" width="40" height="14" rx="4" fill="#C0EACC" />
 
-        <rect x="20" y="248" width="26" height="18" fill="#E7F0EA" />
-        <polygon points="16,250 33,234 50,250" fill="#235347" />
+      {/* Dynamic Vitals Waveform passing through */}
+      <path
+        d="M44 126 L116 126 L126 110 L134 142 L146 94 L156 136 L166 120 L174 128 L200 128 L276 128"
+        stroke="#DAF1DE"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
 
-        <rect x="196" y="252" width="6" height="16" fill="#002111" />
-        <circle cx="199" cy="244" r="13" fill="#235347" />
-        <rect x="42" y="258" width="5" height="12" fill="#002111" />
-        <circle cx="44" cy="252" r="9" fill="#8EB69B" />
+      {/* Glowing pulse beacon */}
+      <circle cx="146" cy="94" r="4" fill="#FFFFFF" />
+      <circle cx="146" cy="94" r="8" stroke="#C0EACC" strokeWidth="2" opacity="0.8" />
+
+      {/* Floating diagnostic test cassette (left) */}
+      <g transform="translate(38, 54)">
+        <rect width="52" height="74" rx="10" fill="#FFFFFF" stroke="#8EB69B" strokeWidth="1.5" />
+        <rect x="12" y="10" width="28" height="34" rx="5" fill="#F4F9F6" stroke="#CCD9D2" strokeWidth="1" />
+        {/* Test lines C and T */}
+        <line x1="16" y1="20" x2="36" y2="20" stroke="#235347" strokeWidth="2.5" strokeLinecap="round" />
+        <line x1="16" y1="28" x2="36" y2="28" stroke="#8EB69B" strokeWidth="2.5" strokeLinecap="round" />
+        <circle cx="26" cy="56" r="6" fill="#DAF1DE" stroke="#235347" strokeWidth="1.5" />
       </g>
+
+      {/* Floating Stethoscope & Tele-Consult node (right) */}
+      <g transform="translate(228, 56)">
+        <circle cx="26" cy="26" r="24" fill="#053C31" stroke="#8EB69B" strokeWidth="1.5" />
+        <circle cx="26" cy="26" r="14" fill="#235347" />
+        <circle cx="26" cy="26" r="7" fill="#C0EACC" />
+        <path d="M26 40 C26 56 12 64 -2 64" stroke="#DAF1DE" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+      </g>
+
+      {/* Signal constellation dots */}
+      <circle cx="68" cy="40" r="2.5" fill="#DAF1DE" />
+      <circle cx="254" cy="36" r="3" fill="#C0EACC" />
+      <circle cx="80" cy="180" r="2.5" fill="#8EB69B" />
+      <circle cx="240" cy="172" r="2.5" fill="#DAF1DE" />
     </svg>
   );
 }
@@ -59,227 +145,180 @@ export default function RoleSelect({ lang, onNavigate, onSetLang }: ScreenProps)
   const t = COPY[lang];
   const [selectedRole, setSelectedRole] = useState<'mitanin' | 'doctor' | 'supervisor' | null>(null);
 
+  const viewModeCtx = useContext(ViewModeContext);
+  // Default to phone if not in an active Web view mode
+  const isWebMode = viewModeCtx ? viewModeCtx.isWeb : false;
+
   return (
-    <div className="@container w-full min-h-screen flex flex-col" style={{ background: '#F4F9F6' }}>
-      {/* ─── Narrow Phone Layout ─── */}
-      <div className="block @2xl:hidden flex-1 flex flex-col" style={{ minHeight: '100dvh' }}>
-        <header style={{ position: 'relative', height: 300, color: '#FFFFFF' }}>
-          <Hero />
-          <div
-            role="group"
-            aria-label={t.language}
+    <div style={{ width: '100%', background: '#F4F9F6' }}>
+      {/* ─── Phone Mode Layout: RENDERED ONLY WHEN isWebMode IS FALSE ─── */}
+      {!isWebMode ? (
+        <div className="ms-roleselect-layout-phone">
+          {/* Top Hero Card with Clinical Illustration */}
+          <header
             style={{
-              position: 'absolute',
-              top: 'calc(16px + env(safe-area-inset-top, 0px))',
-              right: 16,
-              display: 'flex',
-              padding: 3,
-              borderRadius: 999,
-              background: 'rgba(5, 31, 32, 0.75)',
-              backdropFilter: 'blur(8px)',
-              border: '1px solid rgba(255, 255, 255, 0.15)',
-            }}
-          >
-            {(['en', 'hi'] as const).map((code) => {
-              const on = lang === code;
-              return (
-                <button
-                  key={code}
-                  type="button"
-                  aria-pressed={on}
-                  onClick={() => onSetLang(code)}
-                  className={`ms-btn ms-btn--chip ${on ? 'ms-btn--on-dark' : 'ms-btn--secondary-on-dark'}`}
-                  style={{
-                    padding: '6px 14px',
-                    borderRadius: 999,
-                    fontSize: 13,
-                    fontWeight: 700,
-                  }}
-                >
-                  {code === 'en' ? 'English' : 'हिन्दी'}
-                </button>
-              );
-            })}
-          </div>
-          <h1
-            style={{
-              position: 'absolute',
-              left: 24,
-              top: 'calc(76px + env(safe-area-inset-top, 0px))',
-              margin: 0,
-              fontSize: 34,
-              lineHeight: 1.15,
-              fontWeight: 800,
-              letterSpacing: '-0.02em',
+              position: 'relative',
+              margin: '12px 14px 0',
+              borderRadius: 22,
+              background: 'linear-gradient(150deg, #051F20 0%, #163832 55%, #053C31 100%)',
               color: '#FFFFFF',
+              overflow: 'hidden',
+              padding: '16px 16px 18px',
+              boxSizing: 'border-box',
+              display: 'flex',
+              flexDirection: 'column',
+              boxShadow: '0 4px 16px rgba(5, 31, 32, 0.12)',
             }}
           >
-            {t.brandLine1}
-            <br />
-            <span style={{ color: '#C0EACC' }}>{t.brandLine2}</span>
-          </h1>
-        </header>
-
-        <section
-          style={{
-            flex: 1,
-            marginTop: -36,
-            position: 'relative',
-            background: '#F4F9F6',
-            borderRadius: '32px 32px 0 0',
-            padding: '28px 20px calc(24px + env(safe-area-inset-bottom, 0px))',
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
-          <h2 style={{ margin: '0 4px 18px', fontSize: 22, fontWeight: 800, color: '#00201C' }}>{t.title}</h2>
-
-          <div style={{ display: 'grid', gap: 14 }}>
-            {CARDS.map((card) => {
-              const isSelected = selectedRole === card.key;
-              return (
-                <button
-                  key={card.key}
-                  type="button"
-                  aria-pressed={isSelected}
-                  onClick={() => setSelectedRole(card.key)}
-                  className={`ms-btn ms-btn--card ${isSelected ? 'ms-btn--card-primary' : ''}`}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 16,
-                    width: '100%',
-                    padding: 16,
-                    textAlign: 'left',
-                    borderRadius: 20,
-                    boxShadow: '0 2px 6px rgba(0, 32, 28, 0.04)',
-                  }}
-                >
-                  <span
-                    style={{
-                      flex: '0 0 56px',
-                      height: 56,
-                      borderRadius: 16,
-                      display: 'grid',
-                      placeItems: 'center',
-                      background: card.tile,
-                      color: '#FFFFFF',
-                    }}
-                  >
-                    {card.icon}
-                  </span>
-                  <span style={{ flex: 1, minWidth: 0 }}>
-                    <span style={{ display: 'block', fontSize: 17, fontWeight: 800, color: '#00201C' }}>
-                      {t.roles[card.key].name}
-                    </span>
-                    <span style={{ display: 'block', marginTop: 3, fontSize: 13, color: '#404945', lineHeight: 1.35 }}>
-                      {t.roles[card.key].desc}
-                    </span>
-                  </span>
-                  <ChevronRight size={20} color={isSelected ? '#235347' : '#404945'} style={{ flexShrink: 0 }} />
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Two role disclaimer lines */}
-          <div style={{ marginTop: 20, textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 4 }}>
-            <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: '#00201C' }}>
-              {t.disclaimerLine1}
-            </p>
-            <p style={{ margin: 0, fontSize: 12.5, fontWeight: 500, color: '#404945' }}>
-              {t.disclaimerLine2}
-            </p>
-          </div>
-
-          {/* Continue button */}
-          <div style={{ marginTop: 18 }}>
-            <button
-              type="button"
-              disabled={!selectedRole}
-              aria-disabled={!selectedRole}
-              onClick={() => {
-                if (!selectedRole) return;
-                const card = CARDS.find((c) => c.key === selectedRole);
-                if (card) onNavigate(card.route);
-              }}
-              className="ms-btn ms-btn--primary ms-btn--lg"
+            {/* Top Bar: Eyebrow + Language Switcher */}
+            <div
               style={{
-                width: '100%',
-                height: 52,
-                borderRadius: 16,
-                fontSize: 16,
-                fontWeight: 800,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 8,
               }}
             >
-              <span>{t.continue}</span>
-              <ArrowRight size={18} />
-            </button>
-          </div>
+              <div
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 5,
+                  padding: '4px 10px',
+                  borderRadius: 9999,
+                  background: 'rgba(218, 241, 222, 0.16)',
+                  border: '1px solid rgba(192, 234, 204, 0.3)',
+                  color: '#C0EACC',
+                  fontSize: 10.5,
+                  fontWeight: 700,
+                  letterSpacing: '0.03em',
+                  textTransform: 'uppercase',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 1,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  maxWidth: 190,
+                }}
+              >
+                <ShieldCheck size={13} color="#C0EACC" style={{ flexShrink: 0 }} />
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {lang === 'hi' ? 'राष्ट्रीय स्वास्थ्य मिशन' : 'National Health Mission'}
+                </span>
+              </div>
 
-          <p style={{ margin: 'auto 0 0', paddingTop: 28, textAlign: 'center', fontSize: 12.5, color: '#404945' }}>
-            {t.footer}
-          </p>
-        </section>
-      </div>
+              <div
+                role="group"
+                aria-label={t.language}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  padding: 2,
+                  borderRadius: 9999,
+                  background: 'rgba(5, 31, 32, 0.85)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  flexShrink: 0,
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {(['en', 'hi'] as const).map((code) => {
+                  const on = lang === code;
+                  return (
+                    <button
+                      key={code}
+                      type="button"
+                      aria-pressed={on}
+                      onClick={() => onSetLang(code)}
+                      className={`ms-btn ms-btn--chip ${on ? 'ms-btn--on-dark' : 'ms-btn--secondary-on-dark'}`}
+                      style={{
+                        padding: '4px 10px',
+                        borderRadius: 9999,
+                        fontSize: 11.5,
+                        fontWeight: 700,
+                        whiteSpace: 'nowrap',
+                        flexShrink: 0,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {code === 'en' ? 'EN' : 'हि'}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
-      {/* ─── Wide Layout: Three role cards side by side in a centred container ─── */}
-      <div className="hidden @2xl:flex flex-col flex-1">
-        {/* Top Hero Banner */}
-        <header className="relative h-64 overflow-hidden text-white flex items-center justify-between px-8 @4xl:px-12 bg-[#051F20]">
-          <Hero />
-          <div className="relative z-10 max-w-5xl w-full mx-auto flex items-center justify-between">
+            {/* Artwork in center of black card */}
+            <div style={{ margin: '10px 0 8px' }}>
+              <ClinicalIllustration compact={true} />
+            </div>
+
+            {/* Brand Title & Subtitle */}
             <div>
-              <h1 className="text-4xl @3xl:text-5xl font-black tracking-tight m-0 text-white leading-tight">
-                {t.brandLine1} <span className="text-[#C0EACC]">{t.brandLine2}</span>
+              <h1
+                style={{
+                  margin: 0,
+                  fontSize: 22,
+                  lineHeight: 1.15,
+                  fontWeight: 800,
+                  letterSpacing: '-0.025em',
+                  color: '#FFFFFF',
+                }}
+              >
+                {t.brandLine1} <span style={{ color: '#C0EACC' }}>{t.brandLine2}</span>
               </h1>
-              <p className="text-[#DAF1DE] font-medium text-sm mt-2 m-0 max-w-md">
+              <p
+                style={{
+                  margin: '4px 0 0',
+                  fontSize: 12,
+                  lineHeight: 1.35,
+                  fontWeight: 500,
+                  color: '#DAF1DE',
+                }}
+              >
                 {t.heroSubtitle}
               </p>
+              <div
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 5,
+                  padding: '4px 10px',
+                  borderRadius: 9999,
+                  background: 'rgba(218, 241, 222, 0.12)',
+                  border: '1px solid rgba(192, 234, 204, 0.25)',
+                  color: '#C0EACC',
+                  fontSize: 10.5,
+                  fontWeight: 700,
+                  marginTop: 8,
+                }}
+              >
+                <Activity size={12} color="#C0EACC" />
+                <span>100% Offline-Capable • Tele-Triage</span>
+              </div>
             </div>
+          </header>
 
-            <div
-              role="group"
-              aria-label={t.language}
-              className="flex p-1 rounded-full bg-[#051F20]/70 backdrop-blur-md border border-white/20"
-            >
-              {(['en', 'hi'] as const).map((code) => {
-                const on = lang === code;
-                return (
-                  <button
-                    key={code}
-                    type="button"
-                    aria-pressed={on}
-                    onClick={() => onSetLang(code)}
-                    className={`ms-btn ms-btn--chip ${on ? 'ms-btn--on-dark' : 'ms-btn--secondary-on-dark'}`}
-                    style={{
-                      borderRadius: 999,
-                      fontSize: 12,
-                      fontWeight: 700,
-                    }}
-                  >
-                    {code === 'en' ? 'English' : 'हिन्दी'}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </header>
-
-        {/* Centered Role Cards Container */}
-        <main className="flex-1 -mt-8 relative z-20 bg-[#F4F9F6] rounded-t-[36px] px-8 py-10 @4xl:px-12 flex flex-col items-center">
-          <div className="w-full max-w-5xl">
-            <div className="text-center mb-8">
-              <h2 className="text-2xl @3xl:text-3xl font-black text-[#00201C] m-0">
+          {/* Role Cards List for Phone Mode */}
+          <main
+            style={{
+              flex: 1,
+              padding: '18px 14px calc(24px + max(env(safe-area-inset-bottom, 0px), 16px))',
+              display: 'flex',
+              flexDirection: 'column',
+              boxSizing: 'border-box',
+            }}
+          >
+            {/* Header */}
+            <div style={{ marginBottom: 14 }}>
+              <h2 style={{ margin: 0, fontSize: 19, fontWeight: 800, color: '#00201C', letterSpacing: '-0.015em' }}>
                 {t.title}
               </h2>
-              <p className="text-sm text-[#404945] mt-1.5 m-0 font-medium">
+              <p style={{ margin: '4px 0 0', fontSize: 12.5, color: '#404945', fontWeight: 500 }}>
                 {t.heroDesc}
               </p>
             </div>
 
-            {/* Three cards side-by-side */}
-            <div className="grid grid-cols-1 @2xl:grid-cols-3 gap-6">
+            {/* Vertical Cards */}
+            <div style={{ display: 'grid', gap: 11 }}>
               {CARDS.map((card) => {
                 const isSelected = selectedRole === card.key;
                 return (
@@ -288,40 +327,104 @@ export default function RoleSelect({ lang, onNavigate, onSetLang }: ScreenProps)
                     type="button"
                     aria-pressed={isSelected}
                     onClick={() => setSelectedRole(card.key)}
-                    className={`ms-btn ms-btn--card ${isSelected ? 'ms-btn--card-primary' : ''} flex flex-col items-center text-center p-7 rounded-3xl transition-all hover:-translate-y-1 hover:shadow-lg cursor-pointer group`}
+                    className={`ms-btn ms-btn--role-card-horizontal ${isSelected ? 'is-selected' : ''}`}
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 12,
+                      width: '100%',
+                      padding: '12px 14px',
+                      textAlign: 'left',
+                      borderRadius: 18,
+                      cursor: 'pointer',
+                      boxSizing: 'border-box',
+                    }}
                   >
                     <span
-                      className="rounded-2xl flex items-center justify-center text-white mb-5 transition-transform group-hover:scale-105"
-                      style={{ background: card.tile, width: 68, height: 68 }}
+                      style={{
+                        flex: '0 0 44px',
+                        height: 44,
+                        borderRadius: 12,
+                        display: 'grid',
+                        placeItems: 'center',
+                        background: card.tile,
+                        color: '#FFFFFF',
+                        boxShadow: '0 2px 8px rgba(5, 31, 32, 0.15)',
+                      }}
                     >
                       {card.icon}
                     </span>
-
-                    <h3 className="text-xl font-extrabold text-[#00201C] m-0 group-hover:text-[#235347] transition-colors">
-                      {t.roles[card.key].name}
-                    </h3>
-
-                    <p className="text-xs text-[#404945] mt-2 mb-6 font-medium leading-relaxed flex-1">
-                      {t.roles[card.key].desc}
-                    </p>
-
-                    <span className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold border transition-colors flex items-center justify-center gap-1.5 ${isSelected ? 'bg-[#235347] text-white border-[#235347]' : 'bg-[#DAF1DE] border-[#C0EACC] text-[#0B2B26] group-hover:bg-[#235347] group-hover:text-white'}`}>
-                      <span>{isSelected ? t.selected : t.select}</span>
-                      <ArrowRight size={14} />
+                    <span style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
+                        <span style={{ fontSize: 15.5, fontWeight: 800, color: '#00201C' }}>
+                          {t.roles[card.key].name}
+                        </span>
+                        <span
+                          style={{
+                            fontSize: 10,
+                            fontWeight: 700,
+                            padding: '2px 7px',
+                            borderRadius: 9999,
+                            background: card.badgeBg,
+                            color: card.badgeColor,
+                            border: '1px solid rgba(142, 182, 155, 0.35)',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          {lang === 'hi' ? card.badgeHi : card.badgeEn}
+                        </span>
+                      </div>
+                      <span style={{ display: 'block', marginTop: 1, fontSize: 11, fontWeight: 600, color: '#235347' }}>
+                        {lang === 'hi' ? card.personaHi : card.personaEn}
+                      </span>
+                      <span style={{ display: 'block', marginTop: 3, fontSize: 12, color: '#404945', lineHeight: 1.35 }}>
+                        {t.roles[card.key].desc}
+                      </span>
                     </span>
+                    <div
+                      style={{
+                        width: 22,
+                        height: 22,
+                        borderRadius: '50%',
+                        border: isSelected ? '2px solid #235347' : '1.5px solid #CCD9D2',
+                        background: isSelected ? '#235347' : '#FFFFFF',
+                        display: 'grid',
+                        placeItems: 'center',
+                        flexShrink: 0,
+                      }}
+                    >
+                      {isSelected && <Check size={14} color="#FFFFFF" strokeWidth={3} />}
+                    </div>
                   </button>
                 );
               })}
             </div>
 
-            {/* Two role disclaimer lines */}
-            <div className="mt-8 text-center flex flex-col gap-1">
-              <p className="m-0 text-sm font-bold text-[#00201C]">{t.disclaimerLine1}</p>
-              <p className="m-0 text-xs font-medium text-[#404945]">{t.disclaimerLine2}</p>
+            {/* Disclaimer */}
+            <div
+              style={{
+                marginTop: 16,
+                padding: '12px 14px',
+                borderRadius: 14,
+                background: '#E7F0EA',
+                border: '1px solid #CCD9D2',
+                textAlign: 'center',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 3,
+              }}
+            >
+              <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: '#00201C' }}>
+                {t.disclaimerLine1}
+              </p>
+              <p style={{ margin: 0, fontSize: 11, fontWeight: 500, color: '#404945' }}>
+                {t.disclaimerLine2}
+              </p>
             </div>
 
-            {/* Central Continue button */}
-            <div className="mt-6 flex justify-center w-full">
+            {/* Continue Button */}
+            <div style={{ marginTop: 16 }}>
               <button
                 type="button"
                 disabled={!selectedRole}
@@ -333,11 +436,16 @@ export default function RoleSelect({ lang, onNavigate, onSetLang }: ScreenProps)
                 }}
                 className="ms-btn ms-btn--primary ms-btn--lg"
                 style={{
-                  minWidth: 260,
+                  width: '100%',
                   height: 52,
                   borderRadius: 16,
                   fontSize: 16,
                   fontWeight: 800,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                  cursor: selectedRole ? 'pointer' : 'not-allowed',
                 }}
               >
                 <span>{t.continue}</span>
@@ -345,12 +453,410 @@ export default function RoleSelect({ lang, onNavigate, onSetLang }: ScreenProps)
               </button>
             </div>
 
-            <p className="mt-12 text-center text-xs text-[#404945] font-medium">
+            <p style={{ margin: 'auto 0 0', paddingTop: 18, textAlign: 'center', fontSize: 11.5, color: '#707975', fontWeight: 500 }}>
               {t.footer}
             </p>
-          </div>
-        </main>
-      </div>
+          </main>
+        </div>
+      ) : (
+        /* ─── Web Desktop Layout: RENDERED ONLY WHEN isWebMode IS TRUE ─── */
+        <div className="ms-roleselect-layout-web" style={{ padding: '16px 0' }}>
+          {/* Left Column: Dark Showcase Card with Image */}
+          <header
+            style={{
+              width: 360,
+              minWidth: 330,
+              flexShrink: 0,
+              minHeight: 560,
+              borderRadius: 28,
+              background: 'linear-gradient(150deg, #051F20 0%, #163832 55%, #053C31 100%)',
+              color: '#FFFFFF',
+              overflow: 'hidden',
+              padding: '28px 24px',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              boxSizing: 'border-box',
+              boxShadow: '0 12px 32px rgba(5, 31, 32, 0.16)',
+              position: 'relative',
+            }}
+          >
+            {/* Top Bar: Eyebrow Badge + Language Switcher */}
+            <div
+              style={{
+                position: 'relative',
+                zIndex: 3,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 12,
+              }}
+            >
+              <div
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '5px 12px',
+                  borderRadius: 9999,
+                  background: 'rgba(218, 241, 222, 0.16)',
+                  border: '1px solid rgba(192, 234, 204, 0.35)',
+                  color: '#C0EACC',
+                  fontSize: 11,
+                  fontWeight: 700,
+                  letterSpacing: '0.04em',
+                  textTransform: 'uppercase',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 1,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  maxWidth: 200,
+                }}
+              >
+                <ShieldCheck size={14} color="#C0EACC" style={{ flexShrink: 0 }} />
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {lang === 'hi' ? 'राष्ट्रीय स्वास्थ्य मिशन' : 'National Health Mission'}
+                </span>
+              </div>
+
+              <div
+                role="group"
+                aria-label={t.language}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  padding: 2,
+                  borderRadius: 9999,
+                  background: 'rgba(5, 31, 32, 0.85)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  flexShrink: 0,
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {(['en', 'hi'] as const).map((code) => {
+                  const on = lang === code;
+                  return (
+                    <button
+                      key={code}
+                      type="button"
+                      aria-pressed={on}
+                      onClick={() => onSetLang(code)}
+                      className={`ms-btn ms-btn--chip ${on ? 'ms-btn--on-dark' : 'ms-btn--secondary-on-dark'}`}
+                      style={{
+                        padding: '4px 12px',
+                        borderRadius: 9999,
+                        fontSize: 12,
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap',
+                        flexShrink: 0,
+                      }}
+                    >
+                      {code === 'en' ? 'EN' : 'हिन्दी'}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Center Area: Clinical Illustration in the Black Card */}
+            <div
+              style={{
+                position: 'relative',
+                zIndex: 3,
+                flex: 1,
+                display: 'grid',
+                placeItems: 'center',
+                padding: '24px 0',
+              }}
+            >
+              <ClinicalIllustration compact={false} />
+            </div>
+
+            {/* Bottom: Brand Title, Subtitle, Capability Pill */}
+            <div style={{ position: 'relative', zIndex: 3 }}>
+              <h1
+                style={{
+                  margin: 0,
+                  fontSize: 30,
+                  lineHeight: 1.15,
+                  fontWeight: 800,
+                  letterSpacing: '-0.03em',
+                  color: '#FFFFFF',
+                }}
+              >
+                {t.brandLine1} <span style={{ color: '#C0EACC' }}>{t.brandLine2}</span>
+              </h1>
+              <p
+                style={{
+                  margin: '8px 0 0',
+                  fontSize: 13.5,
+                  lineHeight: 1.5,
+                  fontWeight: 500,
+                  color: '#DAF1DE',
+                }}
+              >
+                {t.heroSubtitle}
+              </p>
+
+              {/* Capability Tag */}
+              <div
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '5px 12px',
+                  borderRadius: 9999,
+                  background: 'rgba(218, 241, 222, 0.12)',
+                  border: '1px solid rgba(192, 234, 204, 0.25)',
+                  color: '#C0EACC',
+                  fontSize: 11,
+                  fontWeight: 700,
+                  marginTop: 14,
+                }}
+              >
+                <Activity size={13} color="#C0EACC" />
+                <span>100% Offline-Capable • Tele-Triage & Referrals</span>
+              </div>
+            </div>
+          </header>
+
+          {/* Right Column: Role Selection Cards & Action Flow */}
+          <main
+            style={{
+              flex: 1,
+              minWidth: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+            }}
+          >
+            {/* Section Header */}
+            <div style={{ textAlign: 'center', marginBottom: 22 }}>
+              <h2
+                style={{
+                  margin: 0,
+                  fontSize: 25,
+                  fontWeight: 800,
+                  color: '#00201C',
+                  letterSpacing: '-0.02em',
+                }}
+              >
+                {t.title}
+              </h2>
+              <p
+                style={{
+                  margin: '6px 0 0',
+                  fontSize: 14,
+                  fontWeight: 500,
+                  color: '#404945',
+                }}
+              >
+                {t.heroDesc}
+              </p>
+            </div>
+
+            {/* Three Role Cards in a Row */}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+                gap: 16,
+              }}
+            >
+              {CARDS.map((card) => {
+                const isSelected = selectedRole === card.key;
+                return (
+                  <button
+                    key={card.key}
+                    type="button"
+                    aria-pressed={isSelected}
+                    onClick={() => setSelectedRole(card.key)}
+                    className={`ms-btn ms-btn--role-card ${isSelected ? 'is-selected' : ''}`}
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      padding: '20px 18px',
+                      borderRadius: 20,
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      position: 'relative',
+                      transition: 'all 150ms ease',
+                      boxSizing: 'border-box',
+                    }}
+                  >
+                    {/* Top Row: Icon + Badge */}
+                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
+                      <div
+                        style={{
+                          width: 44,
+                          height: 44,
+                          borderRadius: 12,
+                          display: 'grid',
+                          placeItems: 'center',
+                          background: card.tile,
+                          color: '#FFFFFF',
+                          boxShadow: '0 4px 12px rgba(5, 31, 32, 0.12)',
+                          flexShrink: 0,
+                        }}
+                      >
+                        {card.icon}
+                      </div>
+                      <span
+                        style={{
+                          fontSize: 10,
+                          fontWeight: 700,
+                          padding: '3px 8px',
+                          borderRadius: 9999,
+                          background: card.badgeBg,
+                          color: card.badgeColor,
+                          border: '1px solid rgba(142, 182, 155, 0.35)',
+                          letterSpacing: '0.01em',
+                          whiteSpace: 'nowrap',
+                          lineHeight: 1.3,
+                        }}
+                      >
+                        {lang === 'hi' ? card.badgeHi : card.badgeEn}
+                      </span>
+                    </div>
+
+                    {/* Title & Persona */}
+                    <div style={{ marginTop: 14 }}>
+                      <h3
+                        style={{
+                          margin: 0,
+                          fontSize: 18,
+                          fontWeight: 800,
+                          color: '#00201C',
+                          letterSpacing: '-0.01em',
+                        }}
+                      >
+                        {t.roles[card.key].name}
+                      </h3>
+                      <div
+                        style={{
+                          margin: '2px 0 0',
+                          fontSize: 11.5,
+                          fontWeight: 700,
+                          color: '#235347',
+                          lineHeight: 1.3,
+                        }}
+                      >
+                        {lang === 'hi' ? card.personaHi : card.personaEn}
+                      </div>
+                    </div>
+
+                    {/* Description */}
+                    <p
+                      style={{
+                        margin: '8px 0 16px',
+                        fontSize: 12.5,
+                        lineHeight: 1.4,
+                        color: '#404945',
+                        flex: 1,
+                      }}
+                    >
+                      {t.roles[card.key].desc}
+                    </p>
+
+                    {/* Bottom Action Pill */}
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 5,
+                        padding: '8px 12px',
+                        borderRadius: 12,
+                        fontSize: 12,
+                        fontWeight: 700,
+                        background: isSelected ? '#235347' : '#E7F0EA',
+                        color: isSelected ? '#FFFFFF' : '#0B2B26',
+                        border: isSelected ? '1px solid #235347' : '1px solid #CCD9D2',
+                        transition: 'background 120ms ease, color 120ms ease',
+                      }}
+                    >
+                      {isSelected ? (
+                        <>
+                          <Check size={14} strokeWidth={2.8} />
+                          <span>{t.selected}</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>{t.select}</span>
+                          <ArrowRight size={13} />
+                        </>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Honest Demo Disclaimer Box */}
+            <div
+              style={{
+                marginTop: 22,
+                padding: '12px 18px',
+                borderRadius: 14,
+                background: '#E7F0EA',
+                border: '1px solid #CCD9D2',
+                textAlign: 'center',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 3,
+                maxWidth: 580,
+                width: '100%',
+                marginInline: 'auto',
+                boxSizing: 'border-box',
+              }}
+            >
+              <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: '#00201C' }}>
+                {t.disclaimerLine1}
+              </p>
+              <p style={{ margin: 0, fontSize: 12, fontWeight: 500, color: '#404945' }}>
+                {t.disclaimerLine2}
+              </p>
+            </div>
+
+            {/* Continue Button */}
+            <div style={{ marginTop: 20, display: 'flex', justifyContent: 'center' }}>
+              <button
+                type="button"
+                disabled={!selectedRole}
+                aria-disabled={!selectedRole}
+                onClick={() => {
+                  if (!selectedRole) return;
+                  const card = CARDS.find((c) => c.key === selectedRole);
+                  if (card) onNavigate(card.route);
+                }}
+                className="ms-btn ms-btn--primary ms-btn--lg"
+                style={{
+                  width: '100%',
+                  maxWidth: 320,
+                  height: 52,
+                  borderRadius: 16,
+                  fontSize: 16,
+                  fontWeight: 800,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                  cursor: selectedRole ? 'pointer' : 'not-allowed',
+                }}
+              >
+                <span>{t.continue}</span>
+                <ArrowRight size={18} />
+              </button>
+            </div>
+
+            {/* Footer */}
+            <p style={{ margin: '18px 0 0', textAlign: 'center', fontSize: 12, color: '#707975', fontWeight: 500 }}>
+              {t.footer}
+            </p>
+          </main>
+        </div>
+      )}
     </div>
   );
 }

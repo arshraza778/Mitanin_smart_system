@@ -19,7 +19,7 @@ export interface ViewModeContextValue {
   toggleMode: () => void;
 }
 
-const ViewModeContext = createContext<ViewModeContextValue | undefined>(undefined);
+export const ViewModeContext = createContext<ViewModeContextValue | undefined>(undefined);
 
 export function ViewModeProvider({
   children,

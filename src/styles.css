@@ -66,7 +66,7 @@
   --ms-sidebar-width: 260px;
   --ms-content-max: 1200px;
   --ms-bottom-nav-height: 64px;
-  --ms-screen-padding-bottom: calc(var(--ms-bottom-nav-height) + env(safe-area-inset-bottom, 0px) + 24px);
+  --ms-screen-padding-bottom: calc(var(--ms-bottom-nav-height) + max(env(safe-area-inset-bottom, 0px), 16px) + 28px);
 
   /* Legacy aliases for safe transitional styling */
   --ms-forest: var(--ms-primary);
@@ -1070,8 +1070,8 @@ img, svg { max-width: 100%; }
   .ms-phone-device {
     width: 100%;
     max-width: 430px;
-    height: 100dvh;
     height: 100vh;
+    height: 100dvh;
     margin-inline: auto;
     position: relative;
     background: var(--ms-bg);
@@ -1171,7 +1171,7 @@ img, svg { max-width: 100%; }
 /* Doctor Review action container */
 .ms-doctor-review-actions {
   position: sticky;
-  bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+  bottom: calc(100px + max(env(safe-area-inset-bottom, 0px), 16px));
   margin-top: 18px;
   padding: 14px 20px 6px;
   background: linear-gradient(to top, var(--ms-bg) 70%, rgba(246, 248, 245, 0));
@@ -1195,3 +1195,177 @@ img, svg { max-width: 100%; }
   animation: ms-spin 1s linear infinite;
 }
 
+
+
+/* Role Select Screen styles */
+.ms-roleselect-hero {
+  position: relative;
+  background: linear-gradient(135deg, #051F20 0%, #163832 60%, #053C31 100%);
+  color: var(--ms-text-white);
+  border-radius: var(--ms-radius-lg);
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(5, 31, 32, 0.1);
+}
+
+.ms-roleselect-hero-phone {
+  position: relative;
+  background: linear-gradient(135deg, #051F20 0%, #163832 60%, #053C31 100%);
+  color: var(--ms-text-white);
+  overflow: hidden;
+  min-height: 240px;
+}
+
+.ms-roleselect-hero-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0.38;
+}
+
+.ms-roleselect-hero-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, #051F20 40%, rgba(5, 31, 32, 0.75) 75%, rgba(5, 31, 32, 0.25) 100%);
+  pointer-events: none;
+}
+
+.ms-roleselect-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: var(--ms-radius-pill);
+  background: rgba(218, 241, 222, 0.15);
+  border: 1px solid rgba(192, 234, 204, 0.35);
+  color: #C0EACC;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.ms-roleselect-card {
+  display: flex;
+  flex-direction: column;
+  background: #FFFFFF;
+  border: 1.5px solid var(--ms-border);
+  border-radius: 20px;
+  padding: 22px;
+  text-align: left;
+  cursor: pointer;
+  position: relative;
+  transition: transform 140ms var(--ms-ease-out), box-shadow 140ms var(--ms-ease-out), border-color 140ms var(--ms-ease-out);
+  box-shadow: 0 2px 8px rgba(5, 31, 32, 0.04);
+}
+
+@media (hover: hover) {
+  .ms-roleselect-card:hover:not(:disabled) {
+    border-color: var(--ms-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(5, 31, 32, 0.08);
+  }
+}
+
+.ms-roleselect-card.is-selected {
+  border-color: var(--ms-primary);
+  border-width: 2px;
+  box-shadow: 0 6px 20px rgba(35, 83, 71, 0.12);
+}
+
+.ms-roleselect-card:focus-visible {
+  outline: 3px solid var(--ms-primary);
+  outline-offset: 2px;
+}
+
+
+.ms-btn--role-card {
+  display: flex;
+  flex-direction: column;
+  background-color: #FFFFFF;
+  border: 1.5px solid var(--ms-border);
+  border-radius: 20px;
+  padding: 22px;
+  text-align: left;
+  cursor: pointer;
+  position: relative;
+  transition: transform 140ms var(--ms-ease-out), box-shadow 140ms var(--ms-ease-out), border-color 140ms var(--ms-ease-out);
+  box-shadow: 0 2px 8px rgba(5, 31, 32, 0.04);
+  width: 100%;
+}
+
+@media (hover: hover) {
+  .ms-btn--role-card:hover:not(:disabled):not([aria-disabled="true"]) {
+    border-color: var(--ms-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(5, 31, 32, 0.08);
+  }
+}
+
+.ms-btn--role-card.is-selected {
+  border-color: var(--ms-primary);
+  border-width: 2px;
+  box-shadow: 0 6px 20px rgba(35, 83, 71, 0.12);
+}
+
+.ms-btn--role-card:focus-visible {
+  outline: 3px solid var(--ms-primary);
+  outline-offset: 2px;
+}
+
+
+.ms-roleselect-layout-web {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 32px;
+  width: 100%;
+  max-width: 1040px;
+  margin: 0 auto;
+}
+
+.ms-roleselect-layout-phone {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100dvh;
+}
+
+
+.ms-btn--role-card-horizontal {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background-color: #FFFFFF;
+  border: 1.5px solid var(--ms-border);
+  border-radius: 18px;
+  padding: 14px;
+  text-align: left;
+  cursor: pointer;
+  position: relative;
+  transition: transform 140ms var(--ms-ease-out), box-shadow 140ms var(--ms-ease-out), border-color 140ms var(--ms-ease-out);
+  box-shadow: 0 1px 4px rgba(5, 31, 32, 0.04);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (hover: hover) {
+  .ms-btn--role-card-horizontal:hover:not(:disabled):not([aria-disabled="true"]) {
+    border-color: var(--ms-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(5, 31, 32, 0.08);
+  }
+}
+
+.ms-btn--role-card-horizontal.is-selected {
+  border-color: var(--ms-primary);
+  border-width: 2px;
+  box-shadow: 0 4px 16px rgba(35, 83, 71, 0.12);
+}
+
+.ms-btn--role-card-horizontal:focus-visible {
+  outline: 3px solid var(--ms-primary);
+  outline-offset: 2px;
+}

@@ -519,7 +519,7 @@ export default function ReferralTracker({ lang, online = true }: ScreenProps) {
               maxWidth: 440,
               maxHeight: '92dvh',
               overflowY: 'auto',
-              padding: '16px 20px calc(24px + env(safe-area-inset-bottom, 0px))',
+              padding: '16px 20px calc(24px + max(env(safe-area-inset-bottom, 0px), 16px))',
               borderRadius: '24px 24px 0 0',
               background: '#FFFFFF',
               boxShadow: '0 -8px 30px rgba(0, 0, 0, 0.2)',

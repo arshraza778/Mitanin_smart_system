@@ -559,7 +559,7 @@ export default function ConsultStatus({ lang, online = true, onNavigate }: Scree
             style={{
               position: 'sticky',
               bottom: 0,
-              padding: '12px 16px calc(14px + env(safe-area-inset-bottom, 0px))',
+              padding: '12px 16px calc(14px + max(env(safe-area-inset-bottom, 0px), 16px))',
               background: '#FFFFFF',
               borderTop: '1px solid #E3ECE7',
               boxShadow: '0 -2px 10px rgba(0,0,0,0.05)',
